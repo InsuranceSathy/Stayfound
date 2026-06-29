@@ -1,0 +1,103 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { signIn } from "@/lib/auth-client";
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"
+      />
+      <path
+        fill="#34A853"
+        d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.34A9 9 0 0 0 9 18z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.94H.96a9 9 0 0 0 0 8.12l3.01-2.34z"
+      />
+      <path
+        fill="#EA4335"
+        d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 .96 4.94l3.01 2.34C4.68 5.16 6.66 3.58 9 3.58z"
+      />
+    </svg>
+  );
+}
+
+function Mark() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 28 28" aria-hidden="true">
+      <rect x="1" y="1" width="26" height="26" rx="8" fill="#17150F" />
+      <line x1="6" y1="18" x2="22" y2="18" stroke="#6F685C" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="14" cy="11.5" r="4.4" fill="#FB4D17" />
+      <path
+        d="M14 6.4 L14 9.2 M11.6 8 L14 6 L16.4 8"
+        stroke="#FB4D17"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+export default function SignInPage() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function continueWithGoogle() {
+    setError(null);
+    setLoading(true);
+    try {
+      await signIn.social({ provider: "google", callbackURL: "/dashboard" });
+    } catch {
+      setError("Couldn't start sign-in. Please try again.");
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="auth-shell">
+      <div className="auth-card">
+        <Link href="/" className="auth-brand">
+          <Mark />
+          Surfaced
+        </Link>
+        <h1 className="auth-title">Win customers in AI search</h1>
+        <p className="auth-sub">
+          Sign in to track your brand across every AI engine and take action.
+        </p>
+
+        <button
+          className="google-btn"
+          onClick={continueWithGoogle}
+          disabled={loading}
+        >
+          <GoogleIcon />
+          {loading ? "Redirecting to Google…" : "Continue with Google"}
+        </button>
+
+        {error && <p className="auth-error">{error}</p>}
+
+        <p className="auth-fine">
+          By continuing you agree to the{" "}
+          <Link href="/terms" className="legal-link">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="legal-link">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      </div>
+      <Link href="/" className="auth-back">
+        ← Back to home
+      </Link>
+    </div>
+  );
+}

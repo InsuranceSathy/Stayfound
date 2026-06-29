@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Surfaced
 
-## Getting Started
+**Win customers in AI search.** The visibility suite that shows how ChatGPT,
+Gemini, Perplexity, Claude, and Grok talk about your brand — then takes action
+to win the leads.
 
-First, run the development server:
+The product loop:
+
+1. **Monitor** — track which prompts surface your brand across every AI engine.
+2. **Optimize** — find the highest-leverage moves (the pages, claims, citations to change).
+3. **Autopublish** — ship the fixes automatically and measure the lift.
+
+## Stack
+
+- Next.js 16 (App Router) · React 19 · TypeScript
+- Tailwind CSS v4 · Geist Sans + Geist Mono
+- Vercel AI SDK v6 via the Vercel AI Gateway
+- Deployed on Vercel
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `.env.example` to `.env.local`. The free AI visibility check
+(`/api/visibility`) runs **live** when `AI_GATEWAY_API_KEY` is set (or via
+OIDC on Vercel), and otherwise returns a clearly-labeled **sample** estimate so
+the demo always works.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+AI_GATEWAY_API_KEY=...        # Vercel AI Gateway
+# SURFACED_MODEL=anthropic/claude-haiku-4-5   # optional override
+```
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/page.tsx` — landing page
+- `app/api/visibility/route.ts` — AI visibility-check endpoint (live + fallback)
+- `components/visibility-chart.tsx` — animated canvas chart
+- `components/visibility-check.tsx` — live brand-check widget
+- `app/globals.css` — design system (ember accent, monospace data voice)
