@@ -12,6 +12,8 @@ import {
   getSnapshotHistory,
 } from "@/lib/queries";
 
+export const maxDuration = 120;
+
 const TABS = ["Visibility", "Citations", "Prompts", "Competitors", "Actions", "Analytics"];
 
 function relativeTime(iso: string): string {

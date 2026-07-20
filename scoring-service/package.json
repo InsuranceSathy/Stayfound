@@ -1,0 +1,10 @@
+{
+  "name": "surfaced-scoring-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-hosted visibility scoring service for Surfaced (Ollama + optional cloud engines).",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}

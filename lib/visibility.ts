@@ -1,5 +1,5 @@
-import { generateObject } from "ai";
 import { z } from "zod";
+import { measureVisibility } from "@/lib/measure";
 
 export const ENGINES = ["ChatGPT", "Gemini", "Perplexity", "Claude"];
 
@@ -108,32 +108,10 @@ export async function analyzeVisibility(
   if (!hasKey) return { live: false, result: sampleResult(brand, category) };
 
   try {
-    const { object } = await generateObject({
-      model: process.env.SURFACED_MODEL || "anthropic/claude-haiku-4-5",
-      schema: ResultSchema,
-      prompt: `You are an AI-search visibility analyst for Surfaced. Estimate how leading AI assistants (${ENGINES.join(
-        ", ",
-      )}) currently treat the brand "${brand}" in the category "${category}" when a user asks for the best options.
-
-Base your estimate on what is plausibly known about this brand's market presence and content footprint. Return:
-- An overall visibility score 0-100.
-- Per-engine presence for exactly these engines: ${ENGINES.join(", ")}.
-- A ranked share-of-voice list that includes "${brand}" (with you:true) plus 4-5 real, named competitors in this category.
-- Three specific, concrete actions to improve visibility — no generic advice.`,
-    });
-
-    const competitors = object.competitors.map((c) => ({
-      ...c,
-      you: c.you || c.name.toLowerCase() === brand.toLowerCase(),
-    }));
-    if (!competitors.some((c) => c.you)) {
-      competitors.push({ name: brand, share: object.score, you: true });
-    }
-    competitors.sort((a, b) => b.share - a.share);
-
-    return { live: true, result: { ...object, competitors } };
+    // Real measurement: query multiple engines and detect actual mentions.
+    return await measureVisibility(brand, category);
   } catch (err) {
-    console.error("AI Gateway call failed, using sample:", err);
+    console.error("Measurement failed, using sample:", err);
     return { live: false, result: sampleResult(brand, category) };
   }
 }

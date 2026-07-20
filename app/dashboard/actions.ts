@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { analyzeVisibility } from "@/lib/visibility";
+import { resolveVisibility } from "@/lib/resolve-visibility";
 import {
   createBrand,
   deleteBrand,
@@ -36,7 +36,7 @@ export async function addBrand(
   if (existing) return { error: "You already have a brand set up." };
 
   const brand = await createBrand(userId, name, category);
-  const { live, result } = await analyzeVisibility(name, category);
+  const { live, result } = await resolveVisibility(name, category);
   await saveSnapshot(brand.id, result.score, live, result);
 
   revalidatePath("/dashboard");
@@ -49,7 +49,7 @@ export async function refreshSnapshot(): Promise<void> {
   const brand = await getBrandForUser(userId);
   if (!brand) return;
 
-  const { live, result } = await analyzeVisibility(brand.name, brand.category);
+  const { live, result } = await resolveVisibility(brand.name, brand.category);
   await saveSnapshot(brand.id, result.score, live, result);
   revalidatePath("/dashboard");
 }

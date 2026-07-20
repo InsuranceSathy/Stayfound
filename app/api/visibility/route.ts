@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { analyzeVisibility } from "@/lib/visibility";
+import { resolveVisibility } from "@/lib/resolve-visibility";
 
-export const maxDuration = 30;
+export const maxDuration = 120;
 
 export async function POST(req: Request) {
   let brand = "";
@@ -21,6 +21,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const { live, result } = await analyzeVisibility(brand, category);
-  return NextResponse.json({ live, result });
+  const { live, result, source } = await resolveVisibility(brand, category);
+  return NextResponse.json({ live, result, source });
 }
