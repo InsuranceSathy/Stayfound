@@ -36,7 +36,11 @@ export async function resolveVisibility(
   if (base) {
     try {
       // Fast liveness check so an offline Mac fails over in ~2.5s, not 90s.
-      const health = await withTimeout(`${base}/health`, {}, 2500);
+      const health = await withTimeout(
+        `${base}/health`,
+        { headers: { "ngrok-skip-browser-warning": "true" } },
+        2500,
+      );
       if (health.ok) {
         const res = await withTimeout(
           `${base}/score`,
@@ -44,6 +48,7 @@ export async function resolveVisibility(
             method: "POST",
             headers: {
               "content-type": "application/json",
+              "ngrok-skip-browser-warning": "true",
               ...(secret ? { authorization: `Bearer ${secret}` } : {}),
             },
             body: JSON.stringify({ brand, category }),

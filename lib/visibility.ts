@@ -103,7 +103,10 @@ export async function analyzeVisibility(
   category: string,
 ): Promise<AnalyzeOutput> {
   const hasKey =
-    !!process.env.AI_GATEWAY_API_KEY || !!process.env.VERCEL_OIDC_TOKEN;
+    !!process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+    !!process.env.GEMINI_API_KEY ||
+    !!process.env.AI_GATEWAY_API_KEY ||
+    !!process.env.VERCEL_OIDC_TOKEN;
 
   if (!hasKey) return { live: false, result: sampleResult(brand, category) };
 
