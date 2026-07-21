@@ -101,12 +101,18 @@ export function VisibilityCheck() {
       {error && <p className="check-error">{error}</p>}
 
       {loading && (
-        <div className="skeleton" aria-hidden="true">
-          <div className="sk-line" style={{ width: "30%", height: 40 }} />
-          <div className="sk-line" style={{ width: "80%" }} />
-          <div className="sk-line" style={{ width: "65%" }} />
-          <div className="sk-line" style={{ width: "72%" }} />
-        </div>
+        <>
+          <p className="check-note" style={{ marginTop: 18 }}>
+            Querying the AI engines across several buyer prompts. A new brand can
+            take up to a minute — results are cached instantly after.
+          </p>
+          <div className="skeleton" aria-hidden="true">
+            <div className="sk-line" style={{ width: "30%", height: 40 }} />
+            <div className="sk-line" style={{ width: "80%" }} />
+            <div className="sk-line" style={{ width: "65%" }} />
+            <div className="sk-line" style={{ width: "72%" }} />
+          </div>
+        </>
       )}
 
       {result && (
