@@ -12,7 +12,7 @@ import {
   getSnapshotHistory,
 } from "@/lib/queries";
 
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const TABS = ["Visibility", "Citations", "Prompts", "Competitors", "Actions", "Analytics"];
 

@@ -64,18 +64,21 @@ function engines(): EngineDef[] {
   return GATEWAY_ENGINES;
 }
 
-const PROMPT_TEMPLATES: ((c: string) => string)[] = [
-  (c) => `What are the best ${c}?`,
-  (c) => `Can you recommend a good ${c}?`,
-  (c) => `What is the most popular ${c} right now?`,
-  (c) => `Best ${c} for a small business?`,
-  (c) => `Best ${c} for startups?`,
-  (c) => `What are the top alternatives for ${c}?`,
-  (c) => `Which ${c} do experts recommend?`,
-  (c) => `What ${c} should I use?`,
+// Buyer prompts weighted by intent — high-intent "which should I buy" queries
+// count more toward the visibility score than generic awareness ones.
+type PromptDef = { q: (c: string) => string; w: number };
+const PROMPTS: PromptDef[] = [
+  { q: (c) => `What are the best ${c}?`, w: 1.0 },
+  { q: (c) => `What is the best ${c} for a startup, and why?`, w: 1.3 },
+  { q: (c) => `Best ${c} for a small business?`, w: 1.2 },
+  { q: (c) => `Which ${c} should I buy in 2026?`, w: 1.3 },
+  { q: (c) => `What are the top alternatives for ${c}?`, w: 1.1 },
+  { q: (c) => `Can you recommend a good ${c}?`, w: 1.0 },
+  { q: (c) => `What is the most popular ${c} right now?`, w: 0.9 },
+  { q: (c) => `Which ${c} do experts recommend?`, w: 0.9 },
 ];
 
-const PROMPT_COUNT = Number(process.env.SCORING_PROMPTS || 8);
+const PROMPT_COUNT = Number(process.env.SCORING_PROMPTS || PROMPTS.length);
 
 /** Direct Google Gemini call (free tier), no SDK provider package needed. */
 async function callGemini(model: string, prompt: string): Promise<string> {
@@ -189,7 +192,7 @@ async function discoverCompetitors(
   brand: string,
   category: string,
 ): Promise<string[]> {
-  const promptText = `List up to 8 well-known brand or product names in the category "${category}" that a buyer would realistically compare. Reply with ONLY a comma-separated list of names. Include "${brand}" if it belongs in this category.`;
+  const promptText = `List up to 12 well-known brand or product names in the category "${category}" that a buyer would realistically compare. Reply with ONLY a comma-separated list of names. Include "${brand}" if it belongs in this category.`;
 
   const names = new Map<string, string>();
   const add = (n: string) => {
@@ -216,12 +219,13 @@ async function discoverCompetitors(
   } catch {
     /* keep at least the brand */
   }
-  return [...names.values()].slice(0, 9);
+  return [...names.values()].slice(0, 13);
 }
 
 type Cell = {
   engine: string;
   prompt: string;
+  weight: number;
   text: string | null;
   ranks: Record<string, number>;
 };
@@ -231,10 +235,14 @@ export async function measureVisibility(
   category: string,
 ): Promise<{ live: boolean; result: VisibilityResult }> {
   const eng = engines();
-  // Free GLM tier is rate-limited, so keep the prompt set lean + run serially.
-  const promptCount = MODE === "glm" ? 3 : PROMPT_COUNT;
-  const concurrency = MODE === "glm" ? 1 : 8;
-  const prompts = PROMPT_TEMPLATES.slice(0, promptCount).map((t) => t(category));
+  // GLM free tier is rate-limited — cap prompts and use light concurrency +
+  // backoff. Cloud/gateway engines can fan out fully.
+  const promptCount = MODE === "glm" ? 6 : PROMPT_COUNT;
+  const concurrency = MODE === "glm" ? 2 : 8;
+  const prompts = PROMPTS.slice(0, promptCount).map((p) => ({
+    text: p.q(category),
+    w: p.w,
+  }));
 
   const brands = await discoverCompetitors(brand, category);
   const brandKey = brand.toLowerCase();
@@ -243,31 +251,38 @@ export async function measureVisibility(
   const tasks = eng.flatMap((e) => prompts.map((p) => ({ e, p })));
   const cells: Cell[] = await mapLimit(tasks, concurrency, async ({ e, p }) => {
     try {
-      const text = await runEngine(e, p);
+      const text = await runEngine(e, p.text);
       const found = brands
         .map((b) => ({ b, idx: matchIndex(text, b) }))
         .filter((x) => x.idx >= 0)
         .sort((a, b) => a.idx - b.idx);
       const ranks: Record<string, number> = {};
       found.forEach((f, i) => (ranks[f.b.toLowerCase()] = i + 1));
-      return { engine: e.name, prompt: p, text, ranks };
+      return { engine: e.name, prompt: p.text, weight: p.w, text, ranks };
     } catch {
-      return { engine: e.name, prompt: p, text: null, ranks: {} };
+      return { engine: e.name, prompt: p.text, weight: p.w, text: null, ranks: {} };
     }
   });
 
   const valid = cells.filter((c) => c.text !== null);
   if (valid.length === 0) throw new Error("All engine queries failed");
 
-  const w = (rank?: number) => (rank ? 1 / rank : 0);
-  const brandWeighted = valid.reduce((s, c) => s + w(c.ranks[brandKey]), 0);
-  const visibility = (brandWeighted / valid.length) * 100;
+  // Position weight (rank 1 = 1.0, rank 2 = 0.5 …) x prompt intent weight.
+  const pos = (rank?: number) => (rank ? 1 / rank : 0);
+  const totalWeight = valid.reduce((s, c) => s + c.weight, 0) || 1;
+  const brandWeighted = valid.reduce(
+    (s, c) => s + c.weight * pos(c.ranks[brandKey]),
+    0,
+  );
+  const visibility = (brandWeighted / totalWeight) * 100;
   const appeared = valid.filter((c) => c.ranks[brandKey]).length;
 
   const engineNames = [...new Set(valid.map((c) => c.engine))];
   const engineStats = engineNames.map((name) => {
     const ec = valid.filter((c) => c.engine === name);
-    const score = (ec.reduce((s, c) => s + w(c.ranks[brandKey]), 0) / ec.length) * 100;
+    const wSum = ec.reduce((s, c) => s + c.weight, 0) || 1;
+    const score =
+      (ec.reduce((s, c) => s + c.weight * pos(c.ranks[brandKey]), 0) / wSum) * 100;
     return { name, mentioned: score > 0, score: Math.round(score) };
   });
 
@@ -275,7 +290,10 @@ export async function measureVisibility(
   for (const b of brands) scoreByBrand.set(b, 0);
   for (const c of valid)
     for (const b of brands)
-      scoreByBrand.set(b, (scoreByBrand.get(b) || 0) + w(c.ranks[b.toLowerCase()]));
+      scoreByBrand.set(
+        b,
+        (scoreByBrand.get(b) || 0) + c.weight * pos(c.ranks[b.toLowerCase()]),
+      );
   const totalScore = [...scoreByBrand.values()].reduce((a, b) => a + b, 0) || 1;
   const competitors = brands
     .map((b) => ({
@@ -288,9 +306,9 @@ export async function measureVisibility(
   const rank = competitors.findIndex((c) => c.you) + 1;
 
   const promptStats = prompts.map((p) => {
-    const pc = valid.filter((c) => c.prompt === p);
+    const pc = valid.filter((c) => c.prompt === p.text);
     const hits = pc.filter((c) => c.ranks[brandKey]).length;
-    return { prompt: p, hits, total: pc.length };
+    return { prompt: p.text, hits, total: pc.length };
   });
   const absent = promptStats.filter((p) => p.total > 0 && p.hits === 0);
   const topRival = competitors.find((c) => !c.you);

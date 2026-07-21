@@ -1,0 +1,65 @@
+<title>Surfaced — Logo</title>
+<style>
+  :root{
+    --ground:#F3F1EC; --ink:#17150F; --muted:#6F685C; --accent:#FB4D17; --border:#E6E1D7; --surface:#fff;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);padding:56px 28px;}
+  .wrap{max-width:920px;margin:0 auto;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px;}
+  h1{font-size:40px;letter-spacing:-.03em;margin:0 0 8px;font-weight:800;}
+  .sub{color:var(--muted);margin:0 0 40px;font-size:17px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+  @media(max-width:680px){.grid{grid-template-columns:1fr;}}
+  .card{border:1px solid var(--border);border-radius:18px;padding:44px;display:flex;align-items:center;justify-content:center;min-height:220px;}
+  .card.light{background:var(--surface);}
+  .card.dark{background:var(--ink);}
+  .lockup{display:flex;align-items:center;gap:16px;}
+  .lockup .name{font-size:44px;font-weight:720;letter-spacing:-.03em;}
+  .dark .name{color:#fff;}
+  .row{display:flex;align-items:center;gap:30px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:34px 44px;flex-wrap:wrap;}
+  .size{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .size span{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .label{font-family:var(--mono);font-size:12px;color:var(--muted);margin:26px 0 10px;letter-spacing:.04em;}
+  .swatches{display:flex;gap:12px;flex-wrap:wrap;}
+  .sw{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:9px;padding:8px 12px;background:var(--surface);}
+  .chip{width:18px;height:18px;border-radius:5px;}
+</style>
+<div class="wrap">
+  <p class="eyebrow">Brand · Logo</p>
+  <h1>Surfaced</h1>
+  <p class="sub">A rising signal cresting the surface — you, breaking into the answer. Ember on ink.</p>
+
+  <div class="grid">
+    <div class="card light">
+      <div class="lockup">
+        <svg width="72" height="72" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g1" x1="50" y1="16" x2="50" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8A4C"/><stop offset="1" stop-color="#FB4D17"/></linearGradient></defs><rect x="3" y="3" width="94" height="94" rx="26" fill="#17150F"/><path d="M24 67 H76" stroke="#544D42" stroke-width="4" stroke-linecap="round"/><path d="M34 76 H66" stroke="#332F29" stroke-width="4" stroke-linecap="round"/><path d="M30 60 L50 33 L70 60" stroke="url(#g1)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="21" r="6.5" fill="#FF8A4C"/></svg>
+        <span class="name">Surfaced</span>
+      </div>
+    </div>
+    <div class="card dark">
+      <div class="lockup">
+        <svg width="72" height="72" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g2" x1="50" y1="16" x2="50" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8A4C"/><stop offset="1" stop-color="#FB4D17"/></linearGradient></defs><rect x="3" y="3" width="94" height="94" rx="26" fill="#0F0D0A"/><path d="M24 67 H76" stroke="#544D42" stroke-width="4" stroke-linecap="round"/><path d="M34 76 H66" stroke="#332F29" stroke-width="4" stroke-linecap="round"/><path d="M30 60 L50 33 L70 60" stroke="url(#g2)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="21" r="6.5" fill="#FF8A4C"/></svg>
+        <span class="name">Surfaced</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="label">FAVICON / APP ICON — scales down clean</p>
+  <div class="row">
+    <div class="size"><svg width="48" height="48" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g3" x1="50" y1="16" x2="50" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8A4C"/><stop offset="1" stop-color="#FB4D17"/></linearGradient></defs><rect x="3" y="3" width="94" height="94" rx="26" fill="#17150F"/><path d="M24 67 H76" stroke="#544D42" stroke-width="4" stroke-linecap="round"/><path d="M34 76 H66" stroke="#332F29" stroke-width="4" stroke-linecap="round"/><path d="M30 60 L50 33 L70 60" stroke="url(#g3)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="21" r="6.5" fill="#FF8A4C"/></svg><span>48</span></div>
+    <div class="size"><svg width="32" height="32" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g4" x1="50" y1="16" x2="50" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8A4C"/><stop offset="1" stop-color="#FB4D17"/></linearGradient></defs><rect x="3" y="3" width="94" height="94" rx="26" fill="#17150F"/><path d="M24 67 H76" stroke="#544D42" stroke-width="4" stroke-linecap="round"/><path d="M34 76 H66" stroke="#332F29" stroke-width="4" stroke-linecap="round"/><path d="M30 60 L50 33 L70 60" stroke="url(#g4)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="21" r="6.5" fill="#FF8A4C"/></svg><span>32</span></div>
+    <div class="size"><svg width="24" height="24" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g5" x1="50" y1="16" x2="50" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8A4C"/><stop offset="1" stop-color="#FB4D17"/></linearGradient></defs><rect x="3" y="3" width="94" height="94" rx="26" fill="#17150F"/><path d="M24 67 H76" stroke="#544D42" stroke-width="4" stroke-linecap="round"/><path d="M34 76 H66" stroke="#332F29" stroke-width="4" stroke-linecap="round"/><path d="M30 60 L50 33 L70 60" stroke="url(#g5)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="21" r="6.5" fill="#FF8A4C"/></svg><span>24</span></div>
+    <div class="size"><svg width="16" height="16" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g6" x1="50" y1="16" x2="50" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8A4C"/><stop offset="1" stop-color="#FB4D17"/></linearGradient></defs><rect x="3" y="3" width="94" height="94" rx="26" fill="#17150F"/><path d="M24 67 H76" stroke="#544D42" stroke-width="4" stroke-linecap="round"/><path d="M34 76 H66" stroke="#332F29" stroke-width="4" stroke-linecap="round"/><path d="M30 60 L50 33 L70 60" stroke="url(#g6)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="21" r="6.5" fill="#FF8A4C"/></svg><span>16</span></div>
+  </div>
+
+  <p class="label">PALETTE</p>
+  <div class="swatches">
+    <span class="sw"><span class="chip" style="background:#FB4D17"></span>Ember #FB4D17</span>
+    <span class="sw"><span class="chip" style="background:#FF8A4C"></span>Ember light #FF8A4C</span>
+    <span class="sw"><span class="chip" style="background:#17150F"></span>Ink #17150F</span>
+    <span class="sw"><span class="chip" style="background:#F3F1EC;border:1px solid #E6E1D7"></span>Bone #F3F1EC</span>
+  </div>
+</div>

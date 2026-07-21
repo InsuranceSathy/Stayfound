@@ -47,7 +47,49 @@ export async function ensureSchema() {
   await pool.query(
     `CREATE INDEX IF NOT EXISTS idx_snapshot_brand ON visibility_snapshot(brand_id, created_at DESC)`,
   );
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS score_cache (
+      cache_key   text PRIMARY KEY,
+      live        boolean NOT NULL,
+      source      text NOT NULL,
+      data        jsonb NOT NULL,
+      created_at  timestamptz NOT NULL DEFAULT now()
+    )
+  `);
   schemaReady = true;
+}
+
+const CACHE_TTL_HOURS = Number(process.env.SCORE_CACHE_TTL_HOURS || 24);
+
+export async function getCachedScore(
+  key: string,
+): Promise<{ live: boolean; source: string; data: VisibilityResult } | null> {
+  await ensureSchema();
+  const { rows } = await pool.query(
+    `SELECT live, source, data FROM score_cache
+     WHERE cache_key = $1 AND created_at > now() - ($2 || ' hours')::interval`,
+    [key, String(CACHE_TTL_HOURS)],
+  );
+  return rows[0]
+    ? { live: rows[0].live, source: rows[0].source, data: rows[0].data }
+    : null;
+}
+
+export async function putCachedScore(
+  key: string,
+  live: boolean,
+  source: string,
+  data: VisibilityResult,
+): Promise<void> {
+  await ensureSchema();
+  await pool.query(
+    `INSERT INTO score_cache (cache_key, live, source, data)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (cache_key) DO UPDATE
+       SET live = EXCLUDED.live, source = EXCLUDED.source,
+           data = EXCLUDED.data, created_at = now()`,
+    [key, live, source, JSON.stringify(data)],
+  );
 }
 
 export async function getBrandForUser(userId: string): Promise<Brand | null> {
