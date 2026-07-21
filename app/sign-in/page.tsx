@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
+import { BrandMark } from "@/components/brand-mark";
 
 function GoogleIcon() {
   return (
@@ -27,24 +28,6 @@ function GoogleIcon() {
   );
 }
 
-function Mark() {
-  return (
-    <svg width="34" height="34" viewBox="0 0 28 28" aria-hidden="true">
-      <rect x="1" y="1" width="26" height="26" rx="8" fill="#17150F" />
-      <line x1="6" y1="18" x2="22" y2="18" stroke="#6F685C" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="14" cy="11.5" r="4.4" fill="#FB4D17" />
-      <path
-        d="M14 6.4 L14 9.2 M11.6 8 L14 6 L16.4 8"
-        stroke="#FB4D17"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
 export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +47,7 @@ export default function SignInPage() {
     <div className="auth-shell">
       <div className="auth-card">
         <Link href="/" className="auth-brand">
-          <Mark />
+          <BrandMark size={34} />
           Surfaced
         </Link>
         <h1 className="auth-title">Win customers in AI search</h1>

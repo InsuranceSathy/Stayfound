@@ -13,6 +13,13 @@ const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
 // Include the local Ollama model as an "engine" perspective (default on).
 const OLLAMA_ENGINE = process.env.OLLAMA_ENGINE !== "0";
 
+// GLM (Zhipu / z.ai) — OpenAI-compatible. Set GLM_API_KEY to enable.
+// To swap Ollama -> GLM entirely: set OLLAMA_ENGINE=0 and GLM_API_KEY=...
+const GLM_KEY = process.env.GLM_API_KEY || "";
+const GLM_BASE = process.env.GLM_BASE_URL || "https://api.z.ai/api/paas/v4";
+const GLM_MODEL = process.env.GLM_MODEL || "glm-4.6";
+const GLM_ENGINE = !!GLM_KEY && process.env.GLM_ENGINE !== "0";
+
 const PROMPT_TEMPLATES = [
   (c) => `What are the best ${c}?`,
   (c) => `Can you recommend a good ${c}?`,
@@ -87,10 +94,37 @@ async function callGemini(model, prompt) {
   );
 }
 
+async function callGLM(model, prompt) {
+  const res = await withTimeout(
+    fetch(`${GLM_BASE}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${GLM_KEY}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    }),
+    90000,
+    "glm",
+  );
+  if (!res.ok) throw new Error(`glm ${res.status}`);
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content ?? "";
+}
+
 function engines() {
   const list = [];
   if (GEMINI_KEY)
     list.push({ name: "Gemini", kind: "gemini", model: GEMINI_MODEL });
+  if (GLM_ENGINE)
+    list.push({
+      name: process.env.GLM_ENGINE_LABEL || "GLM",
+      kind: "glm",
+      model: GLM_MODEL,
+    });
   if (OLLAMA_ENGINE)
     list.push({
       name: process.env.OLLAMA_ENGINE_LABEL || "Local (Ollama)",
@@ -103,6 +137,7 @@ function engines() {
 async function queryEngine(engine, prompt) {
   const full = `${prompt}\n\nName specific products or brands.`;
   if (engine.kind === "gemini") return callGemini(engine.model, full);
+  if (engine.kind === "glm") return callGLM(engine.model, full);
   return callOllama(engine.model, full);
 }
 
@@ -115,6 +150,24 @@ function firstIndex(text, name) {
   } catch {
     return text.toLowerCase().indexOf(name.toLowerCase());
   }
+}
+
+function baseName(name) {
+  return name
+    .replace(/\.(io|com|ai|co|app|dev|org|net|xyz|tech|so|inc|cloud)$/i, "")
+    .trim();
+}
+
+function matchIndex(text, name) {
+  const cands = new Set([name]);
+  const b = baseName(name);
+  if (b && b !== name) cands.add(b);
+  let best = -1;
+  for (const c of cands) {
+    const i = firstIndex(text, c);
+    if (i >= 0 && (best < 0 || i < best)) best = i;
+  }
+  return best;
 }
 
 async function discoverCompetitors(brand, category, useOllama) {
@@ -209,7 +262,7 @@ export async function measureVisibility(brand, category) {
         try {
           const text = await queryEngine(e, p);
           const found = brands
-            .map((b) => ({ b, idx: firstIndex(text, b) }))
+            .map((b) => ({ b, idx: matchIndex(text, b) }))
             .filter((x) => x.idx >= 0)
             .sort((a, b) => a.idx - b.idx);
           const ranks = {};

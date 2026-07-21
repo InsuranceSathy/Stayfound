@@ -34,6 +34,10 @@ export function AddBrandForm() {
         />
       </div>
       <SubmitButton />
+      <p className="check-hint" style={{ flexBasis: "100%" }}>
+        Tip: be specific with your category (e.g. &ldquo;corporate compliance
+        software&rdquo;) so we track the right competitors.
+      </p>
       {state.error && (
         <p className="check-error" style={{ flexBasis: "100%" }}>
           {state.error}

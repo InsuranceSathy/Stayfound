@@ -724,6 +724,12 @@ canvas {
   color: var(--muted-2);
   margin-top: 14px;
 }
+.check-hint {
+  font-size: 13px;
+  color: var(--muted-2);
+  margin: 14px 0 0;
+  line-height: 1.5;
+}
 .badge-sample {
   display: inline-block;
   font-family: var(--mono);

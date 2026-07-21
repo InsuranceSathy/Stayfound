@@ -96,6 +96,26 @@ function firstIndex(text: string, name: string): number {
   }
 }
 
+/** Strip a trailing TLD so "corpsec.io" also matches "corpsec"/"CorpSec". */
+function baseName(name: string): string {
+  return name
+    .replace(/\.(io|com|ai|co|app|dev|org|net|xyz|tech|so|inc|cloud)$/i, "")
+    .trim();
+}
+
+/** Earliest index of a brand OR its name variants (domain-stripped). */
+function matchIndex(text: string, name: string): number {
+  const cands = new Set([name]);
+  const b = baseName(name);
+  if (b && b !== name) cands.add(b);
+  let best = -1;
+  for (const c of cands) {
+    const i = firstIndex(text, c);
+    if (i >= 0 && (best < 0 || i < best)) best = i;
+  }
+  return best;
+}
+
 async function discoverCompetitors(
   brand: string,
   category: string,
@@ -151,7 +171,7 @@ export async function measureVisibility(
         try {
           const text = await runEngine(e, p);
           const found = brands
-            .map((b) => ({ b, idx: firstIndex(text, b) }))
+            .map((b) => ({ b, idx: matchIndex(text, b) }))
             .filter((x) => x.idx >= 0)
             .sort((a, b) => a.idx - b.idx);
           const ranks: Record<string, number> = {};

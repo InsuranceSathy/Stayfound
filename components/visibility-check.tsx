@@ -92,6 +92,12 @@ export function VisibilityCheck() {
         </button>
       </form>
 
+      <p className="check-hint">
+        Tip: be specific. &ldquo;Corporate compliance software&rdquo; surfaces
+        your real competitors; &ldquo;services&rdquo; just returns the biggest
+        companies.
+      </p>
+
       {error && <p className="check-error">{error}</p>}
 
       {loading && (
