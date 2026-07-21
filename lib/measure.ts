@@ -20,9 +20,23 @@ import type { VisibilityResult } from "@/lib/visibility";
 const GEMINI_KEY =
   process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || "";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-const MODE: "gemini" | "gateway" = GEMINI_KEY ? "gemini" : "gateway";
 
-type EngineDef = { name: string; model: string; kind: "gemini" | "gateway" };
+// GLM (Zhipu / z.ai) — OpenAI-compatible. glm-4.5-flash is free.
+const GLM_KEY = process.env.GLM_API_KEY || "";
+const GLM_BASE = process.env.GLM_BASE_URL || "https://api.z.ai/api/paas/v4";
+const GLM_MODEL = process.env.GLM_MODEL || "glm-4.5-flash";
+
+const MODE: "glm" | "gemini" | "gateway" = GLM_KEY
+  ? "glm"
+  : GEMINI_KEY
+    ? "gemini"
+    : "gateway";
+
+type EngineDef = {
+  name: string;
+  model: string;
+  kind: "gemini" | "gateway" | "glm";
+};
 
 // Gateway "engines" (each a model routed through the Vercel AI Gateway).
 const GATEWAY_ENGINES: EngineDef[] = [
@@ -32,6 +46,9 @@ const GATEWAY_ENGINES: EngineDef[] = [
 ];
 
 function engines(): EngineDef[] {
+  if (MODE === "glm") {
+    return [{ name: "GLM", model: GLM_MODEL, kind: "glm" }];
+  }
   if (MODE === "gemini") {
     return [{ name: "Gemini", model: GEMINI_MODEL, kind: "gemini" }];
   }
@@ -77,8 +94,60 @@ async function callGemini(model: string, prompt: string): Promise<string> {
   );
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Direct GLM (z.ai) call — OpenAI-compatible, with rate-limit backoff. */
+async function callGLM(
+  model: string,
+  prompt: string,
+  attempt = 0,
+): Promise<string> {
+  const res = await fetch(`${GLM_BASE}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${GLM_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 300,
+      thinking: { type: "disabled" },
+    }),
+  });
+  const data = await res.json().catch(() => null);
+  const rateLimited = res.status === 429 || data?.error?.code === "1302";
+  if (rateLimited && attempt < 3) {
+    await sleep(3500 * (attempt + 1));
+    return callGLM(model, prompt, attempt + 1);
+  }
+  if (!res.ok || data?.error) throw new Error(`glm ${data?.error?.code || res.status}`);
+  return data?.choices?.[0]?.message?.content ?? "";
+}
+
+/** Run tasks with bounded concurrency (rate-limit friendly). */
+async function mapLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let i = 0;
+  async function worker() {
+    while (i < items.length) {
+      const idx = i++;
+      results[idx] = await fn(items[idx]);
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, worker),
+  );
+  return results;
+}
+
 async function runEngine(engine: EngineDef, prompt: string): Promise<string> {
   const full = `${prompt}\n\nName specific products or brands.`;
+  if (engine.kind === "glm") return callGLM(engine.model, full);
   if (engine.kind === "gemini") return callGemini(engine.model, full);
   const { text } = await generateText({ model: engine.model, prompt: full });
   return text;
@@ -130,7 +199,10 @@ async function discoverCompetitors(
   add(brand);
 
   try {
-    if (MODE === "gemini") {
+    if (MODE === "glm") {
+      const text = await callGLM(GLM_MODEL, promptText);
+      text.split(/[,\n]/).forEach(add);
+    } else if (MODE === "gemini") {
       const text = await callGemini(GEMINI_MODEL, promptText);
       text.split(/[,\n]/).forEach(add);
     } else {
@@ -159,30 +231,30 @@ export async function measureVisibility(
   category: string,
 ): Promise<{ live: boolean; result: VisibilityResult }> {
   const eng = engines();
-  const prompts = PROMPT_TEMPLATES.slice(0, PROMPT_COUNT).map((t) => t(category));
+  // Free GLM tier is rate-limited, so keep the prompt set lean + run serially.
+  const promptCount = MODE === "glm" ? 3 : PROMPT_COUNT;
+  const concurrency = MODE === "glm" ? 1 : 8;
+  const prompts = PROMPT_TEMPLATES.slice(0, promptCount).map((t) => t(category));
 
   const brands = await discoverCompetitors(brand, category);
   const brandKey = brand.toLowerCase();
   if (!brands.some((b) => b.toLowerCase() === brandKey)) brands.unshift(brand);
 
-  const cells: Cell[] = await Promise.all(
-    eng.flatMap((e) =>
-      prompts.map(async (p): Promise<Cell> => {
-        try {
-          const text = await runEngine(e, p);
-          const found = brands
-            .map((b) => ({ b, idx: matchIndex(text, b) }))
-            .filter((x) => x.idx >= 0)
-            .sort((a, b) => a.idx - b.idx);
-          const ranks: Record<string, number> = {};
-          found.forEach((f, i) => (ranks[f.b.toLowerCase()] = i + 1));
-          return { engine: e.name, prompt: p, text, ranks };
-        } catch {
-          return { engine: e.name, prompt: p, text: null, ranks: {} };
-        }
-      }),
-    ),
-  );
+  const tasks = eng.flatMap((e) => prompts.map((p) => ({ e, p })));
+  const cells: Cell[] = await mapLimit(tasks, concurrency, async ({ e, p }) => {
+    try {
+      const text = await runEngine(e, p);
+      const found = brands
+        .map((b) => ({ b, idx: matchIndex(text, b) }))
+        .filter((x) => x.idx >= 0)
+        .sort((a, b) => a.idx - b.idx);
+      const ranks: Record<string, number> = {};
+      found.forEach((f, i) => (ranks[f.b.toLowerCase()] = i + 1));
+      return { engine: e.name, prompt: p, text, ranks };
+    } catch {
+      return { engine: e.name, prompt: p, text: null, ranks: {} };
+    }
+  });
 
   const valid = cells.filter((c) => c.text !== null);
   if (valid.length === 0) throw new Error("All engine queries failed");

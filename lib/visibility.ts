@@ -103,6 +103,7 @@ export async function analyzeVisibility(
   category: string,
 ): Promise<AnalyzeOutput> {
   const hasKey =
+    !!process.env.GLM_API_KEY ||
     !!process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
     !!process.env.GEMINI_API_KEY ||
     !!process.env.AI_GATEWAY_API_KEY ||
