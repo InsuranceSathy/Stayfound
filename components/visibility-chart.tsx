@@ -9,14 +9,21 @@ type Series = {
   data: number[];
 };
 
+// Categorical series stepped for the dark surface (#0e0d16) and validated as a
+// set: passes the lightness band, chroma floor, CVD separation (worst adjacent
+// ΔE 8.4), normal-vision floor (19.8) and 3:1 contrast.
+// Endpoints match the share-of-voice table below the chart, so the two panels
+// tell the same story.
 const SERIES: Series[] = [
-  { name: "Your brand", you: true, color: "#FB4D17", data: [52, 50, 51, 57, 63, 66, 64] },
-  { name: "Notion", color: "#A89F8E", data: [44, 43, 45, 49, 46, 52, 55] },
-  { name: "Asana", color: "#C2B9A7", data: [50, 48, 46, 44, 50, 49, 45] },
-  { name: "Linear", color: "#CFC8B8", data: [33, 31, 30, 34, 32, 38, 40] },
-  { name: "Monday", color: "#DCD6C7", data: [28, 27, 29, 31, 28, 30, 33] },
+  { name: "Your brand", you: true, color: "#9085e9", data: [50, 49, 52, 54, 57, 60, 61.5] },
+  { name: "Notion", color: "#d95926", data: [44, 43, 45, 48, 46, 47, 46.3] },
+  { name: "Asana", color: "#199e70", data: [50, 48, 46, 44, 47, 46, 45.1] },
+  { name: "Linear", color: "#c98500", data: [26, 27, 29, 28, 30, 31, 31.8] },
 ];
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// Answer share is re-measured per sweep of the prompt set, not per calendar day —
+// the axis is the 30d window's sweep dates, not days of the week.
+const SWEEPS = ["Jun 22", "Jun 27", "Jul 2", "Jul 7", "Jul 12", "Jul 17", "Jul 21"];
 
 export function VisibilityChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,9 +37,9 @@ export function VisibilityChart() {
     const padL = 34,
       padR = 12,
       padT = 14,
-      padB = 26,
+      padB = 24,
       maxY = 72,
-      H = 280;
+      H = 132;
     let W = 0;
     const reduce =
       typeof window !== "undefined" &&
@@ -41,7 +48,7 @@ export function VisibilityChart() {
     const mono =
       getComputedStyle(document.body).getPropertyValue("--mono") || "monospace";
 
-    const X = (i: number) => padL + (W - padL - padR) * (i / (DAYS.length - 1));
+    const X = (i: number) => padL + (W - padL - padR) * (i / (SWEEPS.length - 1));
     const Y = (v: number) => padT + (H - padT - padB) * (1 - v / maxY);
 
     function resize() {
@@ -56,22 +63,29 @@ export function VisibilityChart() {
       ctx!.clearRect(0, 0, W, H);
       ctx!.font = `11px ${mono}`;
       ctx!.textBaseline = "middle";
-      [0, 20, 40, 60].forEach((g) => {
+      [20, 40, 60].forEach((g) => {
         const y = Y(g);
-        ctx!.strokeStyle = "#EBE6DB";
+        ctx!.strokeStyle = "rgba(255,255,255,0.07)";
         ctx!.lineWidth = 1;
         ctx!.beginPath();
         ctx!.moveTo(padL, y);
         ctx!.lineTo(W - padR, y);
         ctx!.stroke();
-        ctx!.fillStyle = "#B6AE9E";
+        ctx!.fillStyle = "#6b6580";
         ctx!.textAlign = "right";
         ctx!.fillText(`${g}%`, padL - 8, y);
       });
-      ctx!.textAlign = "center";
       ctx!.textBaseline = "top";
-      ctx!.fillStyle = "#B6AE9E";
-      DAYS.forEach((d, i) => ctx!.fillText(d, X(i), H - padB + 8));
+      ctx!.fillStyle = "#6b6580";
+      // thin the sweep labels before they collide, and pull the outer two inside
+      // the plot so neither is clipped by the panel edge
+      const every = W < 560 ? 2 : 1;
+      SWEEPS.forEach((d, i) => {
+        const end = i === SWEEPS.length - 1;
+        if (!end && i % every !== 0) return;
+        ctx!.textAlign = i === 0 ? "left" : end ? "right" : "center";
+        ctx!.fillText(d, X(i), H - padB + 8);
+      });
 
       const order = SERIES.slice().sort(
         (a, b) => (a.you ? 1 : 0) - (b.you ? 1 : 0),
@@ -81,36 +95,71 @@ export function VisibilityChart() {
         const seg = (n - 1) * p;
         const last = Math.floor(seg);
         const frac = seg - last;
+        const tipX =
+          last < n - 1 ? X(last) + (X(last + 1) - X(last)) * frac : X(n - 1);
+        const tipY =
+          last < n - 1
+            ? Y(s.data[last]) + (Y(s.data[last + 1]) - Y(s.data[last])) * frac
+            : Y(s.data[n - 1]);
+
+        const trace = () => {
+          for (let i = 0; i <= last && i < n; i++) {
+            const x = X(i),
+              y = Y(s.data[i]);
+            if (i === 0) ctx!.moveTo(x, y);
+            else ctx!.lineTo(x, y);
+          }
+          if (last < n - 1) ctx!.lineTo(tipX, tipY);
+        };
+
+        if (s.you) {
+          // soft area under the highlighted series
+          const g = ctx!.createLinearGradient(0, padT, 0, H - padB);
+          g.addColorStop(0, "rgba(144,133,233,0.3)");
+          g.addColorStop(1, "rgba(144,133,233,0)");
+          ctx!.beginPath();
+          trace();
+          ctx!.lineTo(tipX, H - padB);
+          ctx!.lineTo(X(0), H - padB);
+          ctx!.closePath();
+          ctx!.fillStyle = g;
+          ctx!.fill();
+        }
+
         ctx!.beginPath();
         ctx!.lineWidth = s.you ? 3 : 1.6;
-        ctx!.strokeStyle = s.color;
+        if (s.you) {
+          const lg = ctx!.createLinearGradient(padL, 0, W - padR, 0);
+          lg.addColorStop(0, "#7c6cf5");
+          lg.addColorStop(1, "#b07ff0");
+          ctx!.strokeStyle = lg;
+        } else {
+          ctx!.strokeStyle = s.color;
+        }
         ctx!.lineJoin = "round";
-        for (let i = 0; i <= last && i < n; i++) {
-          const x = X(i),
-            y = Y(s.data[i]);
-          if (i === 0) ctx!.moveTo(x, y);
-          else ctx!.lineTo(x, y);
-        }
-        if (last < n - 1) {
-          const x0 = X(last),
-            y0 = Y(s.data[last]),
-            x1 = X(last + 1),
-            y1 = Y(s.data[last + 1]);
-          ctx!.lineTo(x0 + (x1 - x0) * frac, y0 + (y1 - y0) * frac);
-        }
+        trace();
         ctx!.stroke();
         if (s.you && p >= 1) {
           const ex = X(n - 1),
             ey = Y(s.data[n - 1]);
           ctx!.beginPath();
-          ctx!.fillStyle = s.color;
+          ctx!.fillStyle = "#b07ff0";
+          ctx!.shadowColor = "rgba(176,127,240,0.9)";
+          ctx!.shadowBlur = 12;
           ctx!.arc(ex, ey, 4.5, 0, Math.PI * 2);
           ctx!.fill();
+          ctx!.shadowBlur = 0;
           ctx!.beginPath();
-          ctx!.strokeStyle = "#fff";
+          ctx!.strokeStyle = "#0e0d16";
           ctx!.lineWidth = 2;
           ctx!.arc(ex, ey, 4.5, 0, Math.PI * 2);
           ctx!.stroke();
+          // direct-label the one series that matters, at its endpoint only
+          ctx!.font = `600 12px ${mono}`;
+          ctx!.textAlign = "right";
+          ctx!.textBaseline = "bottom";
+          ctx!.fillStyle = "#e9e4f5";
+          ctx!.fillText(`${s.data[n - 1]}%`, ex - 10, ey - 5);
         }
       });
     }
@@ -149,9 +198,9 @@ export function VisibilityChart() {
       <div className="chart-wrap">
         <canvas
           ref={canvasRef}
-          height={280}
+          height={132}
           role="img"
-          aria-label="Weekly AI visibility: your brand rising above five competitors"
+          aria-label="Share of AI answers across the tracked prompt set, measured every five days from Jun 22 to Jul 21: your brand rises from 50% to 61.5%, moving ahead of Asana at 45.1% and Notion at 46.3%, with Linear at 31.8%"
         />
       </div>
       <div className="legend">

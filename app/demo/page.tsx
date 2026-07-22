@@ -4,9 +4,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { DemoForm } from "@/components/demo-form";
 
 export const metadata: Metadata = {
-  title: "Book a demo — Surfaced",
+  title: "Book a demo — StayFound",
   description:
-    "See Surfaced on your own brand. We'll show you exactly where you stand in AI search and how to win.",
+    "See StayFound on your own brand. We'll show you exactly where you stand in AI search and how to win.",
 };
 
 const POINTS = [
@@ -32,7 +32,7 @@ export default function DemoPage() {
         <section className="page-hero">
           <div className="wrap">
             <p className="eyebrow">Book a demo</p>
-            <h1 className="page-title">See Surfaced on your brand.</h1>
+            <h1 className="page-title">See StayFound on your brand.</h1>
             <p className="page-lead">
               A 30-minute walkthrough on your real data. No slideware — just where
               you stand in AI search and how to win.

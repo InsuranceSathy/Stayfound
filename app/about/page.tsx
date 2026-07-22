@@ -4,9 +4,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "About — Surfaced",
+  title: "About — StayFound",
   description:
-    "Surfaced makes sure great companies aren't invisible to AI. We help brands win customers in AI search.",
+    "StayFound makes sure great companies aren't invisible to AI. We help brands win customers in AI search.",
 };
 
 const PRINCIPLES = [
@@ -61,13 +61,13 @@ export default function AboutPage() {
               and you won&apos;t even see it happen in your analytics.
             </p>
             <p>
-              We built <strong>Surfaced</strong> because that invisible funnel is
+              We built <strong>StayFound</strong> because that invisible funnel is
               already costing companies real revenue, and the tools to fight back
               didn&apos;t exist. Most of what shipped first just watches the
               problem. We wanted something that wins.
             </p>
             <p>
-              So Surfaced does the whole loop: it shows you exactly where you lose
+              So StayFound does the whole loop: it shows you exactly where you lose
               across every AI engine, finds the highest-leverage moves to fix it,
               and ships those fixes for you — then measures the lift in customers,
               not vanity scores.
@@ -92,7 +92,7 @@ export default function AboutPage() {
           <div className="status-card">
             <p className="eyebrow">Where we are</p>
             <p className="status-text">
-              Surfaced is in <strong>private beta</strong>, onboarding design
+              StayFound is in <strong>private beta</strong>, onboarding design
               partners in 2026. We&apos;re building in the open with the teams
               feeling this shift first. Want in?
             </p>

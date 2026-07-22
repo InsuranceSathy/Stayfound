@@ -1,8 +1,8 @@
-# Surfaced scoring service
+# StayFound scoring service
 
 Self-hosted visibility scoring — runs on your Mac, uses local **Ollama** for
 free inference, and is called by the Vercel app. When this service is off,
-Surfaced automatically falls back to its cloud pipeline, so the product never
+StayFound automatically falls back to its cloud pipeline, so the product never
 breaks.
 
 **Zero dependencies** — pure Node (v18+). No `npm install` needed.

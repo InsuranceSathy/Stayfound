@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "Pricing — Surfaced",
+  title: "Pricing — StayFound",
   description:
     "Simple pricing for AI-search visibility. Start free, upgrade when you're ready to win every answer.",
 };
@@ -75,7 +75,7 @@ const FAQS = [
   },
   {
     q: "Do I need to install anything?",
-    a: "No. Add your brand and category and Surfaced starts tracking. Connecting your CMS is optional and only needed for autopublish.",
+    a: "No. Add your brand and category and StayFound starts tracking. Connecting your CMS is optional and only needed for autopublish.",
   },
   {
     q: "Can I change plans later?",
