@@ -1,6 +1,7 @@
 import { VisibilityChart } from "@/components/visibility-chart";
 import { VisibilityCheck } from "@/components/visibility-check";
 import { AnswerScroller } from "@/components/answer-scroller";
+import { AeoScore } from "@/components/aeo-score";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -446,6 +447,8 @@ export default function Home() {
       <section id="check" className="section-pad" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <VisibilityCheck />
+          <div style={{ height: 20 }} />
+          <AeoScore />
         </div>
       </section>
 

@@ -79,6 +79,8 @@ const PROMPTS: PromptDef[] = [
 ];
 
 const PROMPT_COUNT = Number(process.env.SCORING_PROMPTS || PROMPTS.length);
+// Samples per prompt — averaging smooths LLM run-to-run variance.
+const SAMPLES = Number(process.env.SCORING_SAMPLES || (MODE === "glm" ? 2 : 3));
 
 /** Direct Google Gemini call (free tier), no SDK provider package needed. */
 async function callGemini(model: string, prompt: string): Promise<string> {
@@ -104,6 +106,7 @@ async function callGLM(
   model: string,
   prompt: string,
   attempt = 0,
+  maxTokens = 300,
 ): Promise<string> {
   const res = await fetch(`${GLM_BASE}/chat/completions`, {
     method: "POST",
@@ -114,7 +117,7 @@ async function callGLM(
     body: JSON.stringify({
       model,
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 300,
+      max_tokens: maxTokens,
       thinking: { type: "disabled" },
     }),
   });
@@ -122,7 +125,7 @@ async function callGLM(
   const rateLimited = res.status === 429 || data?.error?.code === "1302";
   if (rateLimited && attempt < 3) {
     await sleep(3500 * (attempt + 1));
-    return callGLM(model, prompt, attempt + 1);
+    return callGLM(model, prompt, attempt + 1, maxTokens);
   }
   if (!res.ok || data?.error) throw new Error(`glm ${data?.error?.code || res.status}`);
   return data?.choices?.[0]?.message?.content ?? "";
@@ -154,6 +157,65 @@ async function runEngine(engine: EngineDef, prompt: string): Promise<string> {
   if (engine.kind === "gemini") return callGemini(engine.model, full);
   const { text } = await generateText({ model: engine.model, prompt: full });
   return text;
+}
+
+/** Raw single call to the active engine (no prompt suffix). */
+export async function askModel(prompt: string, maxTokens = 300): Promise<string> {
+  if (MODE === "glm") return callGLM(GLM_MODEL, prompt, 0, maxTokens);
+  if (MODE === "gemini") return callGemini(GEMINI_MODEL, prompt);
+  const { text } = await generateText({ model: GATEWAY_ENGINES[0].model, prompt });
+  return text;
+}
+
+type Sentiment = "positive" | "neutral" | "negative" | "unknown";
+
+export type Insights = {
+  sentiment: {
+    label: Sentiment;
+    positivePct: number;
+    negativePct: number;
+    positiveThemes: { theme: string; quote: string }[];
+    negativeThemes: { theme: string; quote: string }[];
+  };
+  contentIdeas: { type: string; title: string; description: string }[];
+  citedSources: { domain: string; note: string; isYou?: boolean }[];
+};
+
+function parseJsonLoose(raw: string): unknown {
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start < 0 || end < 0) return null;
+  try {
+    return JSON.parse(raw.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
+/** One analysis pass over the collected answers → sentiment + content ideas. */
+async function analyzeInsights(
+  brand: string,
+  category: string,
+  answers: string[],
+): Promise<Insights | null> {
+  if (!answers.length) return null;
+  const corpus = answers.join("\n---\n").slice(0, 6000);
+  const prompt = `You analyze how AI assistants answer buyer questions about "${category}". Below are real AI answers. Brand in focus: "${brand}".
+
+Return ONLY valid JSON (no markdown fences), exactly this shape:
+{"sentiment":{"label":"positive|neutral|negative","positivePct":0,"negativePct":0,"positiveThemes":[{"theme":"short phrase","quote":"<=120 char quote from the answers"}],"negativeThemes":[{"theme":"short phrase","quote":"<=120 char quote"}]},"contentIdeas":[{"type":"Listicle|Problem Solution|Year Specific|Comparison|How-to","title":"compelling blog title","description":"one sentence on why it boosts AI visibility"}],"citedSources":[{"domain":"example.com","note":"why AI answers rely on it","isYou":false}]}
+
+Rules: 2-4 themes per side (empty array if none). positivePct+negativePct should sum to ~100. Give 4-5 contentIdeas tailored to helping "${brand}" get cited in "${category}" answers. For citedSources, list 5-7 websites/domains that AI answers about "${category}" typically rely on (review sites, docs, Reddit, industry publications, listicles); set isYou:true only if a domain clearly belongs to "${brand}". If "${brand}" is barely mentioned, say so via low positivePct and make ideas about earning citations.
+
+ANSWERS:
+${corpus}`;
+  try {
+    const parsed = parseJsonLoose(await askModel(prompt, 1500)) as Insights | null;
+    if (!parsed?.sentiment) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 /** Earliest word-boundary index of `name` in `text`, or -1. */
@@ -248,7 +310,12 @@ export async function measureVisibility(
   const brandKey = brand.toLowerCase();
   if (!brands.some((b) => b.toLowerCase() === brandKey)) brands.unshift(brand);
 
-  const tasks = eng.flatMap((e) => prompts.map((p) => ({ e, p })));
+  // Each prompt is sampled SAMPLES times per engine to smooth variance.
+  const tasks = eng.flatMap((e) =>
+    prompts.flatMap((p) =>
+      Array.from({ length: SAMPLES }, () => ({ e, p })),
+    ),
+  );
   const cells: Cell[] = await mapLimit(tasks, concurrency, async ({ e, p }) => {
     try {
       const text = await runEngine(e, p.text);
@@ -341,19 +408,37 @@ export async function measureVisibility(
       impact: "medium",
     });
 
-  const summary = `${brand} appeared in ${appeared} of ${valid.length} AI answers we sampled across ${engineNames.length} engine(s) (${Math.round(
-    visibility,
-  )}% visibility). You rank #${rank} of ${competitors.length} for share of voice.`;
+  // One analysis pass → rich sentiment (themes + quotes) and content ideas.
+  const answerTexts = valid
+    .map((c) => c.text as string)
+    .filter(Boolean)
+    .slice(0, 8);
+  const insights = await analyzeInsights(brand, category, answerTexts);
+  const sentiment = insights?.sentiment.label ?? "unknown";
+  const sentimentFactor =
+    sentiment === "negative" ? 0.7 : sentiment === "neutral" ? 0.95 : 1.0;
+  const score = Math.round(visibility * sentimentFactor);
+
+  const sentimentPhrase =
+    sentiment === "unknown"
+      ? ""
+      : ` When you appear, AI describes you as ${sentiment}.`;
+  const summary = `${brand} appeared in ${appeared} of ${valid.length} AI answers across ${SAMPLES} samples (${score}% visibility). You rank #${rank} of ${competitors.length} for share of voice.${sentimentPhrase}`;
 
   const result = {
-    score: Math.round(visibility),
+    score,
     summary,
     engines: engineStats,
     competitors,
     actions: actions.slice(0, 3),
+    sentiment: insights?.sentiment ?? null,
+    contentIdeas: insights?.contentIdeas ?? [],
+    citedSources: insights?.citedSources ?? [],
     meta: {
       method: "measured",
       mode: MODE,
+      sentiment,
+      samples: SAMPLES,
       enginesQueried: engineNames,
       promptCount: prompts.length,
       cellsSampled: valid.length,
