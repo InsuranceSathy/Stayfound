@@ -160,7 +160,7 @@ async function runEngine(engine: EngineDef, prompt: string): Promise<string> {
 }
 
 /** Raw single call to the active engine (no prompt suffix). */
-async function askModel(prompt: string, maxTokens = 300): Promise<string> {
+export async function askModel(prompt: string, maxTokens = 300): Promise<string> {
   if (MODE === "glm") return callGLM(GLM_MODEL, prompt, 0, maxTokens);
   if (MODE === "gemini") return callGemini(GEMINI_MODEL, prompt);
   const { text } = await generateText({ model: GATEWAY_ENGINES[0].model, prompt });
@@ -178,6 +178,7 @@ export type Insights = {
     negativeThemes: { theme: string; quote: string }[];
   };
   contentIdeas: { type: string; title: string; description: string }[];
+  citedSources: { domain: string; note: string; isYou?: boolean }[];
 };
 
 function parseJsonLoose(raw: string): unknown {
@@ -202,9 +203,9 @@ async function analyzeInsights(
   const prompt = `You analyze how AI assistants answer buyer questions about "${category}". Below are real AI answers. Brand in focus: "${brand}".
 
 Return ONLY valid JSON (no markdown fences), exactly this shape:
-{"sentiment":{"label":"positive|neutral|negative","positivePct":0,"negativePct":0,"positiveThemes":[{"theme":"short phrase","quote":"<=120 char quote from the answers"}],"negativeThemes":[{"theme":"short phrase","quote":"<=120 char quote"}]},"contentIdeas":[{"type":"Listicle|Problem Solution|Year Specific|Comparison|How-to","title":"compelling blog title","description":"one sentence on why it boosts AI visibility"}]}
+{"sentiment":{"label":"positive|neutral|negative","positivePct":0,"negativePct":0,"positiveThemes":[{"theme":"short phrase","quote":"<=120 char quote from the answers"}],"negativeThemes":[{"theme":"short phrase","quote":"<=120 char quote"}]},"contentIdeas":[{"type":"Listicle|Problem Solution|Year Specific|Comparison|How-to","title":"compelling blog title","description":"one sentence on why it boosts AI visibility"}],"citedSources":[{"domain":"example.com","note":"why AI answers rely on it","isYou":false}]}
 
-Rules: 2-4 themes per side (empty array if none). positivePct+negativePct should sum to ~100. Give 4-5 contentIdeas tailored to helping "${brand}" get cited in "${category}" answers. If "${brand}" is barely mentioned, say so via low positivePct and make ideas about earning citations.
+Rules: 2-4 themes per side (empty array if none). positivePct+negativePct should sum to ~100. Give 4-5 contentIdeas tailored to helping "${brand}" get cited in "${category}" answers. For citedSources, list 5-7 websites/domains that AI answers about "${category}" typically rely on (review sites, docs, Reddit, industry publications, listicles); set isYou:true only if a domain clearly belongs to "${brand}". If "${brand}" is barely mentioned, say so via low positivePct and make ideas about earning citations.
 
 ANSWERS:
 ${corpus}`;
@@ -432,6 +433,7 @@ export async function measureVisibility(
     actions: actions.slice(0, 3),
     sentiment: insights?.sentiment ?? null,
     contentIdeas: insights?.contentIdeas ?? [],
+    citedSources: insights?.citedSources ?? [],
     meta: {
       method: "measured",
       mode: MODE,

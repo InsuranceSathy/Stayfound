@@ -14,6 +14,7 @@ type Sentiment = {
   negativeThemes: Theme[];
 } | null;
 type ContentIdea = { type: string; title: string; description: string };
+type CitedSource = { domain: string; note: string; isYou?: boolean };
 type Result = {
   score: number;
   summary: string;
@@ -22,6 +23,7 @@ type Result = {
   actions: Action[];
   sentiment?: Sentiment;
   contentIdeas?: ContentIdea[];
+  citedSources?: CitedSource[];
 };
 
 export function VisibilityCheck() {
@@ -251,6 +253,30 @@ export function VisibilityCheck() {
               </div>
             </div>
           )}
+
+        {result.citedSources && result.citedSources.length > 0 && (
+          <div className="ideas-block">
+            <p className="res-h">
+              Likely cited sources <span className="est-tag">estimated</span>
+            </p>
+            <p className="check-hint" style={{ margin: "0 0 14px" }}>
+              Where AI answers in this category tend to pull from. Getting listed
+              in these is the fastest way to get cited.
+            </p>
+            <div className="cited-list">
+              {result.citedSources.map((s, i) => (
+                <div className={`cited-row ${s.isYou ? "you" : ""}`} key={i}>
+                  <span className="cited-rank">{i + 1}</span>
+                  <span className="cited-domain">
+                    {s.domain}
+                    {s.isYou && <span className="badge-you">You</span>}
+                  </span>
+                  <span className="cited-note">{s.note}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {result.contentIdeas && result.contentIdeas.length > 0 && (
           <div className="ideas-block">
