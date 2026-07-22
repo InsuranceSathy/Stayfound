@@ -56,7 +56,90 @@ export async function ensureSchema() {
       created_at  timestamptz NOT NULL DEFAULT now()
     )
   `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS scan_job (
+      id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      cache_key   text NOT NULL,
+      brand       text NOT NULL,
+      category    text NOT NULL,
+      status      text NOT NULL DEFAULT 'pending',
+      live        boolean,
+      source      text,
+      data        jsonb,
+      error       text,
+      created_at  timestamptz NOT NULL DEFAULT now(),
+      updated_at  timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_job_key_status ON scan_job(cache_key, status)`,
+  );
   schemaReady = true;
+}
+
+export type JobStatus = "pending" | "running" | "done" | "error";
+export type ScanJob = {
+  id: string;
+  cache_key: string;
+  brand: string;
+  category: string;
+  status: JobStatus;
+  live: boolean | null;
+  source: string | null;
+  data: VisibilityResult | null;
+  error: string | null;
+};
+
+/** Reuse an in-flight job for the same key, else create a fresh pending one. */
+export async function createOrGetJob(
+  key: string,
+  brand: string,
+  category: string,
+): Promise<{ job: ScanJob; created: boolean }> {
+  await ensureSchema();
+  const existing = await pool.query<ScanJob>(
+    `SELECT * FROM scan_job WHERE cache_key = $1 AND status IN ('pending','running')
+       AND updated_at > now() - interval '10 minutes' ORDER BY created_at DESC LIMIT 1`,
+    [key],
+  );
+  if (existing.rows[0]) return { job: existing.rows[0], created: false };
+  const { rows } = await pool.query<ScanJob>(
+    `INSERT INTO scan_job (cache_key, brand, category) VALUES ($1, $2, $3) RETURNING *`,
+    [key, brand, category],
+  );
+  return { job: rows[0], created: true };
+}
+
+export async function getJob(id: string): Promise<ScanJob | null> {
+  await ensureSchema();
+  const { rows } = await pool.query<ScanJob>(`SELECT * FROM scan_job WHERE id = $1`, [id]);
+  return rows[0] ?? null;
+}
+
+export async function setJobRunning(id: string): Promise<void> {
+  await pool.query(
+    `UPDATE scan_job SET status = 'running', updated_at = now() WHERE id = $1`,
+    [id],
+  );
+}
+
+export async function setJobDone(
+  id: string,
+  live: boolean,
+  source: string,
+  data: VisibilityResult,
+): Promise<void> {
+  await pool.query(
+    `UPDATE scan_job SET status = 'done', live = $2, source = $3, data = $4, updated_at = now() WHERE id = $1`,
+    [id, live, source, JSON.stringify(data)],
+  );
+}
+
+export async function setJobError(id: string, message: string): Promise<void> {
+  await pool.query(
+    `UPDATE scan_job SET status = 'error', error = $2, updated_at = now() WHERE id = $1`,
+    [id, message.slice(0, 500)],
+  );
 }
 
 const CACHE_TTL_HOURS = Number(process.env.SCORE_CACHE_TTL_HOURS || 24);

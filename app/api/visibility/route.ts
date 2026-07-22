@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { resolveVisibility } from "@/lib/resolve-visibility";
-import { getCachedScore, putCachedScore } from "@/lib/queries";
+import { after } from "next/server";
+import { getCachedScore, createOrGetJob } from "@/lib/queries";
+import { runScan } from "@/lib/scan";
 
 export const maxDuration = 300;
 
@@ -24,31 +25,26 @@ export async function POST(req: Request) {
 
   const key = `${brand.toLowerCase()}|${category.toLowerCase()}`;
 
-  // Serve a recent cached scan instantly (dodges the slow rescan + rate limits).
+  // Fresh cached scan → return instantly.
   try {
     const cached = await getCachedScore(key);
     if (cached) {
       return NextResponse.json({
+        status: "done",
+        cached: true,
         live: cached.live,
         result: cached.data,
         source: cached.source,
-        cached: true,
       });
     }
   } catch {
-    /* cache miss on error — fall through to a live scan */
+    /* fall through to enqueue */
   }
 
-  const { live, result, source } = await resolveVisibility(brand, category);
-
-  // Only cache real measurements, not the placeholder sample.
-  if (live) {
-    try {
-      await putCachedScore(key, live, source, result);
-    } catch {
-      /* non-fatal */
-    }
+  // Otherwise enqueue a background scan and return a job id to poll.
+  const { job, created } = await createOrGetJob(key, brand, category);
+  if (created) {
+    after(() => runScan(job.id, brand, category, key));
   }
-
-  return NextResponse.json({ live, result, source, cached: false });
+  return NextResponse.json({ status: "pending", jobId: job.id });
 }

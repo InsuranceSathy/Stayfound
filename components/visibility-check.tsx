@@ -32,6 +32,36 @@ export function VisibilityCheck() {
   const [result, setResult] = useState<Result | null>(null);
   const [live, setLive] = useState(true);
 
+  function finish(data: { result: Result; live: boolean }) {
+    setResult(data.result);
+    setLive(data.live);
+    setLoading(false);
+  }
+
+  async function pollJob(jobId: string, attempt = 0) {
+    // ~5 min ceiling (100 × 3s)
+    if (attempt > 100) {
+      setError("This scan is taking longer than expected. Please try again.");
+      setLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/visibility/status?job=${jobId}`, {
+        cache: "no-store",
+      });
+      const data = await res.json();
+      if (data.status === "done") return finish(data);
+      if (data.status === "error") {
+        setError("Scan failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      /* transient — keep polling */
+    }
+    setTimeout(() => pollJob(jobId, attempt + 1), 3000);
+  }
+
   async function run(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -46,13 +76,17 @@ export function VisibilityCheck() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Something went wrong. Try again.");
+        setLoading(false);
+      } else if (data.status === "done") {
+        finish(data);
+      } else if (data.status === "pending" && data.jobId) {
+        pollJob(data.jobId);
       } else {
-        setResult(data.result);
-        setLive(data.live);
+        setError("Unexpected response. Please try again.");
+        setLoading(false);
       }
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
-    } finally {
       setLoading(false);
     }
   }
