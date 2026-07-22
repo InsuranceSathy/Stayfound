@@ -5,12 +5,23 @@ import { useState } from "react";
 type Engine = { name: string; mentioned: boolean; score: number };
 type Competitor = { name: string; share: number; you?: boolean };
 type Action = { title: string; detail: string; impact: "high" | "medium" | "low" };
+type Theme = { theme: string; quote: string };
+type Sentiment = {
+  label: string;
+  positivePct: number;
+  negativePct: number;
+  positiveThemes: Theme[];
+  negativeThemes: Theme[];
+} | null;
+type ContentIdea = { type: string; title: string; description: string };
 type Result = {
   score: number;
   summary: string;
   engines: Engine[];
   competitors: Competitor[];
   actions: Action[];
+  sentiment?: Sentiment;
+  contentIdeas?: ContentIdea[];
 };
 
 export function VisibilityCheck() {
@@ -116,6 +127,7 @@ export function VisibilityCheck() {
       )}
 
       {result && (
+        <>
         <div className="result">
           <div className="score-block">
             <p className="res-h">Visibility score</p>
@@ -173,6 +185,54 @@ export function VisibilityCheck() {
             </p>
           </div>
         </div>
+
+        {result.sentiment &&
+          (result.sentiment.positiveThemes.length > 0 ||
+            result.sentiment.negativeThemes.length > 0) && (
+            <div className="sentiment-block">
+              <p className="res-h">How AI talks about you — {result.sentiment.label}</p>
+              <div className="sentiment-cols">
+                <div>
+                  <p className="senti-pct pos">
+                    {result.sentiment.positivePct}% positive
+                  </p>
+                  {result.sentiment.positiveThemes.map((t, i) => (
+                    <div className="theme pos" key={i}>
+                      <span className="theme-tag">✓ {t.theme}</span>
+                      {t.quote && <p className="theme-quote">“{t.quote}”</p>}
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <p className="senti-pct neg">
+                    {result.sentiment.negativePct}% negative
+                  </p>
+                  {result.sentiment.negativeThemes.map((t, i) => (
+                    <div className="theme neg" key={i}>
+                      <span className="theme-tag">✕ {t.theme}</span>
+                      {t.quote && <p className="theme-quote">“{t.quote}”</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+        {result.contentIdeas && result.contentIdeas.length > 0 && (
+          <div className="ideas-block">
+            <p className="res-h">Content suggestions to boost your visibility</p>
+            <div className="ideas-grid">
+              {result.contentIdeas.map((idea, i) => (
+                <div className="idea" key={i}>
+                  <span className="idea-type">{idea.type}</span>
+                  <h4>{idea.title}</h4>
+                  <p>{idea.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        </>
       )}
     </div>
   );
