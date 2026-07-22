@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,14 +12,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "Surfaced — Win customers in AI search",
+  title: "StayFound — Be the brand AI keeps recommending",
   description:
-    "See how ChatGPT, Gemini, Perplexity, Claude, and Grok talk about your brand — then take action to win the leads before your competitors do.",
+    "StayFound tracks how ChatGPT, Gemini, Perplexity, Claude and Grok answer your buyers' questions — then shows you the fix that earns the next mention.",
   openGraph: {
-    title: "Surfaced — Win customers in AI search",
+    title: "StayFound — Be the brand AI keeps recommending",
     description:
-      "The AI search visibility suite. Monitor, optimize, and autopublish your way to the top of every answer.",
+      "The AI answer visibility suite. Monitor, optimize, and autopublish your way into every answer.",
     type: "website",
   },
 };
@@ -32,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
     >
       <body>{children}</body>
     </html>

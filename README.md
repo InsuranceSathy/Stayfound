@@ -1,4 +1,4 @@
-# Surfaced
+# StayFound
 
 **Win customers in AI search.** The visibility suite that shows how ChatGPT,
 Gemini, Perplexity, Claude, and Grok talk about your brand — then takes action

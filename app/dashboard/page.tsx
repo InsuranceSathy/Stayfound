@@ -30,11 +30,11 @@ function relativeTime(iso: string): string {
 
 function AppHeader({ email, image }: { email: string; image?: string | null }) {
   return (
-    <nav>
+    <nav className="app-nav">
       <div className="wrap nav-inner">
         <Link href="/" className="brand">
           <BrandMark />
-          Surfaced
+          StayFound
         </Link>
         <div className="nav-right">
           <span className="user-chip">

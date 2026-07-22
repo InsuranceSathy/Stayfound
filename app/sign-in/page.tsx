@@ -48,7 +48,7 @@ export default function SignInPage() {
       <div className="auth-card">
         <Link href="/" className="auth-brand">
           <BrandMark size={34} />
-          Surfaced
+          StayFound
         </Link>
         <h1 className="auth-title">Win customers in AI search</h1>
         <p className="auth-sub">

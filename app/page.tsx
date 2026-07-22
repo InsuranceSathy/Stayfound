@@ -1,16 +1,74 @@
 import { VisibilityChart } from "@/components/visibility-chart";
 import { VisibilityCheck } from "@/components/visibility-check";
+import { AnswerScroller } from "@/components/answer-scroller";
 import { AeoScore } from "@/components/aeo-score";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
 const RANKS = [
-  { name: "Your brand", you: true, val: "61.5%", trend: "↑ 4.2", up: true },
-  { name: "Notion", val: "46.3%", trend: "↑ 0.6", up: true },
-  { name: "Asana", val: "45.1%", trend: "↓ 0.6", up: false },
-  { name: "Linear", val: "31.8%", trend: "↑ 3.8", up: true },
-  { name: "Monday", val: "22.6%", trend: "0.0", up: true },
+  { name: "Your brand", you: true, val: 61.5, trend: "+4.2", up: true },
+  { name: "Notion", val: 46.3, trend: "+0.6", up: true },
+  { name: "Asana", val: 45.1, trend: "-0.6", up: false },
+  { name: "Linear", val: 31.8, trend: "+3.8", up: true },
 ];
+
+// Answer share per engine — shown as stat chips in the chart header rather than
+// its own panel, so the fold still reaches the prompt and competitor tables.
+const ENGINE_ROWS = [
+  { name: "ChatGPT", val: 71 },
+  { name: "Perplexity", val: 64 },
+  { name: "Gemini", val: 48 },
+  { name: "Claude", val: 39 },
+  { name: "Grok", val: 22 },
+];
+
+const KPIS = [
+  {
+    l: "Answer share",
+    v: "61.5%",
+    d: "↑ 2.1",
+    good: true,
+    sub: "named in 29 / 42",
+  },
+  { l: "Avg. position", v: "2.3", d: "↑ 0.4", good: true, sub: "when named" },
+  { l: "Citation rate", v: "38%", d: "↑ 6", good: true, sub: "answers linking you" },
+  { l: "Answers lost", v: "13", d: "↓ 3", good: true, sub: "rival named, you weren't" },
+  { l: "AI referrals", v: "1,284", d: "↑ 31%", good: true, sub: "clicks out of answers" },
+];
+
+// Prompt-level truth: AI search is won or lost one question at a time, so the
+// unit of analysis is the prompt, not the day.
+const PROMPTS = [
+  {
+    q: "best project management software for startups",
+    pos: 1,
+    engines: 5,
+    val: 84,
+    first: "You win it",
+  },
+  {
+    q: "tools to track team workload across projects",
+    pos: 2,
+    engines: 4,
+    val: 61,
+    first: "Asana first",
+  },
+  {
+    q: "notion vs asana for a small product team",
+    pos: 3,
+    engines: 4,
+    val: 52,
+    first: "Notion first",
+  },
+  {
+    q: "cheapest alternative to monday.com",
+    pos: null,
+    engines: 1,
+    val: 9,
+    first: "Linear wins it",
+  },
+];
+const ENGINE_COUNT = 5;
 
 export default function Home() {
   return (
@@ -20,127 +78,269 @@ export default function Home() {
       <header className="hero">
         <div className="wrap">
           <div className="hero-top">
-            <div>
-              <p className="eyebrow">AI search visibility suite</p>
-              <h1>
-                Be the answer
-                <br />
-                AI <span className="em">gives.</span>
-              </h1>
-            </div>
-            <div className="lead-col">
-              <p className="lead">
-                See how ChatGPT, Gemini, Perplexity, Claude, and Grok talk about
-                your brand — then take action to win the leads before your
-                competitors do.
-              </p>
-              <div className="cta-row">
-                <a href="/sign-in" className="btn btn-primary">
-                  Get started <span className="arr">→</span>
-                </a>
-                <a href="#check" className="btn btn-ghost">
-                  See a live demo
-                </a>
-              </div>
-              <div className="proof">
-                <span className="dot-live" /> Now in private beta — onboarding
-                design partners
-              </div>
+            <a
+              href="https://www.producthunt.com/products/stayfound?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-stayfound"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ph-badge"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1203821&theme=light&t=1784742393771"
+                alt="StayFound - We help your site to be visible for every ai engine. | Product Hunt"
+                width={250}
+                height={54}
+              />
+            </a>
+            <h1>
+              Be the brand AI keeps <span className="em">recommending</span>
+            </h1>
+            <div className="cta-row">
+              <a href="#check" className="btn btn-primary btn-lg">
+                Try the live check <span className="arr">→</span>
+              </a>
+              <a href="#inside" className="btn btn-bare btn-lg">
+                See what&apos;s inside
+              </a>
             </div>
           </div>
+        </div>
 
+        <div className="annot" aria-hidden="true">
+          <span>your real answers</span>
+          <svg width="112" height="52" viewBox="0 0 112 52" fill="none">
+            <path
+              d="M2 8c34-6 68 2 88 24"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeDasharray="0 0"
+            />
+            <path
+              d="M78 34l14 2-2-14"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+
+        <div className="wrap">
           <div className="dash-shell">
-            <div className="dash">
-              <div className="dash-top">
-                <div className="dash-icon">
-                  <svg width="14" height="14" viewBox="0 0 28 28" aria-hidden="true">
-                    <circle cx="14" cy="11" r="4" fill="#FB4D17" />
-                    <line
-                      x1="6"
-                      y1="18"
-                      x2="22"
-                      y2="18"
-                      stroke="#fff"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                    />
-                  </svg>
+            <div className="browser">
+              <div className="browser-bar">
+                <div className="lights">
+                  <i />
+                  <i />
+                  <i />
                 </div>
-                <div className="dash-tabs">
-                  <span className="tab on">Visibility</span>
-                  <span className="tab">Citations</span>
-                  <span className="tab">Prompts</span>
-                  <span className="tab">You vs. Competitors</span>
-                  <span className="tab">Actions</span>
-                  <span className="tab">Analytics</span>
+                <div className="browser-url">
+                  stayfound.ai/<b>acme.com</b>
                 </div>
-                <span className="pill on">
-                  <span className="led" />
-                  ChatGPT
-                </span>
+                <svg
+                  className="browser-exp"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
               </div>
 
-              <div className="dash-body">
-                <div className="panel left">
+              <div className="dash">
+                <div className="dash-bar">
+                  <span className="dash-chip">
+                    <span className="dot" />
+                    acme.com
+                  </span>
+                  <span className="seg">
+                    <span className="arw">‹</span>
+                    <span>Last 7d</span>
+                    <span className="on">Last 30d</span>
+                    <span>Last 90d</span>
+                    <span className="arw">›</span>
+                  </span>
+                  <span className="icon-btn">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M21 12a9 9 0 1 1-3-6.7" />
+                      <path d="M21 3v6h-6" />
+                    </svg>
+                  </span>
+                  <span className="dash-date">Jun 22 – Jul 21</span>
+                </div>
+
+                <div className="dash-kpis">
+                  {KPIS.map((k) => (
+                    <div key={k.l}>
+                      <p className="kpi-l">{k.l}</p>
+                      <div className="kpi-v">
+                        {k.v}
+                        <span
+                          className="kv-d"
+                          style={{ color: k.good ? "var(--good)" : "var(--bad)" }}
+                        >
+                          {k.d}
+                        </span>
+                      </div>
+                      <p className="kpi-sub">{k.sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="panel-full">
                   <div className="panel-head">
                     <div>
-                      <p className="metric-label">Visibility score · last 7 days</p>
-                      <div className="metric">
-                        61.5%<span className="delta">↑ 2.1%</span>
-                      </div>
-                      <p className="sub-note">Mentioned in 29 / 42 tracked prompts</p>
+                      <p className="metric-label" style={{ margin: 0 }}>
+                        Answer share
+                        <span className="metric-note">
+                          {" "}
+                          · 42 prompts × 5 engines, re-asked every 5 days
+                        </span>
+                      </p>
                     </div>
                     <div className="engines">
-                      <span className="pill on">
-                        <span className="led" />
-                        ChatGPT
-                      </span>
-                      <span className="pill">
-                        <span className="led" />
-                        Gemini
-                      </span>
-                      <span className="pill">
-                        <span className="led" />
-                        Claude
-                      </span>
+                      {ENGINE_ROWS.map((e) => (
+                        <span className="pill" key={e.name}>
+                          {e.name}
+                          <b>{e.val}%</b>
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <VisibilityChart />
                 </div>
 
-                <div className="panel">
-                  <p className="rank-head">Share of voice · ranking</p>
-                  <p className="rank-cat">Category: project management software</p>
-                  {RANKS.map((r, i) => (
-                    <div className={`row ${r.you ? "you" : ""}`} key={r.name}>
-                      <span className="rank-n">{i + 1}</span>
-                      <span className="rank-name">
-                        {r.name}
-                        {r.you && <span className="badge-you">You</span>}
+                <div className="dash-body">
+                  <div className="panel left">
+                    <div className="panel-tabs">
+                      <span className="ptabs">
+                        <span className="on">Prompt</span>
+                        <span>Page</span>
+                        <span>Topic</span>
                       </span>
-                      <span
-                        className={`rank-trend ${
-                          r.trend === "0.0" ? "" : r.up ? "up" : "down"
-                        }`}
-                      >
-                        {r.trend === "0.0" ? "–" : `${r.trend}%`}
-                      </span>
-                      <span className="rank-val">{r.val}</span>
+                      <span className="sort-l">Answer share ↓</span>
                     </div>
-                  ))}
+                    <div className="prows">
+                      {PROMPTS.map((p) => (
+                        <div
+                          className={`prow ${p.pos === null ? "lost" : ""}`}
+                          key={p.q}
+                        >
+                          <span
+                            className="prow-fill"
+                            style={{ width: `${(p.val / 84) * 100}%` }}
+                          />
+                          <span className="prow-q">&ldquo;{p.q}&rdquo;</span>
+                          <span
+                            className="prow-eng"
+                            title={`Named in ${p.engines} of ${ENGINE_COUNT} engines`}
+                          >
+                            {p.engines}/{ENGINE_COUNT}
+                          </span>
+                          <span
+                            className="prow-pos"
+                            title={
+                              p.pos === null
+                                ? `Not named — ${p.first}`
+                                : `Ranked #${p.pos} — ${p.first}`
+                            }
+                          >
+                            {p.pos === null ? "—" : `#${p.pos}`}
+                          </span>
+                          <span className="prow-val">{p.val}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="panel">
+                    <div className="panel-tabs">
+                      <span className="ptabs">
+                        <span className="on">Competitor</span>
+                        <span>Category</span>
+                        <span>Source</span>
+                      </span>
+                      <span className="sort-l">Share of voice ↓</span>
+                    </div>
+                    <div className="hbars blue">
+                      {RANKS.map((r, i) => (
+                        <div
+                          className={`hbar ${r.you ? "you" : ""}`}
+                          key={r.name}
+                        >
+                          <span
+                            className="hbar-fill"
+                            style={{ width: `${(r.val / 61.5) * 100}%` }}
+                          />
+                          <span className="hbar-n">{i + 1}</span>
+                          <span className="hbar-name">
+                            {r.name}
+                            {r.you && <span className="badge-you">You</span>}
+                          </span>
+                          <span
+                            className="hbar-d"
+                            style={{
+                              color:
+                                r.trend === "0.0"
+                                  ? "var(--muted-2)"
+                                  : r.up
+                                    ? "var(--good)"
+                                    : "var(--bad)",
+                            }}
+                          >
+                            {r.trend === "0.0" ? "–" : `${r.trend}%`}
+                          </span>
+                          <span className="hbar-val">{r.val}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
         </div>
       </header>
 
+      <section id="engines" className="strip" style={{ marginTop: 90 }}>
+        <div className="wrap strip-inner">
+          <span className="strip-label">Tracking every answer engine</span>
+          {["ChatGPT", "Gemini", "Perplexity", "Claude", "Grok", "Copilot", "AI Overviews"].map(
+            (e) => (
+              <span className="engine-name" key={e}>
+                <span className="gd" />
+                {e}
+              </span>
+            ),
+          )}
+        </div>
+      </section>
+
+      <AnswerScroller />
+
       <section id="loop" className="section-pad">
-        <div className="wrap">
-          <p className="sec-eyebrow">The Surfaced loop</p>
+        <div className="wrap centered">
+          <p className="sec-eyebrow">The StayFound loop</p>
           <h2 className="sec-title">Don&apos;t just watch AI search. Win it.</h2>
           <p className="sec-sub">
-            Most tools stop at a dashboard. Surfaced closes the loop — from
+            Most tools stop at a dashboard. StayFound closes the loop — from
             seeing where you lose, to fixing it, to shipping the fix on its own.
           </p>
           <div className="loop">
@@ -152,7 +352,7 @@ export default function Home() {
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#FB4D17"
+                  stroke="var(--accent)"
                   strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -176,7 +376,7 @@ export default function Home() {
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#FB4D17"
+                  stroke="var(--accent)"
                   strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -187,7 +387,7 @@ export default function Home() {
               </div>
               <h3>Find the highest-leverage moves</h3>
               <p>
-                Surfaced reads the sources winning answers cite and tells you
+                StayFound reads the sources winning answers cite and tells you
                 exactly what to change — the page, the claim, the comparison.
               </p>
               <div className="tag">Citation gaps · content briefs · prioritized by lift</div>
@@ -200,7 +400,7 @@ export default function Home() {
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#FB4D17"
+                  stroke="var(--accent)"
                   strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -220,21 +420,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="engines" className="strip">
-        <div className="wrap strip-inner">
-          <span className="strip-label">Tracking every answer engine</span>
-          {["ChatGPT", "Gemini", "Perplexity", "Claude", "Grok", "Copilot", "AI Overviews"].map(
-            (e) => (
-              <span className="engine-name" key={e}>
-                <span className="gd" />
-                {e}
-              </span>
-            ),
-          )}
-        </div>
-      </section>
-
-      <section id="why" className="section-pad">
+      <section id="why" className="section-pad" style={{ paddingTop: 0 }}>
         <div className="wrap why">
           <div>
             <div className="stat-big">60%</div>
@@ -251,7 +437,7 @@ export default function Home() {
             </p>
             <p className="muted">
               If you&apos;re not on that list, you never enter the conversation —
-              and you&apos;ll never see it in your analytics. Surfaced makes that
+              and you&apos;ll never see it in your analytics. StayFound makes that
               invisible funnel visible, then helps you win it.
             </p>
           </div>
@@ -275,10 +461,10 @@ export default function Home() {
               across every engine, free.
             </p>
             <div className="cta-row">
-              <a href="/sign-in" className="btn btn-primary">
+              <a href="/sign-in" className="btn btn-primary btn-lg">
                 Get started <span className="arr">→</span>
               </a>
-              <a href="#check" className="btn btn-ghost">
+              <a href="/demo" className="btn btn-ghost btn-lg">
                 Book a demo
               </a>
             </div>

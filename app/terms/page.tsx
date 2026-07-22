@@ -4,8 +4,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Surfaced",
-  description: "The terms that govern your use of Surfaced.",
+  title: "Terms of Service — StayFound",
+  description: "The terms that govern your use of StayFound.",
 };
 
 export default function TermsPage() {
@@ -24,16 +24,16 @@ export default function TermsPage() {
 
         <h2>1. Agreement</h2>
         <p>
-          These Terms govern your access to and use of Surfaced (the
-          &ldquo;Service&rdquo;), operated by Surfaced (&ldquo;we,&rdquo;
+          These Terms govern your access to and use of StayFound (the
+          &ldquo;Service&rdquo;), operated by StayFound (&ldquo;we,&rdquo;
           &ldquo;us&rdquo;). By creating an account or using the Service, you
-          agree to these Terms. If you&apos;re using Surfaced on behalf of a
+          agree to these Terms. If you&apos;re using StayFound on behalf of a
           company, you represent that you&apos;re authorized to bind it.
         </p>
 
         <h2>2. The Service</h2>
         <p>
-          Surfaced helps you monitor and improve how your brand appears in
+          StayFound helps you monitor and improve how your brand appears in
           AI-powered search and answer engines. Visibility scores, rankings, and
           recommendations are estimates based on observed and modeled data, and
           are provided for informational purposes — they are not guarantees of
@@ -79,7 +79,7 @@ export default function TermsPage() {
 
         <h2>7. Third-party AI engines</h2>
         <p>
-          Surfaced queries third-party engines (such as ChatGPT, Gemini,
+          StayFound queries third-party engines (such as ChatGPT, Gemini,
           Perplexity, Claude, and Grok). We don&apos;t control those services,
           their outputs, or their availability, and we&apos;re not responsible for
           them. Their results may change at any time.

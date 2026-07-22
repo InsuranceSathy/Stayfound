@@ -4,8 +4,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Surfaced",
-  description: "How Surfaced collects, uses, and protects your data.",
+  title: "Privacy Policy — StayFound",
+  description: "How StayFound collects, uses, and protects your data.",
 };
 
 export default function PrivacyPage() {
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
 
         <h2>10. Children</h2>
         <p>
-          Surfaced is not intended for anyone under 18, and we don&apos;t
+          StayFound is not intended for anyone under 18, and we don&apos;t
           knowingly collect their data.
         </p>
 
