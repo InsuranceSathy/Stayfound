@@ -28,11 +28,63 @@ function relativeTime(iso: string): string {
   return `${d}d ago`;
 }
 
+// Server-rendered trend line for the score history — a single accent series, so
+// no legend or categorical palette is needed. Oldest → newest, left → right.
+function Sparkline({ scores }: { scores: number[] }) {
+  if (scores.length < 2) return null;
+  const w = 200;
+  const h = 48;
+  const pad = 5;
+  const min = Math.min(...scores);
+  const max = Math.max(...scores);
+  const range = max - min || 1;
+  const step = (w - pad * 2) / (scores.length - 1);
+  const pts = scores.map((s, i) => {
+    const x = pad + i * step;
+    const y = pad + (h - pad * 2) * (1 - (s - min) / range);
+    return [x, y] as const;
+  });
+  const line = pts.map(([x, y]) => `${x},${y}`).join(" ");
+  const area = `${pad},${h - pad} ${line} ${w - pad},${h - pad}`;
+  const [lx, ly] = pts[pts.length - 1];
+  return (
+    <svg
+      className="spark"
+      viewBox={`0 0 ${w} ${h}`}
+      role="img"
+      aria-label={`Visibility score trend across ${scores.length} checks, from ${scores[0]} to ${scores[scores.length - 1]}`}
+    >
+      <defs>
+        <linearGradient id="sparkLine" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#7c6cf5" />
+          <stop offset="1" stopColor="#b07ff0" />
+        </linearGradient>
+        <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="rgba(144,133,233,0.26)" />
+          <stop offset="1" stopColor="rgba(144,133,233,0)" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill="url(#sparkFill)" />
+      <polyline
+        points={line}
+        fill="none"
+        stroke="url(#sparkLine)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx={lx} cy={ly} r="3.2" fill="#b07ff0" />
+    </svg>
+  );
+}
+
 function AppHeader({ email, image }: { email: string; image?: string | null }) {
   return (
     <nav className="app-nav">
       <div className="wrap nav-inner">
-        <Link href="/" className="brand">
+        {/* In-app: the logo returns to the dashboard, not the marketing site —
+            a stray click shouldn't bounce a signed-in user out of their workspace. */}
+        <Link href="/dashboard" className="brand">
           <BrandMark />
           StayFound
         </Link>
@@ -90,6 +142,15 @@ export default async function DashboardPage() {
     ? Math.max(...data.competitors.map((c) => c.share), 1)
     : 1;
 
+  // Derived KPIs for the stat-tile row.
+  const youShare = data?.competitors.find((c) => c.you)?.share ?? 0;
+  const rank = data
+    ? [...data.competitors].sort((a, b) => b.share - a.share).findIndex((c) => c.you) + 1
+    : 0;
+  const enginesIn = data?.engines.filter((e) => e.mentioned).length ?? 0;
+  // History is newest-first; the sparkline wants oldest → newest.
+  const scoreTrend = history.map((s) => s.score).reverse();
+
   return (
     <div className="dash-page">
       <AppHeader email={user.email} image={user.image} />
@@ -139,54 +200,112 @@ export default async function DashboardPage() {
             </form>
           </div>
         ) : (
-          <div className="result" style={{ marginTop: 24, borderTop: "none", paddingTop: 0 }}>
-            <div className="score-block">
-              <p className="res-h">Visibility score</p>
-              <div className="score-num">
-                {Math.round(snapshot!.score)}
-                {delta !== null && delta !== 0 && (
-                  <span className={`score-delta ${delta > 0 ? "up" : "down"}`}>
-                    {delta > 0 ? "↑" : "↓"} {Math.abs(delta)}
-                  </span>
-                )}
+          <>
+            <div className="kpi-grid">
+              <div className="kpi">
+                <p className="kpi-label">Visibility score</p>
+                <p className="kpi-value grad-text">{Math.round(snapshot!.score)}</p>
+                <p className="kpi-sub">
+                  {delta === null || delta === 0 ? (
+                    "No change vs. last check"
+                  ) : (
+                    <span className={delta > 0 ? "up" : "down"}>
+                      {delta > 0 ? "↑" : "↓"} {Math.abs(delta)} vs. last check
+                    </span>
+                  )}
+                </p>
               </div>
-              <p className="score-sum">{data.summary}</p>
-              <div className="engine-grid">
-                {data.engines.map((eng) => (
-                  <span key={eng.name} className={`eng-chip ${eng.mentioned ? "in" : "out"}`}>
-                    <span className="led" />
-                    {eng.name}
-                  </span>
-                ))}
+              <div className="kpi">
+                <p className="kpi-label">Share of voice</p>
+                <p className="kpi-value">{Math.round(youShare)}%</p>
+                <p className="kpi-sub">
+                  Rank #{rank || "—"} of {data.competitors.length}
+                </p>
               </div>
-              <p className="check-note" style={{ marginTop: 16 }}>
-                {snapshot!.live
-                  ? "Live estimate across AI engines."
-                  : "Sample estimate"}
-                {!snapshot!.live && <span className="badge-sample">sample data</span>}
-              </p>
+              <div className="kpi">
+                <p className="kpi-label">Engine presence</p>
+                <p className="kpi-value">
+                  {enginesIn}
+                  <span className="kpi-of"> / {data.engines.length}</span>
+                </p>
+                <p className="kpi-sub">AI engines mention you</p>
+              </div>
+              <div className="kpi">
+                <p className="kpi-label">Last updated</p>
+                <p className="kpi-value kpi-value-sm">
+                  {relativeTime(snapshot!.created_at)}
+                </p>
+                <p className="kpi-sub">
+                  {snapshot!.live ? (
+                    "Live estimate"
+                  ) : (
+                    <>
+                      Sample estimate
+                      <span className="badge-sample">sample data</span>
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
 
-            <div>
-              <p className="res-h">Share of voice vs. competitors</p>
-              {data.competitors.map((c) => (
-                <div key={c.name} className={`bar-row ${c.you ? "you" : ""}`}>
-                  <span className="nm">
-                    {c.name}
-                    {c.you && <span className="badge-you">You</span>}
-                  </span>
-                  <span className="bar-track">
-                    <span
-                      className="bar-fill"
-                      style={{ width: `${(c.share / maxShare) * 100}%` }}
-                    />
-                  </span>
-                  <span className="bar-val">{Math.round(c.share)}%</span>
+            <div className="dash-grid">
+              <section className="panel panel-score">
+                <div className="panel-head">
+                  <p className="res-h">Score trend</p>
+                  {delta !== null && delta !== 0 && (
+                    <span className={`score-delta ${delta > 0 ? "up" : "down"}`}>
+                      {delta > 0 ? "↑" : "↓"} {Math.abs(delta)}
+                    </span>
+                  )}
                 </div>
-              ))}
+                {scoreTrend.length >= 2 ? (
+                  <Sparkline scores={scoreTrend} />
+                ) : (
+                  <p className="panel-empty">
+                    Trend appears after your next refresh.
+                  </p>
+                )}
+                <p className="score-sum">{data.summary}</p>
+                <div className="engine-grid">
+                  {data.engines.map((eng) => (
+                    <span
+                      key={eng.name}
+                      className={`eng-chip ${eng.mentioned ? "in" : "out"}`}
+                    >
+                      <span className="led" />
+                      {eng.name}
+                    </span>
+                  ))}
+                </div>
+              </section>
 
-              <div className="actions">
+              <section className="panel panel-sov">
+                <div className="panel-head">
+                  <p className="res-h">Share of voice vs. competitors</p>
+                </div>
+                {data.competitors.map((c) => (
+                  <div key={c.name} className={`bar-row ${c.you ? "you" : ""}`}>
+                    <span className="nm">
+                      {c.name}
+                      {c.you && <span className="badge-you">You</span>}
+                    </span>
+                    <span className="bar-track">
+                      <span
+                        className="bar-fill"
+                        style={{ width: `${(c.share / maxShare) * 100}%` }}
+                      />
+                    </span>
+                    <span className="bar-val">{Math.round(c.share)}%</span>
+                  </div>
+                ))}
+              </section>
+            </div>
+
+            <section className="panel panel-moves">
+              <div className="panel-head">
                 <p className="res-h">Recommended moves</p>
+              </div>
+              <div className="moves-list">
                 {data.actions.map((a, i) => (
                   <div className="action" key={i}>
                     <span className={`impact ${a.impact}`}>{a.impact}</span>
@@ -197,8 +316,8 @@ export default async function DashboardPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </section>
+          </>
         )}
       </main>
     </div>

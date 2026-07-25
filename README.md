@@ -36,6 +36,18 @@ AI_GATEWAY_API_KEY=...        # Vercel AI Gateway
 # SURFACED_MODEL=anthropic/claude-haiku-4-5   # optional override
 ```
 
+### Waitlist
+
+The pricing-page waitlist (`/api/waitlist`) writes straight to the
+`waitlist_signup` Postgres table — email, business name, domain, competitors.
+The table is created on first submission, so `DATABASE_URL` is the only
+requirement. Read the signups with:
+
+```sql
+SELECT created_at, email, business, domain, competitors
+FROM waitlist_signup ORDER BY created_at DESC;
+```
+
 ## Structure
 
 - `app/page.tsx` — landing page
