@@ -98,8 +98,17 @@ type Answer = {
   cites: { d: string; you?: boolean }[];
 };
 
+type PromptSet = {
+  q: string;
+  answers: Answer[];
+  /* every brand the four answers named, most-named first */
+  rivals: { name: string; n: number; you?: boolean }[];
+  /* answer share for this prompt, one point per week */
+  trend: number[];
+};
+
 /* one answer set per tracked prompt — the chips switch between them */
-const PROMPT_SETS: { q: string; answers: Answer[] }[] = [
+const PROMPT_SETS: PromptSet[] = [
   {
     q: "best pm software for startups",
     answers: [
@@ -156,6 +165,13 @@ const PROMPT_SETS: { q: string; answers: Answer[] }[] = [
         cites: [{ d: "yoursite.com/blog", you: true }, { d: "producthunt.com" }],
       },
     ],
+    rivals: [
+      { name: "Your brand", n: 3, you: true },
+      { name: "Notion", n: 3 },
+      { name: "Asana", n: 2 },
+      { name: "Linear", n: 1 },
+    ],
+    trend: [41, 44, 43, 49, 55, 58, 63, 71],
   },
   {
     q: "notion alternative w/ roadmaps",
@@ -208,6 +224,13 @@ const PROMPT_SETS: { q: string; answers: Answer[] }[] = [
         cites: [{ d: "linear.app" }, { d: "coda.io" }],
       },
     ],
+    rivals: [
+      { name: "Your brand", n: 3, you: true },
+      { name: "Linear", n: 3 },
+      { name: "Coda", n: 3 },
+      { name: "ClickUp", n: 1 },
+    ],
+    trend: [52, 50, 55, 54, 61, 66, 70, 74],
   },
   {
     q: "tools for remote teams 2026",
@@ -250,6 +273,13 @@ const PROMPT_SETS: { q: string; answers: Answer[] }[] = [
         cites: [{ d: "linear.app" }, { d: "notion.so" }],
       },
     ],
+    rivals: [
+      { name: "Notion", n: 4 },
+      { name: "Slack", n: 2 },
+      { name: "Asana", n: 2 },
+      { name: "Your brand", n: 1, you: true },
+    ],
+    trend: [34, 30, 28, 25, 22, 19, 15, 12],
   },
 ];
 
@@ -627,43 +657,74 @@ function Overview({ on }: { on: boolean }) {
 function Answers({ on }: { on: boolean }) {
   const [sel, setSel] = useState(0);
   const set = PROMPT_SETS[sel];
+  const hitCount = set.answers.filter((a) => a.hit).length;
 
   return (
     <div className="story-slide">
       <div className="slide-h">
         <h3>Ask any tracked prompt</h3>
-        <span className="hint">answers refreshed 2 hours ago</span>
+        <span className="ans-score">
+          <span className="ans-score-v">
+            {hitCount}/{set.answers.length}
+          </span>
+          engines name you
+        </span>
       </div>
-      <div className="chips">
-        {PROMPT_SETS.map((p, i) => (
-          <button
-            key={p.q}
-            type="button"
-            className={`chip ${i === sel ? "on" : ""}`}
-            onClick={() => setSel(i)}
-            aria-pressed={i === sel}
-          >
-            {p.q}
-          </button>
-        ))}
+      <div className="chips-row">
+        <div className="chips">
+          {PROMPT_SETS.map((p, i) => (
+            <button
+              key={p.q}
+              type="button"
+              className={`chip ${i === sel ? "on" : ""}`}
+              onClick={() => setSel(i)}
+              aria-pressed={i === sel}
+            >
+              {p.q}
+            </button>
+          ))}
+        </div>
+        <span className="hint">refreshed 2h ago</span>
       </div>
       <div className="answers">
         {set.answers.map((a) => {
           const eng = ENGINES.find((x) => x.name === a.engine)!;
+          const share = BY.Engine.rows.find((r) => r.name === a.engine)!;
           return (
             <div
               className={`ans ${a.hit ? "hit" : ""}`}
               key={a.engine}
-              style={{ opacity: on ? 1 : 0.25, transition: "opacity .5s ease" }}
+              style={
+                {
+                  opacity: on ? 1 : 0.25,
+                  transition: "opacity .5s ease",
+                  "--eng": eng.color,
+                } as React.CSSProperties
+              }
             >
               <div className="ans-top">
                 <span className="glyph" style={{ background: eng.color }}>
                   {eng.short}
                 </span>
-                {a.engine}
-                <span className={`ans-rank ${a.tone}`}>{a.rank}</span>
+                <span className="ans-name" style={{ color: eng.color }}>
+                  {a.engine}
+                </span>
+                <span className={`ans-rank ${a.tone}`}>
+                  <i className={`ans-dot ${a.tone}`} aria-hidden="true" />
+                  {a.rank}
+                </span>
               </div>
               <p className="ans-body">{a.body}</p>
+              <div className="ans-share">
+                <span className="ans-share-l">Overall answer share</span>
+                <span className="ans-share-track">
+                  <span
+                    className="ans-share-fill"
+                    style={{ width: on ? `${share.val}%` : "0%" }}
+                  />
+                </span>
+                <span className="ans-share-v">{share.val}%</span>
+              </div>
               <div className="ans-cites">
                 {a.cites.map((c) => (
                   <span className={`cite ${c.you ? "you" : ""}`} key={c.d}>
@@ -674,6 +735,108 @@ function Answers({ on }: { on: boolean }) {
             </div>
           );
         })}
+      </div>
+
+      <div className="ans-foot">
+        <div className="card ans-foot-card">
+          <div className="slide-h" style={{ marginBottom: 12 }}>
+            <h3>Who else got named</h3>
+            <span className="hint">across these 4 answers</span>
+          </div>
+          <div className="rivals">
+            {set.rivals.map((r) => (
+              <div className={`rival ${r.you ? "you" : ""}`} key={r.name}>
+                <span className="rival-name">{r.name}</span>
+                <span className="rival-track">
+                  <span
+                    className="rival-fill"
+                    style={{ width: on ? `${(r.n / 4) * 100}%` : "0%" }}
+                  />
+                </span>
+                <span className="rival-n">{r.n}/4</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card ans-foot-card">
+          <div className="slide-h" style={{ marginBottom: 12 }}>
+            <h3>Answer share</h3>
+            <span className="hint">last 8 weeks</span>
+          </div>
+          <Spark points={set.trend} on={on} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* inline sparkline — no chart lib, just a path over a normalised series */
+function Spark({ points, on }: { points: number[]; on: boolean }) {
+  const W = 260;
+  const H = 64;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const span = max - min || 1;
+  const xy = points.map((p, i) => [
+    (i / (points.length - 1)) * W,
+    H - ((p - min) / span) * (H - 8) - 4,
+  ]);
+  const line = xy.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join(" ");
+  const area = `${line} L${W} ${H} L0 ${H} Z`;
+  const last = points[points.length - 1];
+  const first = points[0];
+  const up = last >= first;
+  const [cx, cy] = xy[xy.length - 1];
+
+  return (
+    <div className="spark-wrap">
+      <svg
+        className="spark"
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+            <stop
+              offset="0%"
+              stopColor={up ? "#34d399" : "#fb7185"}
+              stopOpacity="0.28"
+            />
+            <stop
+              offset="100%"
+              stopColor={up ? "#34d399" : "#fb7185"}
+              stopOpacity="0"
+            />
+          </linearGradient>
+        </defs>
+        <path
+          d={area}
+          fill="url(#sparkFill)"
+          className={`spark-area ${on ? "on" : ""}`}
+        />
+        <path
+          d={line}
+          fill="none"
+          stroke={up ? "#34d399" : "#fb7185"}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          pathLength={1}
+          vectorEffect="non-scaling-stroke"
+          className={`spark-line ${on ? "on" : ""}`}
+        />
+        <circle cx={cx} cy={cy} r="3.5" fill={up ? "#34d399" : "#fb7185"} />
+      </svg>
+      <div className="spark-meta">
+        <span className="spark-v">{last}%</span>
+        <span
+          className="spark-d"
+          style={{ color: up ? "var(--good)" : "var(--bad)" }}
+        >
+          {up ? "↑" : "↓"} {Math.abs(last - first)} pts
+        </span>
       </div>
     </div>
   );
