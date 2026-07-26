@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { after } from "next/server";
 import { getCachedScore, createOrGetJob } from "@/lib/queries";
 import { runScan } from "@/lib/scan";
+import { DEMO_REPORTS } from "@/lib/demo-fixtures";
 
 export const maxDuration = 300;
 
@@ -24,6 +25,18 @@ export async function POST(req: Request) {
   }
 
   const key = `${brand.toLowerCase()}|${category.toLowerCase()}`;
+
+  // Demo fixtures — curated example reports, returned instantly.
+  const demo = DEMO_REPORTS[key];
+  if (demo) {
+    return NextResponse.json({
+      status: "done",
+      cached: true,
+      live: true,
+      result: demo,
+      source: "cloud",
+    });
+  }
 
   // Fresh cached scan → return instantly.
   try {
