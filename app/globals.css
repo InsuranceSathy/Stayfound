@@ -2717,6 +2717,71 @@ footer {
   flex: none;
   margin-top: 2px;
 }
+/* ---------- waitlist ---------- */
+.pricing-note {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--muted-2);
+  margin: 26px auto 0;
+  max-width: 60ch;
+}
+.waitlist-dialog {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--text);
+  max-width: 100%;
+  max-height: 100%;
+  /* A modal <dialog> is centered by the UA's `margin: auto`, but Tailwind's
+     preflight resets margin to 0 — so restore it, or the dialog pins top-left. */
+  margin: auto;
+}
+.waitlist-dialog::backdrop {
+  background: rgba(8, 7, 13, 0.72);
+  backdrop-filter: blur(4px);
+}
+.waitlist-panel {
+  position: relative;
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  padding: 30px 28px 28px;
+  box-shadow: 0 40px 100px -60px rgba(124, 108, 245, 0.6);
+}
+.waitlist-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--faint);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+.waitlist-close:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+.waitlist-title {
+  font-size: 22px;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+.waitlist-sub {
+  font-size: 14.5px;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
 .enterprise {
   margin-top: 22px;
   background: var(--surface-2);
@@ -2903,6 +2968,12 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+/* .field's `flex: 1 1 200px` basis is meant for the horizontal .check-form row.
+   In this column container that 200px reads as a height, leaving each field
+   stretched with dead space under its input — so size to content here. */
+.demo-form .field {
+  flex: 0 0 auto;
 }
 .demo-form textarea {
   font-family: var(--sans);
@@ -3092,6 +3163,127 @@ footer {
 }
 .score-delta.down {
   color: var(--bad);
+}
+
+/* ---------- dashboard: analytics layout ---------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 30px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px 17px;
+}
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin: 0 0 12px;
+}
+.kpi-value {
+  font-size: 36px;
+  font-weight: 820;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0;
+}
+.kpi-value-sm {
+  font-size: 25px;
+}
+.kpi-of {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--muted-2);
+}
+.kpi-sub {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 10px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kpi-sub .up {
+  color: var(--good);
+}
+.kpi-sub .down {
+  color: var(--bad);
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px 24px 26px;
+}
+.panel-moves {
+  margin-top: 16px;
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.panel-head .res-h {
+  margin: 0;
+}
+.panel-head .score-delta {
+  margin-left: 0;
+  font-size: 13.5px;
+}
+.spark {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  margin-bottom: 18px;
+}
+.panel-empty {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--faint);
+  margin: 0 0 18px;
+}
+.panel-score .score-sum {
+  margin-top: 0;
+}
+.panel-sov .bar-row:last-child {
+  margin-bottom: 0;
+}
+.moves-list .action:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.moves-list .action:last-child {
+  padding-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

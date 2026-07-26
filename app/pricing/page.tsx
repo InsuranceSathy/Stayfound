@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { WaitlistButton, WaitlistProvider } from "@/components/waitlist-form";
 
 export const metadata: Metadata = {
   title: "Pricing — StayFound",
   description:
-    "Simple pricing for AI-search visibility. Start free, upgrade when you're ready to win every answer.",
+    "Simple pricing for AI-search visibility. Book a spot on the waitlist and our team will get you set up.",
 };
 
 const TIERS = [
@@ -15,8 +15,6 @@ const TIERS = [
     price: "$0",
     cadence: "forever",
     blurb: "See where you stand. No card required.",
-    cta: "Get started",
-    href: "/sign-in",
     featured: false,
     features: [
       "1 brand",
@@ -31,8 +29,6 @@ const TIERS = [
     price: "$149",
     cadence: "per month",
     blurb: "For teams ready to win AI search.",
-    cta: "Start 14-day trial",
-    href: "/sign-in",
     featured: true,
     features: [
       "3 brands",
@@ -49,8 +45,6 @@ const TIERS = [
     price: "$499",
     cadence: "per month",
     blurb: "Close the loop — on autopilot.",
-    cta: "Start 14-day trial",
-    href: "/sign-in",
     featured: false,
     features: [
       "10 brands",
@@ -102,64 +96,71 @@ export default function PricingPage() {
     <>
       <SiteHeader />
       <main>
-        <section className="page-hero">
-          <div className="wrap">
-            <p className="eyebrow">Pricing</p>
-            <h1 className="page-title">
-              Win AI search.
-              <br />
-              Pay for what moves the needle.
-            </h1>
-            <p className="page-lead">
-              Start free and see exactly where you stand. Upgrade when you&apos;re
-              ready to track every engine and take action.
-            </p>
-          </div>
-        </section>
-
-        <section className="wrap pricing-grid">
-          {TIERS.map((t) => (
-            <div key={t.name} className={`tier ${t.featured ? "tier-featured" : ""}`}>
-              {t.featured && <span className="tier-badge">Most popular</span>}
-              <h2 className="tier-name">{t.name}</h2>
-              <div className="tier-price">
-                <span className="tier-amount">{t.price}</span>
-                <span className="tier-cadence">/ {t.cadence}</span>
-              </div>
-              <p className="tier-blurb">{t.blurb}</p>
-              <Link
-                href={t.href}
-                className={`btn ${t.featured ? "btn-primary" : "btn-ghost"} tier-cta`}
-              >
-                {t.cta} <span className="arr">→</span>
-              </Link>
-              <ul className="tier-features">
-                {t.features.map((f) => (
-                  <li key={f}>
-                    <Check />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </section>
-
-        <section className="wrap">
-          <div className="enterprise">
-            <div>
-              <h3>Enterprise</h3>
-              <p>
-                Unlimited brands, custom prompt volume, SSO/SAML, a security
-                review, and a dedicated strategist. For teams where AI search is
-                a board-level number.
+        <WaitlistProvider>
+          <section className="page-hero">
+            <div className="wrap">
+              <p className="eyebrow">Pricing</p>
+              <h1 className="page-title">
+                Win AI search.
+                <br />
+                Pay for what moves the needle.
+              </h1>
+              <p className="page-lead">
+                We&apos;re onboarding brands in batches while we scale. Here&apos;s
+                what each plan will cost — book a spot and our team will get you
+                set up.
               </p>
             </div>
-            <Link href="/demo" className="btn btn-ghost">
-              Talk to us
-            </Link>
-          </div>
-        </section>
+          </section>
+
+          <section className="wrap pricing-grid">
+            {TIERS.map((t) => (
+              <div key={t.name} className={`tier ${t.featured ? "tier-featured" : ""}`}>
+                {t.featured && <span className="tier-badge">Most popular</span>}
+                <h2 className="tier-name">{t.name}</h2>
+                <div className="tier-price">
+                  <span className="tier-amount">{t.price}</span>
+                  <span className="tier-cadence">/ {t.cadence}</span>
+                </div>
+                <p className="tier-blurb">{t.blurb}</p>
+                <WaitlistButton
+                  className={`btn ${t.featured ? "btn-primary" : "btn-ghost"} tier-cta`}
+                >
+                  Book a Spot
+                </WaitlistButton>
+                <ul className="tier-features">
+                  {t.features.map((f) => (
+                    <li key={f}>
+                      <Check />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </section>
+
+          <section className="wrap">
+            <p className="pricing-note">
+              No card required today — nothing is charged until our team has you
+              up and running.
+            </p>
+          </section>
+
+          <section className="wrap">
+            <div className="enterprise">
+              <div>
+                <h3>Enterprise</h3>
+                <p>
+                  Unlimited brands, custom prompt volume, SSO/SAML, a security
+                  review, and a dedicated strategist. For teams where AI search is
+                  a board-level number.
+                </p>
+              </div>
+              <WaitlistButton className="btn btn-ghost">Book a Spot</WaitlistButton>
+            </div>
+          </section>
+        </WaitlistProvider>
 
         <section className="wrap faq-section">
           <h2 className="sec-title">Questions, answered</h2>
