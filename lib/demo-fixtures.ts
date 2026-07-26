@@ -319,7 +319,32 @@ const upercart: DemoReport = {
   },
 };
 
-export const DEMO_REPORTS: Record<string, DemoReport> = {
-  "corpsec.io|corporate secretary service": corpsec,
-  "upercart.com|ecommerce platform": upercart,
+// Matched by brand (domain) so ANY category typed still returns the demo
+// report — keeps the public check and the dashboard perfectly consistent.
+const DEMO_BY_BRAND: Record<string, DemoReport> = {
+  "corpsec.io": corpsec,
+  "upercart.com": upercart,
 };
+
+function normalizeBrand(brand: string): string {
+  return brand
+    .toLowerCase()
+    .trim()
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/+$/, "");
+}
+
+export function getDemoReport(brand: string): DemoReport | null {
+  const b = normalizeBrand(brand);
+  if (DEMO_BY_BRAND[b]) return DEMO_BY_BRAND[b];
+  // also match when the domain is entered without the TLD (e.g. "corpsec")
+  const base = b.replace(/\.(io|com|ai|co|app|dev|net|org)$/i, "");
+  return (
+    DEMO_BY_BRAND[b] ||
+    Object.entries(DEMO_BY_BRAND).find(
+      ([k]) => k.replace(/\.[a-z]+$/i, "") === base,
+    )?.[1] ||
+    null
+  );
+}

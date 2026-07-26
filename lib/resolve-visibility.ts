@@ -1,4 +1,6 @@
 import { analyzeVisibility, type AnalyzeOutput } from "@/lib/visibility";
+import { getDemoReport } from "@/lib/demo-fixtures";
+import type { VisibilityResult } from "@/lib/visibility";
 
 export type ScoreSource = "self-hosted" | "cloud" | "sample";
 export type ResolveOutput = AnalyzeOutput & { source: ScoreSource };
@@ -30,6 +32,17 @@ export async function resolveVisibility(
   brand: string,
   category: string,
 ): Promise<ResolveOutput> {
+  // Demo fixtures win everywhere (public check + dashboard) so the numbers
+  // are identical across surfaces.
+  const demo = getDemoReport(brand);
+  if (demo) {
+    return {
+      live: true,
+      result: demo as unknown as VisibilityResult,
+      source: "cloud",
+    };
+  }
+
   const base = process.env.SCORING_BACKEND_URL?.replace(/\/$/, "");
   const secret = process.env.SCORING_SECRET;
 
