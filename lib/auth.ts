@@ -4,6 +4,11 @@ import { Pool } from "pg";
 const connectionString =
   process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
 
+// Share the session cookie across www + app subdomains in production, so a
+// login on app.stayfound.tech is valid everywhere. Never on localhost (a
+// .stayfound.tech cookie would be rejected there).
+const onStayfound = (process.env.BETTER_AUTH_URL || "").includes("stayfound.tech");
+
 export const auth = betterAuth({
   // Built-in Kysely adapter talks to Postgres via a pg Pool.
   // Works locally and on Vercel (Neon, Supabase, etc.).
@@ -19,13 +24,24 @@ export const auth = betterAuth({
     },
   },
 
-  // Allow the deployment + local origin to start auth flows.
+  // Allow both subdomains + local to start auth flows.
   trustedOrigins: [
     process.env.BETTER_AUTH_URL,
-    process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : undefined,
+    "https://app.stayfound.tech",
+    "https://www.stayfound.tech",
+    "https://stayfound.tech",
     "http://localhost:3000",
     "http://localhost:3001",
   ].filter((v): v is string => Boolean(v)),
+
+  ...(onStayfound
+    ? {
+        advanced: {
+          crossSubDomainCookies: {
+            enabled: true,
+            domain: ".stayfound.tech",
+          },
+        },
+      }
+    : {}),
 });
