@@ -4,6 +4,7 @@ import { AnswerScroller } from "@/components/answer-scroller";
 import { AeoScore } from "@/components/aeo-score";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { WaitlistButton, WaitlistProvider } from "@/components/waitlist-form";
 
 const RANKS = [
   { name: "Your brand", you: true, val: 61.5, trend: "+4.2", up: true },
@@ -72,7 +73,7 @@ const ENGINE_COUNT = 5;
 
 export default function Home() {
   return (
-    <>
+    <WaitlistProvider>
       <SiteHeader />
 
       <header className="hero">
@@ -96,13 +97,17 @@ export default function Home() {
               Be the brand AI keeps <span className="em">recommending</span>
             </h1>
             <div className="cta-row">
-              <a href="#check" className="btn btn-primary btn-lg">
-                Try the live check <span className="arr">→</span>
-              </a>
-              <a href="#inside" className="btn btn-bare btn-lg">
-                See what&apos;s inside
+              <WaitlistButton className="btn btn-primary btn-lg">
+                Join the waitlist <span className="arr">→</span>
+              </WaitlistButton>
+              <a href="#check" className="btn btn-bare btn-lg">
+                Try the live check
               </a>
             </div>
+            <p className="hero-sub">
+              Early access is rolling out in batches. Join the waitlist and see
+              your AI-search visibility while you wait.
+            </p>
           </div>
         </div>
 
@@ -457,13 +462,13 @@ export default function Home() {
           <div className="final">
             <h2>Stop losing customers to answers you&apos;re not in.</h2>
             <p>
-              Get your AI visibility report in minutes. See where you stand
-              across every engine, free.
+              We&apos;re onboarding brands in batches. Join the waitlist and get
+              your AI-visibility report while you wait.
             </p>
             <div className="cta-row">
-              <a href="/sign-in" className="btn btn-primary btn-lg">
-                Get started <span className="arr">→</span>
-              </a>
+              <WaitlistButton className="btn btn-primary btn-lg">
+                Join the waitlist <span className="arr">→</span>
+              </WaitlistButton>
               <a href="/demo" className="btn btn-ghost btn-lg">
                 Book a demo
               </a>
@@ -473,6 +478,6 @@ export default function Home() {
       </section>
 
       <SiteFooter />
-    </>
+    </WaitlistProvider>
   );
 }

@@ -3527,3 +3527,13 @@ footer {
     scroll-behavior: auto !important;
   }
 }
+
+/* waitlist hero subtext */
+.hero-sub {
+  margin: 18px auto 0;
+  max-width: 46ch;
+  text-align: center;
+  font-size: 14.5px;
+  color: var(--muted, #8b8598);
+  line-height: 1.55;
+}
