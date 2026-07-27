@@ -1,7 +1,5 @@
 import { VisibilityChart } from "@/components/visibility-chart";
-import { VisibilityCheck } from "@/components/visibility-check";
 import { AnswerScroller } from "@/components/answer-scroller";
-import { AeoScore } from "@/components/aeo-score";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WaitlistButton, WaitlistProvider } from "@/components/waitlist-form";
@@ -100,13 +98,13 @@ export default function Home() {
               <WaitlistButton className="btn btn-primary btn-lg">
                 Join the waitlist <span className="arr">→</span>
               </WaitlistButton>
-              <a href="#check" className="btn btn-bare btn-lg">
-                Try the live check
+              <a href="#inside" className="btn btn-bare btn-lg">
+                See what&apos;s inside
               </a>
             </div>
             <p className="hero-sub">
-              Early access is rolling out in batches. Join the waitlist and see
-              your AI-search visibility while you wait.
+              Early access is rolling out in batches. Join the waitlist — we&apos;ll
+              run your first AI-visibility report as we onboard you.
             </p>
           </div>
         </div>
@@ -451,9 +449,26 @@ export default function Home() {
 
       <section id="check" className="section-pad" style={{ paddingTop: 0 }}>
         <div className="wrap">
-          <VisibilityCheck />
-          <div style={{ height: 20 }} />
-          <AeoScore />
+          <div className="check">
+            <p className="sec-eyebrow">Get your report</p>
+            <h2 className="sec-title" style={{ marginBottom: 8 }}>
+              See exactly where you stand in AI search
+            </h2>
+            <p className="sec-sub">
+              Your visibility score, share of voice vs. competitors, how AI
+              describes you, the sources it cites, and what to fix — across
+              ChatGPT, Perplexity, Gemini, Claude and Grok. Join the waitlist and
+              we&apos;ll run your first report as we onboard.
+            </p>
+            <div className="cta-row" style={{ marginTop: 24 }}>
+              <WaitlistButton className="btn btn-primary btn-lg">
+                Join the waitlist <span className="arr">→</span>
+              </WaitlistButton>
+              <a href="/demo" className="btn btn-bare btn-lg">
+                Book a demo
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
