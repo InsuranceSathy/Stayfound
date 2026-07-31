@@ -1123,7 +1123,9 @@ canvas {
   position: absolute;
   inset: 0 0 auto 0;
   will-change: transform;
-  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  /* No transition: the transform is now written every scroll frame, and a
+     transition on top of that lags a frame behind the wheel and reintroduces
+     exactly the sticky feel this replaced. */
 }
 .story-slide {
   height: clamp(440px, calc(100vh - 176px), 900px);
@@ -1150,7 +1152,7 @@ canvas {
   width: 100%;
   border-radius: 4px;
   background: var(--grad-btn);
-  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 .story-steps {
   display: flex;

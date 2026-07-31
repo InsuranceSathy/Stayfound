@@ -404,9 +404,16 @@ const STEPS = ["Overview", "Answers", "Prompts", "Fixes"];
 /** matches `.story-sticky { top }` in globals.css */
 const STICKY_TOP = 24;
 
+/** Fraction of each step's scroll range spent resting on the slide before it
+ *  starts moving to the next one. 0 slides constantly and never settles; 1 is
+ *  the old stepped behaviour, which reads as being stuck. */
+const HOLD = 0.42;
+
 export function AnswerScroller() {
   const spacerRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -419,7 +426,33 @@ export function AnswerScroller() {
       const travel = rect.height - sticky.offsetHeight;
       if (travel <= 0) return;
       const p = Math.min(1, Math.max(0, (STICKY_TOP - rect.top) / travel));
-      const next = Math.min(STEPS.length - 1, Math.floor(p * STEPS.length));
+
+      // Continuous position along the track, so the panel tracks the scroll
+      // wheel every frame instead of holding still and then snapping a whole
+      // slide. Each step still rests for HOLD of its range, then eases across.
+      const last = STEPS.length - 1;
+      let pos = 0;
+      if (last > 0) {
+        const seg = p * last;
+        const i = Math.min(last - 1, Math.floor(seg));
+        let f = seg - i;
+        f = f <= HOLD ? 0 : (f - HOLD) / (1 - HOLD);
+        f = f * f * (3 - 2 * f); // smoothstep
+        pos = i + f;
+      }
+
+      // Written straight to the DOM: this runs every scroll frame, and a React
+      // re-render per frame would jank the whole section.
+      const track = trackRef.current;
+      if (track) {
+        // % on translateY resolves against the TRACK's own height (all slides),
+        // not one slide — so divide by the count.
+        track.style.transform = `translateY(-${(pos * 100) / STEPS.length}%)`;
+      }
+      const thumb = thumbRef.current;
+      if (thumb) thumb.style.transform = `translateY(${pos * 100}%)`;
+
+      const next = Math.round(pos);
       setIndex((cur) => (cur === next ? cur : next));
     }
     function onScroll() {
@@ -494,14 +527,7 @@ export function AnswerScroller() {
 
               <div className="story-frame">
                 <div className="story-viewport">
-                  <div
-                    className="story-track"
-                    style={{
-                      // % on translateY resolves against the TRACK's own height
-                      // (all 4 slides), not one slide — so divide by the count.
-                      transform: `translateY(-${(index * 100) / STEPS.length}%)`,
-                    }}
-                  >
+                  <div className="story-track" ref={trackRef}>
                     <Overview on={index === 0} />
                     <Answers on={index === 1} />
                     <Prompts on={index === 2} />
@@ -511,10 +537,8 @@ export function AnswerScroller() {
                 <div className="story-scrollbar" aria-hidden="true">
                   <div
                     className="story-thumb"
-                    style={{
-                      height: `${100 / STEPS.length}%`,
-                      transform: `translateY(${index * 100}%)`,
-                    }}
+                    ref={thumbRef}
+                    style={{ height: `${100 / STEPS.length}%` }}
                   />
                 </div>
               </div>
