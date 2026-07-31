@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { MobileMenu } from "@/components/mobile-menu";
 
 export function SiteHeader() {
   // in normal flow — scrolls away with the page so the sticky analytics panel
@@ -26,6 +27,7 @@ export function SiteHeader() {
           <Link href="/#report" className="btn btn-primary">
             Get my report <span className="arr">→</span>
           </Link>
+          <MobileMenu />
         </div>
       </div>
     </nav>
