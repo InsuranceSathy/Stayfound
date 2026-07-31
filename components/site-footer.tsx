@@ -40,50 +40,46 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer>
-      <div className="wrap">
-        <div className="foot-box">
-          <div className="foot-brand">
-            <Link href="/" className="brand">
-              <BrandMark />
-              StayFound
-            </Link>
-            <p className="foot-eyebrow">Answer engine optimisation</p>
-            <h3 className="foot-pitch">
-              Be the brand AI keeps recommending.
-            </h3>
-            <p className="foot-blurb">
-              We track how ChatGPT, Perplexity, Gemini, Claude and Grok answer
-              the questions your buyers ask — and what it takes to get named.
-            </p>
-            <div className="foot-cta">
-              <Link href="/#report" className="btn btn-primary">
-                Get my free report <span className="arr">→</span>
-              </Link>
-              <Link href="/demo" className="btn btn-ghost">
-                Book a demo
-              </Link>
+    <footer className="foot">
+      <div className="wrap foot-top">
+        <div className="foot-id">
+          <Link href="/" className="brand">
+            <BrandMark />
+            StayFound
+          </Link>
+          <p className="foot-tag">
+            Answer engine optimisation for brands that would rather be
+            recommended than ranked.
+          </p>
+          <p className="foot-live">
+            <span className="dot-live" />
+            Tracking 5 engines
+          </p>
+        </div>
+
+        <div className="foot-cols">
+          {COLUMNS.map((col) => (
+            <div className="foot-col" key={col.title}>
+              <p className="foot-col-h">{col.title}</p>
+              {col.links.map((l) => (
+                <Link key={l.label} href={l.href}>
+                  {l.label}
+                </Link>
+              ))}
             </div>
-          </div>
-
-          <div className="foot-cols">
-            {COLUMNS.map((col) => (
-              <div className="foot-col" key={col.title}>
-                <p className="foot-col-h">{col.title}</p>
-                {col.links.map((l) => (
-                  <Link key={l.label} href={l.href}>
-                    {l.label}
-                  </Link>
-                ))}
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
+      </div>
 
-        <div className="foot-base">
-          <span className="copy">© 2026 StayFound</span>
-          <span className="copy">Built for the answer era</span>
-        </div>
+      <div className="wrap foot-base">
+        <span className="copy">© 2026 StayFound</span>
+        <span className="copy">Built for the answer era</span>
+      </div>
+
+      {/* Signature end-cap: oversized wordmark clipped by the footer's bottom
+          edge, so the page ends on the brand rather than a rule. */}
+      <div className="foot-mark" aria-hidden="true">
+        StayFound
       </div>
     </footer>
   );

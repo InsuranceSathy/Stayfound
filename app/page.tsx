@@ -453,7 +453,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section-pad" style={{ paddingTop: 0 }}>
+      {/* Tight bottom padding: the footer is the end-cap now, so the CTA card
+          should sit close to it instead of floating in dead space. */}
+      <section className="section-pad" style={{ paddingTop: 0, paddingBottom: 56 }}>
         <div className="wrap">
           <div className="final">
             <h2>Stop losing customers to answers you&apos;re not in.</h2>

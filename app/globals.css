@@ -2588,74 +2588,52 @@ canvas {
   background: rgba(255, 255, 255, 0.09);
 }
 
-footer {
-  padding: 0 0 40px;
-  margin-top: 90px;
-}
-
-/* Boxed, multi-column footer: pitch block on the left, link columns on the
-   right, all inside one card so the page ends on a contained shape instead of
-   trailing off into a thin rule. */
-.foot-box {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 2fr);
-  gap: 48px;
-  padding: 44px 44px 40px;
-  border: 1px solid var(--border-strong);
-  border-radius: 26px;
-  background: linear-gradient(160deg, #15132a 0%, #0e0d16 62%);
+/* ---------- footer: one full-bleed end-cap ----------
+   Was a second rounded card stacked under the CTA card with ~190px of dead
+   space between them — two of the same shape, and the page just stopped. This
+   runs edge to edge instead and ends on an oversized wordmark clipped by the
+   viewport bottom, so there is exactly one closing gesture. */
+.foot {
   position: relative;
+  margin-top: 0;
+  padding: 60px 0 0;
   overflow: hidden;
-}
-.foot-box::before {
-  content: "";
-  position: absolute;
-  left: 12%;
-  top: -220px;
-  width: 620px;
-  height: 420px;
-  pointer-events: none;
+  border-top: 1px solid var(--border);
   background: radial-gradient(
-    50% 50% at 50% 50%,
-    rgba(124, 108, 245, 0.22),
-    transparent 72%
+    120% 100% at 50% 0%,
+    rgba(124, 108, 245, 0.09),
+    transparent 58%
   );
 }
-.foot-brand {
-  position: relative;
+.foot-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr);
+  gap: 56px;
+  align-items: start;
+}
+.foot-id {
   min-width: 0;
 }
-.foot-brand .brand {
+.foot-id .brand {
   font-size: 17px;
 }
-.foot-eyebrow {
+.foot-tag {
+  margin: 18px 0 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 34ch;
+}
+.foot-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 18px 0 0;
   font-family: var(--mono);
   font-size: 11.5px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-  margin: 22px 0 10px;
-}
-.foot-pitch {
-  font-size: 25px;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  font-weight: 760;
-  margin: 0 0 12px;
-  max-width: 18ch;
-}
-.foot-blurb {
-  font-size: 14.5px;
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0 0 22px;
-  max-width: 42ch;
-}
-.foot-cta {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  color: var(--muted-2);
 }
 .foot-cols {
   position: relative;
@@ -2690,7 +2668,9 @@ footer {
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  padding: 22px 6px 0;
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
 }
 .copy {
   font-family: var(--mono);
@@ -2698,11 +2678,33 @@ footer {
   color: var(--faint);
 }
 
+/* The wordmark is decoration, not a heading — it sits outside .wrap so it can
+   run the full width, and the footer's overflow:hidden does the clipping. */
+.foot-mark {
+  margin: 18px 0 -0.2em;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  font-size: clamp(62px, 15.5vw, 240px);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 0.8;
+  background: linear-gradient(
+    180deg,
+    rgba(167, 139, 250, 0.26) 0%,
+    rgba(167, 139, 250, 0.04) 62%,
+    rgba(167, 139, 250, 0) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 @media (max-width: 900px) {
-  .foot-box {
+  .foot-top {
     grid-template-columns: minmax(0, 1fr);
     gap: 34px;
-    padding: 34px 26px 30px;
   }
   .foot-cols {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2710,22 +2712,15 @@ footer {
   }
 }
 @media (max-width: 600px) {
-  footer {
-    margin-top: 56px;
-  }
-  .foot-box {
-    padding: 28px 20px 26px;
-    border-radius: 20px;
-  }
-  .foot-pitch {
-    font-size: 22px;
-  }
-  .foot-cta .btn {
-    width: 100%;
-    justify-content: center;
+  .foot {
+    padding-top: 40px;
   }
   .foot-base {
+    margin-top: 30px;
     padding-top: 18px;
+  }
+  .foot-mark {
+    margin-top: 10px;
   }
 }
 
