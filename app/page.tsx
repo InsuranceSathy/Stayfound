@@ -339,16 +339,21 @@ export default function Home() {
       <AnswerScroller />
 
       <section id="loop" className="section-pad">
-        <div className="wrap centered">
-          <p className="sec-eyebrow">The StayFound loop</p>
-          <h2 className="sec-title">Don&apos;t just watch AI search. Win it.</h2>
-          <p className="sec-sub">
-            Most tools stop at a dashboard. StayFound closes the loop — from
-            seeing where you lose, to fixing it, to shipping the fix on its own.
-          </p>
+        <div className="wrap band">
+          <div className="band-head">
+            <h2 className="sec-title">Don&apos;t just watch AI search. Win it.</h2>
+            <p className="sec-sub">
+              Most tools stop at a dashboard. StayFound closes the loop — from
+              seeing where you lose, to fixing it, to shipping the fix on its
+              own.
+            </p>
+          </div>
           <div className="loop">
             <div className="step">
-              <div className="n">01 — Monitor</div>
+              <div className="n">
+                <span className="n-num">01</span>
+                <span className="n-lab">Monitor</span>
+              </div>
               <div className="ic">
                 <svg
                   width="20"
@@ -372,7 +377,10 @@ export default function Home() {
               <div className="tag">ChatGPT · Gemini · Perplexity · Claude · Grok</div>
             </div>
             <div className="step">
-              <div className="n">02 — Optimize</div>
+              <div className="n">
+                <span className="n-num">02</span>
+                <span className="n-lab">Optimize</span>
+              </div>
               <div className="ic">
                 <svg
                   width="20"
@@ -396,7 +404,10 @@ export default function Home() {
               <div className="tag">Citation gaps · content briefs · prioritized by lift</div>
             </div>
             <div className="step">
-              <div className="n">03 — Autopublish</div>
+              <div className="n">
+                <span className="n-num">03</span>
+                <span className="n-lab">Autopublish</span>
+              </div>
               <div className="ic">
                 <svg
                   width="20"
@@ -423,7 +434,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="why" className="section-pad" style={{ paddingTop: 0 }}>
+      <section id="why" className="statband">
         <div className="wrap why">
           <div>
             <div className="stat-big">60%</div>

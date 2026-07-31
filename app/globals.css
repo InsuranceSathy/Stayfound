@@ -296,31 +296,8 @@ nav.site-nav .nav-inner {
   margin: 0 auto;
   text-align: center;
 }
-.eyebrow {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 600;
-  margin: 0 0 22px;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 6px 14px 6px 11px;
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-}
-.eyebrow::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent-2);
-  box-shadow: 0 0 12px 1px var(--accent-2);
-  display: inline-block;
-}
+/* The dot-in-a-pill eyebrow is gone — it sat above every page title and read
+   as generic filler rather than saying anything. Titles carry themselves. */
 /* single line above the dashboard — sized to fit on one row on desktop */
 h1 {
   font-size: clamp(30px, 5vw, 58px);
@@ -3258,9 +3235,6 @@ canvas {
   border-radius: 22px;
   padding: 44px 40px;
 }
-.status-card .eyebrow {
-  color: var(--accent);
-}
 .status-text {
   font-size: 22px;
   line-height: 1.5;
@@ -4142,5 +4116,206 @@ canvas {
   .answers {
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+}
+
+/* ---------- section rhythm ----------
+   Every section was the same shape: centred eyebrow, centred title, a row of
+   equal cards. Six of those in a column reads as one long block. These borrow
+   what already works in the footer — asymmetric columns and oversized type —
+   so the page alternates instead of repeating. */
+
+/* Heading beside the content rather than centred above it. */
+.band {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.3fr);
+  gap: 64px;
+  align-items: start;
+}
+.band-head {
+  position: sticky;
+  top: 108px;
+}
+.band-head .sec-title {
+  max-width: 14ch;
+}
+.band-head .sec-sub {
+  font-size: 16.5px;
+  max-width: 40ch;
+}
+
+/* The loop: three joined cards -> a vertical rail with oversized numerals. */
+.loop {
+  display: block;
+  margin-top: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+.step {
+  position: relative;
+  background: none;
+  padding: 30px 0 30px 96px;
+  border-top: 1px solid var(--border);
+  transition: none;
+}
+.step:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.step:hover {
+  background: none;
+}
+.step .n {
+  position: absolute;
+  left: 0;
+  top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.step:first-child .n {
+  top: 0;
+}
+.n-num {
+  font-size: 46px;
+  font-weight: 850;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  background: linear-gradient(
+    180deg,
+    rgba(167, 139, 250, 0.85),
+    rgba(167, 139, 250, 0.15)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.n-lab {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+/* The icon was carrying the card; the numeral does that job now. */
+.step .ic {
+  display: none;
+}
+.step h3 {
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+/* The stat: a full-bleed band, so one moment on the page breaks the column. */
+.statband {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(
+    90% 140% at 18% 50%,
+    rgba(124, 108, 245, 0.1),
+    transparent 62%
+  );
+  padding: 64px 0;
+}
+.statband .why {
+  align-items: center;
+  gap: 56px;
+}
+.statband .stat-big {
+  font-size: clamp(84px, 12vw, 168px);
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+}
+
+/* The closing card: headline and buttons side by side, not stacked centre. */
+.final {
+  text-align: left;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.5fr);
+  gap: 24px 48px;
+  align-items: center;
+  padding: 58px 48px;
+}
+/* Both still carry `margin: 0 auto` from the centred layout, which indents them
+   inside their own column now that the card is left-aligned. */
+.final h2 {
+  grid-column: 1;
+  margin-inline: 0;
+  max-width: 20ch;
+}
+.final p {
+  grid-column: 1;
+  margin-inline: 0;
+  margin-bottom: 0;
+  max-width: 46ch;
+}
+/* Actions get their own column so they read as the thing to do, rather than
+   floating at the right edge of the text column. */
+.final .cta-row {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.final .cta-row .btn {
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .band {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
+  }
+  .band-head {
+    position: static;
+  }
+  .band-head .sec-title,
+  .band-head .sec-sub {
+    max-width: none;
+  }
+  .final {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .final h2,
+  .final p,
+  .final .cta-row {
+    grid-column: 1;
+  }
+  .final .cta-row {
+    grid-row: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 6px;
+  }
+}
+@media (max-width: 600px) {
+  .step {
+    padding: 22px 0 22px 66px;
+  }
+  .step .n {
+    top: 22px;
+  }
+  .n-num {
+    font-size: 34px;
+  }
+  .statband {
+    padding: 44px 0;
+  }
+  .statband .why {
+    gap: 26px;
+  }
+  .final {
+    padding: 34px 22px;
+  }
+  .final .cta-row .btn {
+    width: 100%;
+    justify-content: center;
   }
 }

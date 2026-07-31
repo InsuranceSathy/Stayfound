@@ -113,7 +113,6 @@ export default function PricingPage() {
         <WaitlistProvider>
           <section className="page-hero">
             <div className="wrap">
-              <p className="eyebrow">Pricing</p>
               <h1 className="page-title">
                 Win AI search.
                 <br />

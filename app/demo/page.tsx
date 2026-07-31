@@ -31,7 +31,6 @@ export default function DemoPage() {
       <main>
         <section className="page-hero">
           <div className="wrap">
-            <p className="eyebrow">Book a demo</p>
             <h1 className="page-title">See StayFound on your brand.</h1>
             <p className="page-lead">
               A 30-minute walkthrough on your real data. No slideware — just where

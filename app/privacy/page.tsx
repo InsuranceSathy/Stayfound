@@ -13,7 +13,6 @@ export default function PrivacyPage() {
     <>
       <SiteHeader />
       <main className="wrap legal">
-        <p className="eyebrow">Legal</p>
         <h1 className="legal-title">Privacy Policy</h1>
         <p className="legal-meta">Effective June 23, 2026</p>
 

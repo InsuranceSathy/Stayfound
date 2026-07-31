@@ -117,7 +117,6 @@ export default async function DashboardPage() {
       <div className="dash-page">
         <AppHeader email={user.email} image={user.image} />
         <main className="wrap dash-main">
-          <p className="eyebrow">Your workspace</p>
           <h1 className="dash-hi">Welcome, {firstName}.</h1>
           <p className="sec-sub">
             Add your brand and category. We&apos;ll analyze your visibility

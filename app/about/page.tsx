@@ -34,7 +34,6 @@ export default function AboutPage() {
       <main>
         <section className="page-hero">
           <div className="wrap">
-            <p className="eyebrow">About</p>
             <h1 className="page-title">
               Great companies shouldn&apos;t be
               <br />
@@ -90,7 +89,6 @@ export default function AboutPage() {
 
         <section className="wrap">
           <div className="status-card">
-            <p className="eyebrow">Where we are</p>
             <p className="status-text">
               StayFound is in <strong>private beta</strong>, onboarding design
               partners in 2026. We&apos;re building in the open with the teams
