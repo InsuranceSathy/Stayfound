@@ -145,6 +145,7 @@ export function WaitlistProvider({ children }: { children: React.ReactNode }) {
                     onChange={set("domain")}
                     autoComplete="url"
                     placeholder="yourbrand.com"
+                    required
                   />
                 </div>
                 <div className="field">

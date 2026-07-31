@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
+import { notifyLead } from "@/lib/notify";
 
 let tableReady = false;
 
@@ -55,6 +56,12 @@ export async function POST(req: Request) {
        VALUES ($1, $2, $3, $4)`,
       [name, email, company || null, message || null],
     );
+    await notifyLead("New demo request", {
+      Name: name,
+      Email: email,
+      Company: company,
+      Message: message,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("contact insert failed:", err);

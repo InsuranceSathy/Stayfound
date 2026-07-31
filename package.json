@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "leads": "node --env-file=.env.local scripts/leads.mjs"
   },
   "dependencies": {
     "ai": "^6.0.209",

@@ -2,7 +2,7 @@ import { VisibilityChart } from "@/components/visibility-chart";
 import { AnswerScroller } from "@/components/answer-scroller";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { WaitlistButton, WaitlistProvider } from "@/components/waitlist-form";
+import { ReportForm } from "@/components/report-form";
 
 const RANKS = [
   { name: "Your brand", you: true, val: 61.5, trend: "+4.2", up: true },
@@ -71,7 +71,7 @@ const ENGINE_COUNT = 5;
 
 export default function Home() {
   return (
-    <WaitlistProvider>
+    <>
       <SiteHeader />
 
       <header className="hero">
@@ -95,16 +95,16 @@ export default function Home() {
               Be the brand AI keeps <span className="em">recommending</span>
             </h1>
             <div className="cta-row">
-              <WaitlistButton className="btn btn-primary btn-lg">
-                Join the waitlist <span className="arr">→</span>
-              </WaitlistButton>
+              <a href="#report" className="btn btn-primary btn-lg">
+                Get my free report <span className="arr">→</span>
+              </a>
               <a href="#inside" className="btn btn-bare btn-lg">
                 See what&apos;s inside
               </a>
             </div>
             <p className="hero-sub">
-              Early access is rolling out in batches. Join the waitlist — we&apos;ll
-              run your first AI-visibility report as we onboard you.
+              Give us your domain — we&apos;ll run the full AI-visibility report
+              ourselves and email it to you.
             </p>
           </div>
         </div>
@@ -449,26 +449,7 @@ export default function Home() {
 
       <section id="check" className="section-pad" style={{ paddingTop: 0 }}>
         <div className="wrap">
-          <div className="check">
-            <p className="sec-eyebrow">Get your report</p>
-            <h2 className="sec-title" style={{ marginBottom: 8 }}>
-              See exactly where you stand in AI search
-            </h2>
-            <p className="sec-sub">
-              Your visibility score, share of voice vs. competitors, how AI
-              describes you, the sources it cites, and what to fix — across
-              ChatGPT, Perplexity, Gemini, Claude and Grok. Join the waitlist and
-              we&apos;ll run your first report as we onboard.
-            </p>
-            <div className="cta-row" style={{ marginTop: 24 }}>
-              <WaitlistButton className="btn btn-primary btn-lg">
-                Join the waitlist <span className="arr">→</span>
-              </WaitlistButton>
-              <a href="/demo" className="btn btn-bare btn-lg">
-                Book a demo
-              </a>
-            </div>
-          </div>
+          <ReportForm />
         </div>
       </section>
 
@@ -477,13 +458,13 @@ export default function Home() {
           <div className="final">
             <h2>Stop losing customers to answers you&apos;re not in.</h2>
             <p>
-              We&apos;re onboarding brands in batches. Join the waitlist and get
-              your AI-visibility report while you wait.
+              Send us your domain and we&apos;ll run your AI-visibility report —
+              no setup, no account.
             </p>
             <div className="cta-row">
-              <WaitlistButton className="btn btn-primary btn-lg">
-                Join the waitlist <span className="arr">→</span>
-              </WaitlistButton>
+              <a href="#report" className="btn btn-primary btn-lg">
+                Get my free report <span className="arr">→</span>
+              </a>
               <a href="/demo" className="btn btn-ghost btn-lg">
                 Book a demo
               </a>
@@ -493,6 +474,6 @@ export default function Home() {
       </section>
 
       <SiteFooter />
-    </WaitlistProvider>
+    </>
   );
 }

@@ -18,11 +18,13 @@ export function SiteHeader() {
           <Link href="/about">About</Link>
         </div>
         <div className="nav-right">
-          <Link href="/sign-in" className="signin">
-            Sign in
+          {/* Self-serve sign-up is off while we run reports by hand — the only
+              way in is asking us for one. /sign-in still works by URL. */}
+          <Link href="/demo" className="signin">
+            Book a demo
           </Link>
-          <Link href="/sign-in" className="btn btn-primary">
-            Get started <span className="arr">→</span>
+          <Link href="/#report" className="btn btn-primary">
+            Get my report <span className="arr">→</span>
           </Link>
         </div>
       </div>
