@@ -3677,3 +3677,58 @@ footer {
     padding: 14px 13px 15px;
   }
 }
+
+/* ---------- mobile: shorten the page ----------
+   At 390px the page ran 8582px — 10+ screens, with the report form (the whole
+   point of the page) not appearing until 79% down. The scroll-driven story
+   alone was 3.1 screens because .story-spacer buys its scroll travel in vh.
+   Nothing is removed here; the same content just stops being padded like a
+   desktop page. */
+@media (max-width: 600px) {
+  /* 4 steps over 170vh still gives each one ~42vh of travel to register. */
+  .story-spacer {
+    height: 170vh;
+  }
+  .story {
+    padding-top: 24px;
+  }
+  .story-intro {
+    margin-bottom: 22px;
+  }
+
+  .step {
+    padding: 22px 18px 24px;
+  }
+  .loop {
+    margin-top: 30px;
+  }
+
+  .strip-inner {
+    gap: 18px 20px;
+    padding: 18px 0;
+  }
+}
+
+/* The hero mock is 1473px of the fold on a phone. Desktop-sized panel padding
+   is most of that — tighten the chrome, keep every row. */
+@media (max-width: 600px) {
+  .panel,
+  .panel-full {
+    padding: 13px 14px 14px;
+  }
+  .dash-kpis > div {
+    padding: 10px 13px 11px;
+  }
+  .dash-bar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .prow,
+  .hbar {
+    padding: 9px 11px;
+    margin-top: 5px;
+  }
+  .dash-shell {
+    margin-top: 28px;
+  }
+}
