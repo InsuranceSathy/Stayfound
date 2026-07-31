@@ -12,16 +12,6 @@ const COLUMNS = [
     ],
   },
   {
-    title: "Engines",
-    links: [
-      { href: "/#engines", label: "ChatGPT" },
-      { href: "/#engines", label: "Perplexity" },
-      { href: "/#engines", label: "Gemini" },
-      { href: "/#engines", label: "Claude" },
-      { href: "/#engines", label: "Grok" },
-    ],
-  },
-  {
     title: "Company",
     links: [
       { href: "/about", label: "About" },
@@ -51,10 +41,20 @@ export function SiteFooter() {
             Answer engine optimisation for brands that would rather be
             recommended than ranked.
           </p>
+          {/* The engines were a column of links that all pointed at the same
+              anchor — a content hub that doesn't exist. Same information, told
+              honestly. */}
           <p className="foot-live">
             <span className="dot-live" />
-            Tracking 5 engines
+            Now tracking
           </p>
+          <ul className="foot-engines">
+            {["ChatGPT", "Perplexity", "Gemini", "Claude", "Grok", "Copilot", "AI Overviews"].map(
+              (e) => (
+                <li key={e}>{e}</li>
+              ),
+            )}
+          </ul>
         </div>
 
         <div className="foot-cols">

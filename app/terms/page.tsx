@@ -122,10 +122,10 @@ export default function TermsPage() {
 
         <h2>13. Contact</h2>
         <p>
-          Questions about these Terms? Reach us at{" "}
-          <a href="mailto:hello@surfaced.app" className="legal-link">
-            hello@surfaced.app
-          </a>
+          Questions about these Terms? Reach us through our{" "}
+          <Link href="/demo" className="legal-link">
+            contact form
+          </Link>
           .
         </p>
       </main>

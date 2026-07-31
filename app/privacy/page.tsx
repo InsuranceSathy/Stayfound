@@ -117,10 +117,10 @@ export default function PrivacyPage() {
 
         <h2>12. Contact</h2>
         <p>
-          For privacy questions or requests, email{" "}
-          <a href="mailto:privacy@surfaced.app" className="legal-link">
-            privacy@surfaced.app
-          </a>
+          For privacy questions or requests, use our{" "}
+          <Link href="/demo" className="legal-link">
+            contact form
+          </Link>
           . See also our{" "}
           <Link href="/terms" className="legal-link">
             Terms of Service
