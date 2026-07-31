@@ -4024,3 +4024,123 @@ canvas {
     display: block;
   }
 }
+
+/* ---------- mobile: make the Answers slide actually fit ----------
+   Measured at 390px: the slide box is 668px, of which slide-h (65) +
+   chips-row (156) + ans-foot (213) left just 149px for five engine cards that
+   needed 299 — so they were sliced, which is what reads as overlapping. The
+   earlier scroll-inside-the-card patch hid the symptom; this removes it.
+
+   Each card drops to its headline facts on a phone — which engine, what rank,
+   what share. The prose answer and citation chips are desktop detail; the same
+   material is in the Prompts and Fixes steps. */
+@media (max-width: 600px) {
+  .ans-body,
+  .ans-cites,
+  .ans-share-l {
+    display: none;
+  }
+  .answers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    /* no longer needs to scroll: the content fits */
+    overflow-y: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .ans {
+    padding: 10px 11px;
+    gap: 7px;
+  }
+  .ans-share {
+    gap: 7px;
+  }
+
+  /* Four long prompt chips were wrapping to 156px. One swipeable row instead. */
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+  .chips .chip {
+    flex: 0 0 auto;
+    max-width: 62vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chips-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+}
+
+/* ---------- mobile: shrink the hero mock ----------
+   1264px of non-interactive preview before the value prop. .dash-body is 549px
+   of it — the prompt table and competitor bars — and the story section below
+   shows both in full, interactive detail. Dropping the duplicate on phones is
+   the single biggest cut available without losing anything the visitor
+   doesn't see again a screen later. */
+@media (max-width: 600px) {
+  .hero .dash-body {
+    display: none;
+  }
+  .hero .panel-full {
+    border-bottom: none;
+  }
+  /* The range switcher wraps to a second line and isn't usable in a mock. */
+  .hero .dash-bar .seg {
+    display: none;
+  }
+}
+
+/* The swipeable chip row must be bounded by the slide, or its nowrap content
+   sets the width and the row (and its siblings) run past the card edge. */
+@media (max-width: 600px) {
+  .chips-row,
+  .chips {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .chips-row .hint {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Two-up cards are ~160px wide: engine name and rank chip no longer fit on one
+   line, so let the row wrap and the name truncate rather than run past the card. */
+@media (max-width: 600px) {
+  .ans-top {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ans-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 600px) {
+  .ans {
+    padding: 9px 10px;
+    gap: 6px;
+  }
+  /* Belt and braces: the cards fit, but engine names are data — if a longer one
+     ever wraps a line, it stays reachable instead of being sliced. */
+  .answers {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
