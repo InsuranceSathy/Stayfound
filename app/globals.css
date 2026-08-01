@@ -4319,3 +4319,31 @@ canvas {
     justify-content: center;
   }
 }
+
+/* freemium paywall block */
+.paywall {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 30px 26px;
+  text-align: center;
+  background: rgba(144, 133, 233, 0.06);
+  margin-top: 26px;
+}
+.paywall h3 {
+  font-size: 21px;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+.paywall p {
+  font-size: 15px;
+  color: #a29db5;
+  margin: 0 auto 20px;
+  max-width: 48ch;
+  line-height: 1.55;
+}
+.paywall .cta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}

@@ -2,7 +2,7 @@ import { VisibilityChart } from "@/components/visibility-chart";
 import { AnswerScroller } from "@/components/answer-scroller";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ReportForm } from "@/components/report-form";
+import { VisibilityCheck } from "@/components/visibility-check";
 
 const RANKS = [
   { name: "Your brand", you: true, val: 61.5, trend: "+4.2", up: true },
@@ -459,8 +459,8 @@ export default function Home() {
       </section>
 
       <section id="check" className="section-pad" style={{ paddingTop: 0 }}>
-        <div className="wrap">
-          <ReportForm />
+        <div className="wrap" id="report">
+          <VisibilityCheck />
         </div>
       </section>
 
