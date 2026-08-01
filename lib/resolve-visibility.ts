@@ -66,12 +66,17 @@ export async function resolveVisibility(
             },
             body: JSON.stringify({ brand, category }),
           },
-          90000,
+          240000, // web-grounded scans take ~100-120s
         );
         if (res.ok) {
           const data = await res.json();
           if (data?.result) {
-            return { live: !!data.live, result: data.result, source: "self-hosted" };
+            // A real result from the scoring backend is a live measurement.
+            return {
+              live: data.live !== false,
+              result: data.result,
+              source: "self-hosted",
+            };
           }
         }
       }
