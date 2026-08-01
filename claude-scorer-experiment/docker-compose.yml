@@ -1,0 +1,10 @@
+services:
+  scorer:
+    build: .
+    image: nirajan1111/ai-engine
+    ports:
+      - "8000:8000"
+    volumes:
+      # Your Claude Code login, mounted from the host (personal use).
+      # Log in on the box first:  claude   (then /login), or `claude login`.
+      - ${HOME}/.claude:/root/.claude
