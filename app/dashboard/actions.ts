@@ -8,8 +8,11 @@ import {
   createBrand,
   deleteBrand,
   getBrandForUser,
+  getCachedScore,
+  getJob,
   saveSnapshot,
 } from "@/lib/queries";
+import { scanKey } from "@/lib/report-derive";
 
 async function requireUserId(): Promise<string | null> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -35,23 +38,59 @@ export async function addBrand(
   const existing = await getBrandForUser(userId);
   if (existing) return { error: "You already have a brand set up." };
 
-  const brand = await createBrand(userId, name, category);
-  const { live, result } = await resolveVisibility(name, category);
-  await saveSnapshot(brand.id, result.score, live, result);
-
+  // Create only. The first scan runs as a background job started from the
+  // dashboard, so adding a brand returns immediately instead of holding the
+  // request open for the ~2 minutes a web-grounded scan takes.
+  await createBrand(userId, name, category);
   revalidatePath("/dashboard");
   return {};
 }
 
-export async function refreshSnapshot(): Promise<void> {
+/**
+ * Saves a finished scan as the brand's latest snapshot.
+ *
+ * The result is always read back on the server — from the job row when a
+ * background scan ran, or from the score cache when it resolved instantly — so
+ * a browser can never post made-up numbers into its own report.
+ */
+export async function persistScan(
+  jobId: string | null,
+): Promise<{ error?: string }> {
   const userId = await requireUserId();
-  if (!userId) return;
+  if (!userId) return { error: "Your session expired. Please sign in again." };
   const brand = await getBrandForUser(userId);
-  if (!brand) return;
+  if (!brand) return { error: "No brand set up yet." };
 
+  const key = scanKey(brand.name, brand.category);
+
+  if (jobId) {
+    const job = await getJob(jobId);
+    if (!job) return { error: "That scan could not be found." };
+    if (job.status !== "done" || !job.data) {
+      return { error: "That scan hasn't finished yet." };
+    }
+    // Only accept a job that was actually run for this user's own brand.
+    if (job.cache_key !== key) {
+      return { error: "That scan doesn't match your brand." };
+    }
+    await saveSnapshot(brand.id, job.data.score, job.live ?? false, job.data);
+    revalidatePath("/dashboard");
+    return {};
+  }
+
+  const cached = await getCachedScore(key);
+  if (cached) {
+    await saveSnapshot(brand.id, cached.data.score, cached.live, cached.data);
+    revalidatePath("/dashboard");
+    return {};
+  }
+
+  // Nothing cached: resolve directly. Only reached when the scan already
+  // reported done (a fixture or a warm cache), so this returns fast.
   const { live, result } = await resolveVisibility(brand.name, brand.category);
   await saveSnapshot(brand.id, result.score, live, result);
   revalidatePath("/dashboard");
+  return {};
 }
 
 export async function removeBrand(): Promise<void> {
