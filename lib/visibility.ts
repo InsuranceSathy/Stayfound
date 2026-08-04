@@ -37,6 +37,41 @@ export const ResultSchema = z.object({
       }),
     )
     .describe("3 concrete, specific moves to improve visibility"),
+
+  // The hosted scoring backend also returns sentiment, the sources AI answers
+  // cite, and content ideas. They're stored on every snapshot, so type them —
+  // optional, because the sample fallback and older snapshots predate them.
+  sentiment: z
+    .object({
+      label: z.string(),
+      positivePct: z.number(),
+      negativePct: z.number(),
+      positiveThemes: z
+        .array(z.object({ theme: z.string(), quote: z.string() }))
+        .optional(),
+      negativeThemes: z
+        .array(z.object({ theme: z.string(), quote: z.string() }))
+        .optional(),
+    })
+    .nullish(),
+  citedSources: z
+    .array(
+      z.object({
+        domain: z.string(),
+        note: z.string(),
+        isYou: z.boolean().optional(),
+      }),
+    )
+    .optional(),
+  contentIdeas: z
+    .array(
+      z.object({
+        type: z.string(),
+        title: z.string(),
+        description: z.string(),
+      }),
+    )
+    .optional(),
 });
 
 export type VisibilityResult = z.infer<typeof ResultSchema>;
