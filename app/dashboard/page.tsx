@@ -1,9 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { SignOutButton } from "@/components/sign-out-button";
-import { BrandMark } from "@/components/brand-mark";
 import { AddBrandForm } from "@/components/add-brand-form";
 import { removeBrand } from "@/app/dashboard/actions";
 import {
@@ -12,7 +9,7 @@ import {
   getSnapshotHistory,
 } from "@/lib/queries";
 import { relativeTime } from "@/lib/report-derive";
-import { normalizeTab, TabNav } from "@/components/dashboard/tab-nav";
+import { normalizeTab, Sidebar } from "@/components/dashboard/sidebar";
 import { ScanButton } from "@/components/dashboard/scan-button";
 import { OverviewPanel } from "@/components/dashboard/overview-panel";
 import { CompetitorsPanel } from "@/components/dashboard/competitors-panel";
@@ -21,31 +18,6 @@ import { ActionsPanel } from "@/components/dashboard/actions-panel";
 import { AnalyticsPanel } from "@/components/dashboard/analytics-panel";
 
 export const maxDuration = 300;
-
-function AppHeader({ email, image }: { email: string; image?: string | null }) {
-  return (
-    <nav className="app-nav">
-      <div className="wrap nav-inner">
-        {/* In-app: the logo returns to the dashboard, not the marketing site —
-            a stray click shouldn't bounce a signed-in user out of their workspace. */}
-        <Link href="/dashboard" className="brand">
-          <BrandMark />
-          StayFound
-        </Link>
-        <div className="nav-right">
-          <span className="user-chip">
-            {image && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={image} alt="" width={24} height={24} />
-            )}
-            {email}
-          </span>
-          <SignOutButton />
-        </div>
-      </div>
-    </nav>
-  );
-}
 
 export default async function DashboardPage({
   searchParams,
@@ -58,20 +30,22 @@ export default async function DashboardPage({
   const { user } = session;
   const firstName = user.name?.split(" ")[0] || "there";
   const brand = await getBrandForUser(user.id);
+  const sp = await searchParams;
+  const tab = normalizeTab(typeof sp.tab === "string" ? sp.tab : undefined);
 
   // ---------- onboarding: no brand yet ----------
   if (!brand) {
     return (
-      <div className="dash-page">
-        <AppHeader email={user.email} image={user.image} />
-        <main className="wrap dash-main">
+      <div className="sf-shell">
+        <Sidebar active={tab} counts={{}} email={user.email} image={user.image} />
+        <main className="sf-main">
           <h1 className="dash-hi">Welcome, {firstName}.</h1>
           <p className="sec-sub">
             Add your brand and category. We&apos;ll check how every major AI
             assistant answers when buyers ask about your category — and start
             tracking it.
           </p>
-          <div className="check" style={{ marginTop: 34 }}>
+          <div className="check" style={{ marginTop: 30, maxWidth: 620 }}>
             <p className="res-h">Set up your brand</p>
             <AddBrandForm />
           </div>
@@ -87,21 +61,21 @@ export default async function DashboardPage({
   // ---------- first run: brand exists, no scan yet ----------
   if (!snapshot || !data) {
     return (
-      <div className="dash-page">
-        <AppHeader email={user.email} image={user.image} />
-        <main className="wrap dash-main" style={{ paddingTop: 36 }}>
-          <div className="brand-bar">
+      <div className="sf-shell">
+        <Sidebar active={tab} counts={{}} email={user.email} image={user.image} />
+        <main className="sf-main">
+          <header className="sf-top">
             <div>
-              <h1 className="brand-title">{brand.name}</h1>
-              <p className="brand-cat">{brand.category}</p>
+              <h1 className="sf-top-t">{brand.name}</h1>
+              <p className="sf-top-s">{brand.category}</p>
             </div>
             <form action={removeBrand}>
               <button type="submit" className="btn btn-ghost btn-sm">
                 Change brand
               </button>
             </form>
-          </div>
-          <section className="sf-panel" style={{ marginTop: 20 }}>
+          </header>
+          <section className="sf-panel">
             <div className="sf-panel-head">
               <h2 className="sf-panel-t">Running your first scan</h2>
             </div>
@@ -126,34 +100,30 @@ export default async function DashboardPage({
 
   const prev = history[1];
   const delta = prev ? snapshot.score - prev.score : null;
-  const sp = await searchParams;
-  const tab = normalizeTab(typeof sp.tab === "string" ? sp.tab : undefined);
 
   return (
-    <div className="dash-page">
-      <AppHeader email={user.email} image={user.image} />
-
-      <TabNav
+    <div className="sf-shell">
+      <Sidebar
         active={tab}
         counts={{
           competitors: data.competitors.length,
           citations: data.citedSources?.length ?? 0,
           actions: data.actions.length,
         }}
+        email={user.email}
+        image={user.image}
       />
 
-      <main className="wrap dash-main" style={{ paddingTop: 32 }}>
-        <div className="brand-bar">
+      <main className="sf-main">
+        <header className="sf-top">
           <div>
-            <h1 className="brand-title">{brand.name}</h1>
-            <p className="brand-cat">
+            <h1 className="sf-top-t">{brand.name}</h1>
+            <p className="sf-top-s">
               {brand.category} · updated {relativeTime(snapshot.created_at)}
-              {!snapshot.live && (
-                <span className="badge-sample">sample data</span>
-              )}
+              {!snapshot.live && <span className="badge-sample">sample data</span>}
             </p>
           </div>
-          <div className="brand-actions">
+          <div className="sf-top-actions">
             <form action={removeBrand}>
               <button type="submit" className="btn btn-ghost btn-sm">
                 Change brand
@@ -165,7 +135,7 @@ export default async function DashboardPage({
               label="Refresh"
             />
           </div>
-        </div>
+        </header>
 
         {tab === "overview" && (
           <OverviewPanel
@@ -180,7 +150,12 @@ export default async function DashboardPage({
           <CompetitorsPanel brandName={brand.name} data={data} />
         )}
         {tab === "citations" && <CitationsPanel data={data} />}
-        {tab === "actions" && <ActionsPanel data={data} />}
+        {tab === "actions" && (
+          <ActionsPanel
+            data={data}
+            brand={{ name: brand.name, category: brand.category }}
+          />
+        )}
         {tab === "analytics" && (
           <AnalyticsPanel data={data} history={history} />
         )}
