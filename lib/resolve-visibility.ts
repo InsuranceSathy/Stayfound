@@ -48,11 +48,12 @@ export async function resolveVisibility(
 
   if (base) {
     try {
-      // Fast liveness check so an offline Mac fails over in ~2.5s, not 90s.
+      // Liveness check. Generous timeout so a scaled-to-zero host (e.g. Railway)
+      // has time to cold-start instead of falling back to a sample.
       const health = await withTimeout(
         `${base}/health`,
         { headers: { "ngrok-skip-browser-warning": "true" } },
-        2500,
+        20000,
       );
       if (health.ok) {
         const res = await withTimeout(

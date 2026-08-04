@@ -33,6 +33,7 @@ export function VisibilityCheck() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [live, setLive] = useState(true);
+  const [gated, setGated] = useState(false);
 
   function finish(data: { result: Result; live: boolean }) {
     setResult(data.result);
@@ -68,15 +69,19 @@ export function VisibilityCheck() {
     e.preventDefault();
     setError(null);
     setResult(null);
+    setGated(false);
     setLoading(true);
     try {
-      const res = await fetch("/api/visibility", {
+      const res = await fetch("/api/free-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ brand, category }),
       });
       const data = await res.json();
-      if (!res.ok) {
+      if (data.gated) {
+        setGated(true);
+        setLoading(false);
+      } else if (!res.ok) {
         setError(data.error || "Something went wrong. Try again.");
         setLoading(false);
       } else if (data.status === "done") {
@@ -90,6 +95,17 @@ export function VisibilityCheck() {
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setLoading(false);
+    }
+  }
+
+  async function startCheckout() {
+    try {
+      const res = await fetch("/api/checkout", { method: "POST" });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else window.location.href = "https://app.stayfound.tech";
+    } catch {
+      window.location.href = "https://app.stayfound.tech";
     }
   }
 
@@ -146,6 +162,27 @@ export function VisibilityCheck() {
       </p>
 
       {error && <p className="check-error">{error}</p>}
+
+      {gated && (
+        <div className="paywall">
+          <h3>You&apos;ve used your free report.</h3>
+          <p>
+            Get unlimited scans, daily tracking, competitor alerts, and the
+            fixes to climb — for every brand you own.
+          </p>
+          <div className="cta-row" style={{ justifyContent: "center" }}>
+            <button className="btn btn-primary btn-lg" onClick={startCheckout}>
+              Get full access <span className="arr">→</span>
+            </button>
+            <a
+              href="https://app.stayfound.tech"
+              className="btn btn-bare btn-lg"
+            >
+              Log in
+            </a>
+          </div>
+        </div>
+      )}
 
       {loading && (
         <>
@@ -292,6 +329,22 @@ export function VisibilityCheck() {
             </div>
           </div>
         )}
+
+        <div className="paywall" style={{ marginTop: 30 }}>
+          <h3>That&apos;s your one free report.</h3>
+          <p>
+            Track this score over time, add every brand you own, get alerts when
+            a competitor overtakes you, and let us ship the fixes.
+          </p>
+          <div className="cta-row" style={{ justifyContent: "center" }}>
+            <button className="btn btn-primary btn-lg" onClick={startCheckout}>
+              Get full access <span className="arr">→</span>
+            </button>
+            <a href="https://app.stayfound.tech" className="btn btn-bare btn-lg">
+              Log in
+            </a>
+          </div>
+        </div>
         </>
       )}
     </div>

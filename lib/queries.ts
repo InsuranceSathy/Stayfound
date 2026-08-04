@@ -74,7 +74,43 @@ export async function ensureSchema() {
   await pool.query(
     `CREATE INDEX IF NOT EXISTS idx_job_key_status ON scan_job(cache_key, status)`,
   );
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS device_usage (
+      device_id   text PRIMARY KEY,
+      free_used   integer NOT NULL DEFAULT 0,
+      last_brand  text,
+      created_at  timestamptz NOT NULL DEFAULT now(),
+      updated_at  timestamptz NOT NULL DEFAULT now()
+    )
+  `);
   schemaReady = true;
+}
+
+/** How many free reports this device has already run. */
+export async function getFreeUsed(deviceId: string): Promise<number> {
+  await ensureSchema();
+  const { rows } = await pool.query<{ free_used: number }>(
+    `SELECT free_used FROM device_usage WHERE device_id = $1`,
+    [deviceId],
+  );
+  return rows[0]?.free_used ?? 0;
+}
+
+/** Record that this device consumed a free report. */
+export async function markFreeUsed(
+  deviceId: string,
+  brand: string,
+): Promise<void> {
+  await ensureSchema();
+  await pool.query(
+    `INSERT INTO device_usage (device_id, free_used, last_brand)
+     VALUES ($1, 1, $2)
+     ON CONFLICT (device_id) DO UPDATE
+       SET free_used = device_usage.free_used + 1,
+           last_brand = EXCLUDED.last_brand,
+           updated_at = now()`,
+    [deviceId, brand.slice(0, 120)],
+  );
 }
 
 export type JobStatus = "pending" | "running" | "done" | "error";
