@@ -8,6 +8,7 @@ import {
   standing,
   verdictFor,
 } from "@/lib/report-derive";
+import { takeaway } from "@/lib/action-format";
 import { EngineMeters, Sparkline, StatTile } from "./charts";
 
 /**
@@ -107,38 +108,38 @@ export function OverviewPanel({
         />
       </div>
 
+      {/* The trend only earns a panel once there's something to plot — an empty
+          chart is the first thing every new account would otherwise see. */}
+      {points.length > 1 && (
+        <section className="sf-panel">
+          <div className="sf-panel-head">
+            <h2 className="sf-panel-t">Score trend</h2>
+            <p className="sf-panel-sub">{points.length} scans</p>
+          </div>
+          <Sparkline points={points} />
+        </section>
+      )}
+
       <div className="sf-grid-2">
         <section className="sf-panel">
           <div className="sf-panel-head">
             <h2 className="sf-panel-t">Visibility by engine</h2>
-            <p className="sf-panel-sub">
-              Score out of 100 on each assistant
-            </p>
+            <p className="sf-panel-sub">Score out of 100</p>
           </div>
           <EngineMeters engines={data.engines} />
         </section>
 
         <section className="sf-panel">
           <div className="sf-panel-head">
-            <h2 className="sf-panel-t">Score trend</h2>
-            <p className="sf-panel-sub">
-              {points.length > 1
-                ? `${points.length} scans`
-                : "One scan so far"}
-            </p>
+            <h2 className="sf-panel-t">What the assistants say</h2>
           </div>
-          {points.length > 1 ? (
-            <Sparkline points={points} />
-          ) : (
-            <p className="sf-empty">
-              Your trend line appears after a second scan, so you can see
-              whether the moves below are working.
+          <p className="sf-narrative">{data.summary}</p>
+          {points.length < 2 && (
+            <p className="sf-empty sm" style={{ marginTop: 14 }}>
+              Refresh again to start your trend line and see whether the moves
+              are working.
             </p>
           )}
-          <div className="sf-summary">
-            <h3 className="sf-sub-h">What the assistants say</h3>
-            <p>{data.summary}</p>
-          </div>
         </section>
       </div>
 
@@ -153,7 +154,8 @@ export function OverviewPanel({
           <div className="sf-next-body">
             <span className={`sf-impact ${top.impact}`}>{top.impact} impact</span>
             <h3>{top.title}</h3>
-            <p>{top.detail}</p>
+            {/* One line here; the steps and snippets live on the Actions page. */}
+            <p>{takeaway(top.detail)}</p>
           </div>
         </section>
       )}
