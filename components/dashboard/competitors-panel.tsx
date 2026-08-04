@@ -52,15 +52,12 @@ export function CompetitorsPanel({
         )}
 
         <ShareBars competitors={data.competitors} youRow={you} />
-      </section>
 
-      {/* Table view: the same numbers, plus the gap to close for each rival. */}
-      <section className="sf-panel">
-        <div className="sf-panel-head">
-          <h2 className="sf-panel-t">The gap to close</h2>
-          <p className="sf-panel-sub">Percentage points between you and each brand</p>
-        </div>
-        <div className="sf-table-scroll">
+        {/* The accessible table twin for the chart above — same numbers plus the
+            gap to each rival, collapsed so it doesn't duplicate the page. */}
+        <details className="sf-drop">
+          <summary>Table view · gap to each brand</summary>
+          <div className="sf-table-scroll" style={{ marginTop: 12 }}>
           <table className="sf-table">
             <thead>
               <tr>
@@ -96,7 +93,8 @@ export function CompetitorsPanel({
               })}
             </tbody>
           </table>
-        </div>
+          </div>
+        </details>
       </section>
     </>
   );

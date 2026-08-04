@@ -2,6 +2,18 @@ import type { VisibilityResult } from "@/lib/visibility";
 import type { Snapshot } from "@/lib/queries";
 import { SentimentMix } from "./charts";
 
+function ThemeItem({ theme, quote }: { theme: string; quote: string }) {
+  return (
+    <li>
+      <b>{theme}</b>
+      <details className="sf-drop xs">
+        <summary>evidence</summary>
+        <q>{quote}</q>
+      </details>
+    </li>
+  );
+}
+
 /**
  * How assistants talk about you, engine by engine, over time.
  *
@@ -33,16 +45,15 @@ export function AnalyticsPanel({
               positivePct={s.positivePct}
               negativePct={s.negativePct}
             />
+            {/* Headlines carry the insight; the supporting quote stays one
+                click away so this page scans like the others. */}
             <div className="sf-themes">
               <div>
                 <h3 className="sf-sub-h">What helps you</h3>
                 {positives.length ? (
                   <ul className="sf-theme-list">
                     {positives.map((t, i) => (
-                      <li key={i}>
-                        <b>{t.theme}</b>
-                        <q>{t.quote}</q>
-                      </li>
+                      <ThemeItem key={i} theme={t.theme} quote={t.quote} />
                     ))}
                   </ul>
                 ) : (
@@ -54,10 +65,7 @@ export function AnalyticsPanel({
                 {negatives.length ? (
                   <ul className="sf-theme-list">
                     {negatives.map((t, i) => (
-                      <li key={i}>
-                        <b>{t.theme}</b>
-                        <q>{t.quote}</q>
-                      </li>
+                      <ThemeItem key={i} theme={t.theme} quote={t.quote} />
                     ))}
                   </ul>
                 ) : (

@@ -133,13 +133,9 @@ export function OverviewPanel({
           <div className="sf-panel-head">
             <h2 className="sf-panel-t">What the assistants say</h2>
           </div>
+          {/* Kept purely narrative — the "second scan starts your trend" nudge
+              already lives on the Scans recorded tile. */}
           <p className="sf-narrative">{data.summary}</p>
-          {points.length < 2 && (
-            <p className="sf-empty sm" style={{ marginTop: 14 }}>
-              Refresh again to start your trend line and see whether the moves
-              are working.
-            </p>
-          )}
         </section>
       </div>
 
