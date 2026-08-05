@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next"
@@ -27,6 +27,24 @@ export const metadata: Metadata = {
       "The AI answer visibility suite. Monitor, optimize, and autopublish your way into every answer.",
     type: "website",
   },
+  // Installed-to-home-screen behaviour on iOS: run standalone, and let the
+  // dark UI extend under the status bar.
+  appleWebApp: {
+    capable: true,
+    title: "StayFound",
+    statusBarStyle: "black-translucent",
+  },
+};
+
+// themeColor lives here — the metadata option was deprecated in Next 14.
+export const viewport: Viewport = {
+  themeColor: "#08070d",
+  colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
+  // Let the app paint into the notch / home-indicator area; the CSS below
+  // pads interactive edges back out with env(safe-area-inset-*).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

@@ -5358,60 +5358,10 @@ canvas {
   color: var(--accent);
 }
 
-/* ---- responsive: rail becomes a top bar ---- */
-@media (max-width: 900px) {
-  .sf-shell {
-    flex-direction: column;
-  }
-  .sf-side {
-    position: static;
-    width: auto;
-    height: auto;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas: "brand foot" "nav nav";
-    align-items: center;
-    gap: 12px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding: 13px 16px 0;
-  }
-  .sf-side-brand {
-    grid-area: brand;
-    padding: 0;
-  }
-  .sf-side-foot {
-    grid-area: foot;
-    justify-self: end;
-    flex-direction: row;
-    align-items: center;
-    border-top: none;
-    padding: 0;
-  }
-  .sf-side-mail {
-    display: none;
-  }
-  .sf-side-nav {
-    grid-area: nav;
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 4px;
-    flex: initial;
-  }
-  .sf-side-link {
-    flex: none;
-    grid-template-columns: auto auto;
-    padding: 9px 12px;
-    border-radius: 8px 8px 0 0;
-    white-space: nowrap;
-  }
-  .sf-side-hint {
-    display: none;
-  }
-  .sf-main {
-    padding: 24px 18px 80px;
-  }
-}
+/* The phone layout lives in one place — see "MOBILE APP VIEW" below. An earlier
+   version of this breakpoint turned the rail into a scrolling top strip; it was
+   removed rather than layered, because three generations of rules on
+   .sf-side-nav at the same breakpoint is how the bar ended up full-height. */
 
 /* sidebar fixes: place the count explicitly, or grid auto-placement drops it
    onto its own row and the 1fr column stretches it into a bar */
@@ -5485,10 +5435,149 @@ canvas {
   color: var(--text);
 }
 
-/* ---- mobile nav: fade hints that the row scrolls ---- */
+/* (The scroll-fade that used to live here went with the scrolling top strip —
+   the bottom tab bar shows all five sections at once, so nothing scrolls.) */
+
+/* ============================================================================
+   MOBILE APP VIEW
+   Same markup, two shapes: a left rail on desktop, and on a phone a slim
+   sticky top bar plus a fixed bottom tab bar where thumbs reach. Installed to
+   a home screen this runs standalone, so safe-area insets matter.
+   ========================================================================= */
+
+/* The dashboard rail is a <nav>, so the marketing-header rule near the top of
+   this file (`nav { position: sticky; top: 14px; z-index: 50; padding: … }`)
+   lands on it. Opt out explicitly — inheriting `top: 14px` is what made the
+   fixed bottom bar stretch to fill the whole viewport. */
+.sf-side-nav {
+  position: static;
+  top: auto;
+  z-index: auto;
+  padding: 0;
+}
+
+/* Desktop: the wrapper dissolves so brand / nav / foot are rail children and
+   the nav can grow to push the account block to the bottom. */
+.sf-side-top { display: contents; }
+.sf-side-brand { order: 1; }
+.sf-side-nav { order: 2; }
+.sf-side-foot { order: 3; }
+.sf-side-link {
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "icon label count" "icon hint hint";
+  column-gap: 10px;
+}
+.sf-side-icon {
+  grid-area: icon;
+  align-self: center;
+  color: var(--faint);
+  flex: none;
+}
+.sf-side-link.on .sf-side-icon { color: var(--accent); }
+
 @media (max-width: 900px) {
-  .sf-side-nav {
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
-    mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+  .sf-shell { display: block; }
+  .sf-side { display: contents; }
+
+  /* slim app bar */
+  .sf-side-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding: 9px 14px;
+    padding-top: max(9px, env(safe-area-inset-top));
+    background: rgba(8, 7, 13, 0.86);
+    backdrop-filter: saturate(170%) blur(14px);
+    -webkit-backdrop-filter: saturate(170%) blur(14px);
+    border-bottom: 1px solid var(--border);
   }
+  .sf-side-brand { font-size: 15px; padding: 0; }
+  .sf-side-foot {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    border-top: none;
+    padding: 0;
+  }
+  .sf-side-mail { display: none; }
+  .sf-side-foot .btn { padding: 6px 11px; font-size: 12px; }
+
+  /* bottom tab bar */
+  .sf-side-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* height comes from the row, not from the rail's flex:1 / 100vh context */
+    top: auto;
+    height: auto;
+    min-height: 0;
+    align-content: stretch;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    overflow: visible;
+    flex: initial;
+    background: rgba(8, 7, 13, 0.93);
+    backdrop-filter: saturate(170%) blur(16px);
+    -webkit-backdrop-filter: saturate(170%) blur(16px);
+    border-top: 1px solid var(--border);
+    /* explicit, so the global nav padding can't pad the bar */
+    padding: 0 0 env(safe-area-inset-bottom);
+  }
+  .sf-side-link {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: "icon" "label";
+    justify-items: center;
+    align-content: center;
+    gap: 3px;
+    padding: 7px 3px 6px;
+    border-radius: 0;
+    min-height: 52px; /* comfortable touch target */
+    position: relative;
+    white-space: nowrap;
+  }
+  .sf-side-link.on { background: transparent; }
+  /* active marker, like a native tab bar */
+  .sf-side-link.on::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 22%;
+    right: 22%;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
+    background: var(--accent);
+  }
+  .sf-side-link.on .sf-side-l { color: var(--accent); }
+  .sf-side-icon { color: var(--muted-2); }
+  .sf-side-l {
+    font-size: 9.5px;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+  .sf-side-hint,
+  .sf-side-n { display: none; }
+
+  /* clear the fixed bar */
+  .sf-main {
+    padding: 18px 16px calc(78px + env(safe-area-inset-bottom));
+  }
+  .sf-top-t { font-size: 25px; }
+  .sf-top-actions .btn { min-height: 38px; }
+
+  /* app-like touch behaviour */
+  .sf-side-link,
+  .sf-drop > summary,
+  .sf-copy,
+  .btn {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body { overscroll-behavior-y: contain; }
 }
