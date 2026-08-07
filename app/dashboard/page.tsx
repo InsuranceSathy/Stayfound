@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { AddBrandForm } from "@/components/add-brand-form";
+import { BillingPanel } from "@/components/billing-panel";
 import { removeBrand } from "@/app/dashboard/actions";
 import {
   getBrandForUser,
@@ -159,6 +160,12 @@ export default async function DashboardPage({
         {tab === "analytics" && (
           <AnalyticsPanel data={data} history={history} />
         )}
+
+        {/* Billing sits under Overview rather than in the rail: the sidebar is
+            a report navigator, and a plan is not a section of the report. It
+            renders nothing at all until checkout is open — see lib/plans.ts.
+            The checkout return url points back at this tab. */}
+        {tab === "overview" && <BillingPanel />}
       </main>
     </div>
   );

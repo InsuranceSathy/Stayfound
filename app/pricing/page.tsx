@@ -2,75 +2,15 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WaitlistButton, WaitlistProvider } from "@/components/waitlist-form";
+import { PricingPlans } from "@/components/pricing-plans";
+import { checkoutOpen } from "@/lib/plans";
+import { yearlyConfigured } from "@/lib/dodo";
 
 export const metadata: Metadata = {
   title: "Pricing — StayFound",
   description:
-    "Simple pricing for AI-search visibility. Book a spot on the waitlist and our team will get you set up.",
+    "Simple pricing for AI-search visibility. Track your brand across every AI engine and act on what you find.",
 };
-
-const TIERS = [
-  {
-    name: "Free",
-    price: "$0",
-    cadence: "forever",
-    blurb: "See where you stand. No card required.",
-    featured: false,
-    features: [
-      "1 brand",
-      "15 tracked prompts",
-      "ChatGPT only",
-      "Weekly refresh",
-      "Visibility score + competitor ranking",
-    ],
-  },
-  {
-    name: "Solo",
-    price: "$49",
-    cadence: "per month",
-    blurb: "For a single business owning its niche.",
-    featured: false,
-    features: [
-      "1 brand",
-      "50 tracked prompts",
-      "All engines — ChatGPT, Gemini, Perplexity, Claude, Grok",
-      "Daily refresh",
-      "Sentiment + cited sources",
-      "Content suggestions",
-    ],
-  },
-  {
-    name: "Teams",
-    price: "$149",
-    cadence: "per month",
-    blurb: "For teams ready to win AI search.",
-    featured: true,
-    features: [
-      "3 brands",
-      "150 tracked prompts",
-      "Everything in Solo",
-      "You-vs-Competitors tracking",
-      "Optimization recommendations",
-      "Email + Slack alerts",
-    ],
-  },
-  {
-    name: "Agencies",
-    price: "$499",
-    cadence: "per month",
-    blurb: "Resell AI visibility — pays for itself inside one client retainer.",
-    featured: false,
-    features: [
-      "10 brands — add one per client",
-      "Unlimited tracked prompts",
-      "Everything in Teams",
-      "Agentic Actions — auto-publish fixes",
-      "White-label reports & API access",
-      "AI referral + ROI analytics",
-      "Priority support",
-    ],
-  },
-];
 
 const FAQS = [
   {
@@ -91,21 +31,12 @@ const FAQS = [
   },
 ];
 
-function Check() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M5 12.5l4.5 4.5L19 7.5"
-        stroke="#FB4D17"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 export default function PricingPage() {
+  // The page copy has two versions for the same reason the cards do: while
+  // onboarding is manual the hero promises a human, and once checkout is open
+  // it promises a working product. See `checkoutOpen` in lib/plans.ts.
+  const canBuy = checkoutOpen();
+
   return (
     <>
       <SiteHeader />
@@ -119,44 +50,22 @@ export default function PricingPage() {
                 Pay for what moves the needle.
               </h1>
               <p className="page-lead">
-                We&apos;re onboarding brands in batches while we scale. Here&apos;s
-                what each plan will cost — book a spot and our team will get you
-                set up.
+                {canBuy
+                  ? "Start free, upgrade when the numbers move. Every plan tracks your brand across every AI engine — cancel from your dashboard anytime."
+                  : "We're onboarding brands in batches while we scale. Here's what each plan will cost — book a spot and our team will get you set up."}
               </p>
             </div>
           </section>
 
-          <section className="wrap pricing-grid">
-            {TIERS.map((t) => (
-              <div key={t.name} className={`tier ${t.featured ? "tier-featured" : ""}`}>
-                {t.featured && <span className="tier-badge">Most popular</span>}
-                <h2 className="tier-name">{t.name}</h2>
-                <div className="tier-price">
-                  <span className="tier-amount">{t.price}</span>
-                  <span className="tier-cadence">/ {t.cadence}</span>
-                </div>
-                <p className="tier-blurb">{t.blurb}</p>
-                <WaitlistButton
-                  className={`btn ${t.featured ? "btn-primary" : "btn-ghost"} tier-cta`}
-                >
-                  Book a Spot
-                </WaitlistButton>
-                <ul className="tier-features">
-                  {t.features.map((f) => (
-                    <li key={f}>
-                      <Check />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </section>
+          {/* Read on the server: only Dodo knows whether yearly products exist,
+              and lib/dodo.ts must never reach the browser. */}
+          <PricingPlans yearlyAvailable={yearlyConfigured()} />
 
           <section className="wrap">
             <p className="pricing-note">
-              No card required today — nothing is charged until our team has you
-              up and running.
+              {canBuy
+                ? "Prices in USD. Taxes are calculated at checkout, and your card statement will read StayFound.tech."
+                : "No card required today — nothing is charged until our team has you up and running."}
             </p>
           </section>
 

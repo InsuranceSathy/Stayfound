@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "leads": "node --env-file=.env.local scripts/leads.mjs"
+    "leads": "node --env-file=.env.local scripts/leads.mjs",
+    "dodo:check": "node --env-file=.env.local scripts/dodo-check.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

@@ -1,6 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { requirePlan, type BillingInterval, type PlanId } from "@/lib/plans";
+
+/**
+ * What the paywall sells in one click.
+ *
+ * Solo, because this paywall follows a *single* free report on a single brand —
+ * the visitor has shown they want that one brand tracked, not a portfolio. The
+ * price is read from the plan catalogue rather than written into the copy, so
+ * the button cannot advertise a number Dodo does not charge; anyone who needs
+ * more than one brand gets the compare-plans link instead of a surprise.
+ */
+const PAYWALL_PLAN: PlanId = "solo";
+const PAYWALL_INTERVAL: BillingInterval = "monthly";
+const plan = requirePlan(PAYWALL_PLAN);
 
 type Engine = { name: string; mentioned: boolean; score: number };
 type Competitor = { name: string; share: number; you?: boolean };
@@ -98,14 +112,35 @@ export function VisibilityCheck() {
     }
   }
 
+  /**
+   * The paywall CTA, on the subscription checkout that the rest of the app
+   * uses. It replaced a separate /api/checkout route that opened a one-time
+   * `/payments` link: that one recorded nothing, so a customer who paid got no
+   * entitlement, and its single product id was not tied to a plan.
+   *
+   * This is a public page, so most people clicking are signed out — checkout
+   * needs an account to attach the subscription to. Every failure falls back to
+   * /pricing rather than dead-ending on an error: whatever went wrong, the page
+   * that lists the plans is somewhere useful to be.
+   */
   async function startCheckout() {
     try {
-      const res = await fetch("/api/checkout", { method: "POST" });
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: PAYWALL_PLAN, interval: PAYWALL_INTERVAL }),
+      });
+
+      if (res.status === 401) {
+        window.location.assign("/sign-in");
+        return;
+      }
+
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else window.location.href = "https://app.stayfound.tech";
+      if (data.url) window.location.assign(data.url);
+      else window.location.assign("/pricing");
     } catch {
-      window.location.href = "https://app.stayfound.tech";
+      window.location.assign("/pricing");
     }
   }
 
@@ -167,12 +202,12 @@ export function VisibilityCheck() {
         <div className="paywall">
           <h3>You&apos;ve used your free report.</h3>
           <p>
-            Get unlimited scans, daily tracking, competitor alerts, and the
-            fixes to climb — for every brand you own.
+            {plan.name} tracks your brand across every AI engine — daily scans,
+            competitor alerts, cited sources, and the fixes to climb.
           </p>
           <div className="cta-row" style={{ justifyContent: "center" }}>
             <button className="btn btn-primary btn-lg" onClick={startCheckout}>
-              Get full access <span className="arr">→</span>
+              Get {plan.name} — ${plan.monthly}/mo <span className="arr">→</span>
             </button>
             <a
               href="https://app.stayfound.tech"
@@ -181,6 +216,9 @@ export function VisibilityCheck() {
               Log in
             </a>
           </div>
+          <p className="paywall-alt">
+            Tracking more than one brand? <a href="/pricing">Compare plans</a>.
+          </p>
         </div>
       )}
 
@@ -333,17 +371,20 @@ export function VisibilityCheck() {
         <div className="paywall" style={{ marginTop: 30 }}>
           <h3>That&apos;s your one free report.</h3>
           <p>
-            Track this score over time, add every brand you own, get alerts when
-            a competitor overtakes you, and let us ship the fixes.
+            {plan.name} tracks this score over time, tells you when a competitor
+            overtakes you, and hands you the fixes to win the answer back.
           </p>
           <div className="cta-row" style={{ justifyContent: "center" }}>
             <button className="btn btn-primary btn-lg" onClick={startCheckout}>
-              Get full access <span className="arr">→</span>
+              Get {plan.name} — ${plan.monthly}/mo <span className="arr">→</span>
             </button>
             <a href="https://app.stayfound.tech" className="btn btn-bare btn-lg">
               Log in
             </a>
           </div>
+          <p className="paywall-alt">
+            Tracking more than one brand? <a href="/pricing">Compare plans</a>.
+          </p>
         </div>
         </>
       )}
