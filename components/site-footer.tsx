@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { referralPortalUrl } from "@/lib/referral";
 
-const COLUMNS = [
+type FooterLink = {
+  href: string;
+  label: string;
+  /** Hidden until the affiliate program is configured — /refer 404s without it. */
+  needsReferral?: boolean;
+};
+
+const COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Product",
     links: [
@@ -17,6 +25,7 @@ const COLUMNS = [
       { href: "/about", label: "About" },
       { href: "/demo", label: "Book a demo" },
       { href: "/demo", label: "Contact" },
+      { href: "/refer", label: "Refer & earn", needsReferral: true },
     ],
   },
   {
@@ -29,6 +38,8 @@ const COLUMNS = [
 ];
 
 export function SiteFooter() {
+  const hasReferral = Boolean(referralPortalUrl());
+
   return (
     <footer className="foot">
       <div className="wrap foot-top">
@@ -61,11 +72,13 @@ export function SiteFooter() {
           {COLUMNS.map((col) => (
             <div className="foot-col" key={col.title}>
               <p className="foot-col-h">{col.title}</p>
-              {col.links.map((l) => (
-                <Link key={l.label} href={l.href}>
-                  {l.label}
-                </Link>
-              ))}
+              {col.links
+                .filter((l) => !l.needsReferral || hasReferral)
+                .map((l) => (
+                  <Link key={l.label} href={l.href}>
+                    {l.label}
+                  </Link>
+                ))}
             </div>
           ))}
         </div>
