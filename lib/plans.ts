@@ -39,12 +39,12 @@ export const PLANS: readonly Plan[] = [
   {
     id: "solo",
     name: "Solo",
-    monthly: 49,
+    monthly: 29,
     blurb: "For a single business owning its niche.",
     featured: false,
     features: [
       "1 brand",
-      "50 tracked prompts",
+      "30 tracked prompts",
       "All engines — ChatGPT, Gemini, Perplexity, Claude, Grok",
       "Daily refresh",
       "Sentiment + cited sources",
@@ -74,7 +74,7 @@ export const PLANS: readonly Plan[] = [
     featured: false,
     features: [
       "10 brands — add one per client",
-      "Unlimited tracked prompts",
+      "1,000 tracked prompts",
       "Everything in Teams",
       "Agentic Actions — auto-publish fixes",
       "White-label reports & API access",

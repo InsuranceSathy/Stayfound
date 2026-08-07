@@ -33,10 +33,10 @@ const HOST =
 // the pricing page hides the interval toggle until all three yearly products
 // exist. Missing yearly is a note; missing monthly is a failure.
 const EXPECTED = [
-  { plan: "SOLO", interval: "MONTHLY", usd: 49, period: "Month" },
+  { plan: "SOLO", interval: "MONTHLY", usd: 29, period: "Month" },
   { plan: "TEAMS", interval: "MONTHLY", usd: 149, period: "Month" },
   { plan: "AGENCIES", interval: "MONTHLY", usd: 499, period: "Month" },
-  { plan: "SOLO", interval: "YEARLY", usd: 490, period: "Year", optional: true },
+  { plan: "SOLO", interval: "YEARLY", usd: 290, period: "Year", optional: true },
   { plan: "TEAMS", interval: "YEARLY", usd: 1490, period: "Year", optional: true },
   { plan: "AGENCIES", interval: "YEARLY", usd: 4990, period: "Year", optional: true },
 ];
