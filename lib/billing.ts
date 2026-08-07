@@ -4,7 +4,7 @@
 // this deployment's DODO_PRODUCT_* env to resolve a product id into a plan.
 
 import { pool } from "@/lib/db";
-import { planForProduct } from "@/lib/dodo";
+import { planForProduct, referralMetadataKey } from "@/lib/dodo";
 import { PAID_PLAN_IDS, type BillingInterval, type PlanId } from "@/lib/plans";
 
 /** Dodo's status, stored verbatim. Only some of these decide access. */
@@ -97,6 +97,8 @@ export interface SubscriptionUpdate {
   cancelAtPeriodEnd: boolean;
   /** The event's own timestamp, used to drop out-of-order deliveries. */
   eventAt: string;
+  /** Affiliate referral id, when this subscription came from a referred visitor. */
+  referralId: string | null;
 }
 
 /** Events that change what an account is entitled to. */
@@ -158,6 +160,10 @@ export function parseSubscriptionEvent(event: DodoEvent): SubscriptionUpdate | n
   const rawUserId = metadata.user_id;
   const userId = typeof rawUserId === "string" && rawUserId ? rawUserId : null;
 
+  const rawReferral = metadata[referralMetadataKey()];
+  const referralId =
+    typeof rawReferral === "string" && rawReferral ? rawReferral : null;
+
   return {
     userId,
     subscriptionId,
@@ -169,6 +175,7 @@ export function parseSubscriptionEvent(event: DodoEvent): SubscriptionUpdate | n
     cancelAtPeriodEnd:
       Boolean(data.cancel_at_next_billing_date) || type === "subscription.cancelled",
     eventAt: event?.timestamp ?? new Date().toISOString(),
+    referralId,
   };
 }
 

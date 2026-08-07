@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next"
+import { endorselyOrgId } from "@/lib/referral";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,6 +36,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const orgId = endorselyOrgId();
+
   return (
     <html
       lang="en"
@@ -41,6 +45,18 @@ export default function RootLayout({
     >
       <body>
         {children}
+        {/* Affiliate attribution. Loads before the page is interactive so
+            `window.endorsely_referral` is populated by the time anyone can
+            click a Subscribe button — `afterInteractive` would race the
+            checkout request on a fast click and silently lose the referral. */}
+        {orgId && (
+          <Script
+            id="endorsely"
+            strategy="beforeInteractive"
+            src="https://assets.endorsely.com/endorsely.js"
+            data-endorsely={orgId}
+          />
+        )}
         <Analytics />
       </body>
     </html>

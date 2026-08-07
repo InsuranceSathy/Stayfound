@@ -9,6 +9,7 @@ import {
   type BillingInterval,
   type PlanId,
 } from "@/lib/plans";
+import { readReferralId } from "@/lib/referral";
 
 type BillingInfo = {
   plan: PlanId;
@@ -95,7 +96,7 @@ export function BillingPanel() {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, interval }),
+        body: JSON.stringify({ plan, interval, referral: readReferralId() }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) {

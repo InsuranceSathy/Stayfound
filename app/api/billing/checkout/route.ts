@@ -45,6 +45,23 @@ function returnUrl(req: Request): string {
   return `${origin.replace(/\/$/, "")}/dashboard?tab=overview&checkout=complete`;
 }
 
+/**
+ * The affiliate referral id off the request body.
+ *
+ * The only body field this route trusts besides plan and interval, and the
+ * exception is deliberate: Endorsely exposes the id as `window.endorsely_referral`
+ * rather than a server-readable cookie, so the browser is the only thing that
+ * can see it. It is safe to accept because it grants nothing — it decides who
+ * is credited a commission, never what the payer receives — and self-referral
+ * is equally possible by clicking your own link, so the body adds no new abuse.
+ *
+ * Length-capped: it ends up in Dodo's metadata on every payment we create.
+ */
+function referralId(body: { referral?: unknown }): string | null {
+  const raw = body?.referral;
+  return typeof raw === "string" && raw ? raw.slice(0, 200) : null;
+}
+
 export async function POST(req: Request) {
   // Enforced here, not just in the UI. Hiding the buttons stops the honest
   // path; this stops every other one, and a charge landing while the pricing
@@ -64,7 +81,7 @@ export async function POST(req: Request) {
   if (!user) return fail("Please sign in first.", 401);
   if (!user.email) return fail("This account has no email address to bill.", 400);
 
-  let body: { plan?: unknown; interval?: unknown };
+  let body: { plan?: unknown; interval?: unknown; referral?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -100,6 +117,7 @@ export async function POST(req: Request) {
       interval,
       returnUrl: returnUrl(req),
       customerId: existing.customerId,
+      referralId: referralId(body),
     });
     return NextResponse.json({ url: checkout.url }, { headers: NO_STORE });
   } catch (err) {

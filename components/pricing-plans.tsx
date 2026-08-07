@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { WaitlistButton } from "@/components/waitlist-form";
+import { readReferralId } from "@/lib/referral";
 import {
   PLANS,
   YEARLY_MONTHS,
@@ -46,7 +47,7 @@ export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: bo
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, interval }),
+        body: JSON.stringify({ plan, interval, referral: readReferralId() }),
       });
 
       if (res.status === 401) {

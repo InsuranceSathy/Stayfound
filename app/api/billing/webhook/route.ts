@@ -16,6 +16,7 @@
 import { NextResponse } from "next/server";
 import { applySubscriptionUpdate, parseSubscriptionEvent } from "@/lib/billing";
 import { verifyStandardWebhook } from "@/lib/standard-webhooks";
+import { reportConversion } from "@/lib/endorsely";
 
 export async function POST(req: Request) {
   // Must be the raw text: the signature covers the exact bytes Dodo sent, so
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
 
+  const type = (event as { type?: string })?.type;
   const update = parseSubscriptionEvent(event as Parameters<typeof parseSubscriptionEvent>[0]);
   if (!update) {
     // Payment-level events, and products this deployment does not sell. A 200
@@ -52,6 +54,22 @@ export async function POST(req: Request) {
 
   switch (result.status) {
     case "applied":
+      // Money actually changed hands only on these two. `plan_changed` and the
+      // cancel/pause family also apply cleanly to the row, but reporting them
+      // would credit an affiliate a second commission for a plan switch.
+      // Reported after the row is written, and never allowed to throw — see
+      // lib/endorsely.ts for why a retry here would be worse than a miss.
+      if (
+        update.referralId &&
+        (type === "subscription.active" || type === "subscription.renewed")
+      ) {
+        await reportConversion({
+          referralId: update.referralId,
+          plan: update.plan,
+          interval: update.interval,
+          customerId: update.customerId,
+        });
+      }
       return NextResponse.json({ received: true });
     case "stale":
       // A redelivery of an event that newer state has already superseded.

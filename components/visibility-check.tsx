@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { requirePlan, type BillingInterval, type PlanId } from "@/lib/plans";
+import { readReferralId } from "@/lib/referral";
 
 /**
  * What the paywall sells in one click.
@@ -128,7 +129,11 @@ export function VisibilityCheck() {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: PAYWALL_PLAN, interval: PAYWALL_INTERVAL }),
+        body: JSON.stringify({
+          plan: PAYWALL_PLAN,
+          interval: PAYWALL_INTERVAL,
+          referral: readReferralId(),
+        }),
       });
 
       if (res.status === 401) {

@@ -114,6 +114,18 @@ export function planForProduct(
   return null;
 }
 
+/**
+ * The metadata key a referral id travels under on a Dodo payment.
+ *
+ * Ours to choose, because Endorsely has no native Dodo integration: we put the
+ * id on the payment and read it back off the webhook to report the conversion.
+ * Configurable so switching affiliate platforms is an env change rather than a
+ * deploy, and defaulted so a missing var cannot silently drop attribution.
+ */
+export function referralMetadataKey(): string {
+  return process.env.REFERRAL_METADATA_KEY || "endorsely_referral";
+}
+
 export class DodoError extends Error {
   constructor(
     message: string,
@@ -175,6 +187,8 @@ export async function createCheckoutSession(opts: {
   interval: BillingInterval;
   returnUrl: string;
   customerId?: string | null;
+  /** Affiliate referral id, when this checkout came from a referred visitor. */
+  referralId?: string | null;
 }): Promise<CheckoutSession> {
   const body = {
     product_cart: [{ product_id: opts.productId, quantity: 1 }],
@@ -185,6 +199,10 @@ export async function createCheckoutSession(opts: {
       : { email: opts.email, name: opts.name || opts.email.split("@")[0] },
     return_url: opts.returnUrl,
     metadata: {
+      // Spread first so a mis-set REFERRAL_METADATA_KEY can shadow nothing that
+      // matters. The three keys below decide which account gets which plan; a
+      // referral id only decides who gets paid a commission for it.
+      ...(opts.referralId ? { [referralMetadataKey()]: opts.referralId } : {}),
       user_id: opts.userId,
       plan: opts.plan,
       interval: opts.interval,
