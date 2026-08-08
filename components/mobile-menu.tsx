@@ -82,7 +82,7 @@ export function MobileMenu() {
             tabIndex={open ? 0 : -1}
             onClick={() => setOpen(false)}
           >
-            Get my free report <span className="arr">→</span>
+            Check my brand
           </Link>
         </nav>
       </div>
