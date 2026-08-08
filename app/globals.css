@@ -7968,3 +7968,167 @@ canvas {
 }
 /* the oversized purple wordmark watermark belonged to the old skin */
 .foot-mark { display: none; }
+
+
+/* ============================================================================
+   DASHBOARD, IN THE SAME VOICE
+   The report is a document, so it gets the landing's treatment: ink and
+   vellum, a text serif for anything written and a mono for anything measured.
+   Done by re-pointing the shell's own tokens rather than rewriting its rules,
+   so every panel, table and chart follows from one place.
+   ========================================================================= */
+.sf-shell,
+.sf-report {
+  --ground: var(--sf-ink);
+  --ground-2: #0e1014;
+  --surface: var(--sf-sheet);
+  --surface-2: #161920;
+  --surface-3: #1b1f27;
+  --text: var(--sf-vellum);
+  --muted: #a8a69e;
+  --muted-2: var(--sf-graphite);
+  --faint: var(--sf-faint);
+  --border: var(--sf-rule);
+  --border-strong: rgba(236, 233, 225, 0.22);
+  --accent: var(--sf-signal);
+  --accent-2: var(--sf-signal);
+  --accent-3: var(--sf-signal);
+  --accent-soft: rgba(242, 199, 68, 0.12);
+  --accent-line: rgba(242, 199, 68, 0.34);
+  --ink: var(--sf-ink);
+  --sans: var(--sf-serif);
+  --mono: var(--sf-mono);
+  /* charts: your brand takes the signal, everyone else the de-emphasis gray.
+     Validated on this surface — CVD dE 35.3, both clear 3:1. */
+  --viz-surface: var(--sf-sheet);
+  --viz-you: var(--sf-signal);
+  --viz-ctx: #77746c; /* neutral warm gray — the old value carried a purple cast */
+  --viz-track: rgba(236, 233, 225, 0.09); /* neutral: a yellow-tinted track reads olive on ink */
+
+  background: var(--sf-ink);
+  color: var(--sf-vellum);
+}
+
+/* Headings and prose are set in the serif; anything counted stays mono. Both
+   roots are listed because the marketing page renders a real panel too. */
+.sf-shell .sf-panel-t,
+.sf-report .sf-panel-t,
+.sf-shell .sf-top-t,
+.sf-shell .sf-hero-verdict,
+.sf-shell .sf-move-head h3,
+.sf-shell .sf-next-body h3,
+.sf-shell .sf-idea h3,
+.sf-shell .dash-hi {
+  font-family: var(--sf-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.sf-shell .sf-hero-num,
+.sf-shell .sf-tile-v,
+.sf-report .sf-tile-v,
+.sf-shell .sf-meter-val,
+.sf-report .sf-meter-val,
+.sf-shell .sf-bar-val,
+.sf-report .sf-bar-val {
+  font-family: var(--sf-mono);
+  font-weight: 500;
+}
+.sf-shell .sf-lede,
+.sf-shell .sf-narrative,
+.sf-shell .sf-hero-mean,
+.sf-shell .sf-move-why,
+.sf-shell .sf-steps li,
+.sf-shell .sf-src-note,
+.sf-shell .sf-idea p,
+.sf-shell .sf-move-body p,
+.sf-shell .sf-next-body p,
+.sf-shell .sf-empty {
+  font-family: var(--sf-serif);
+}
+/* Panels are sheets of a document, not app cards. */
+.sf-shell .sf-panel,
+.sf-report .sf-panel,
+.sf-shell .sf-tile,
+.sf-report .sf-tile,
+.sf-shell .sf-hero {
+  border-radius: 4px;
+}
+.sf-shell .sf-side-link { border-radius: 3px; }
+.sf-shell .sf-side-brand {
+  font-family: var(--sf-serif);
+  font-weight: 500;
+}
+/* The primary action wears vellum, matching the marketing pages. */
+.sf-shell .btn-primary {
+  background: var(--sf-vellum);
+  background-image: none;
+  color: var(--sf-ink);
+  border: 1px solid var(--sf-vellum);
+  border-radius: 3px;
+  font-family: var(--sf-mono);
+  font-weight: 500;
+  box-shadow: none;
+}
+.sf-shell .btn-primary:hover {
+  background: var(--sf-signal);
+  border-color: var(--sf-signal);
+}
+.sf-shell .btn-ghost {
+  font-family: var(--sf-mono);
+  border-radius: 3px;
+}
+
+/* ---- report glimpse: a page of the real thing, on the marketing site ---- */
+.sfx-glimpse-frame {
+  background: var(--sf-ink);
+  border: 1px solid var(--sf-rule);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.sfx-glimpse-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--sf-rule);
+  background: rgba(236, 233, 225, 0.02);
+}
+.sfx-glimpse-brand {
+  font-family: var(--sf-serif);
+  font-size: 15px;
+  color: var(--sf-vellum);
+}
+.sfx-glimpse-cat {
+  font-family: var(--sf-mono);
+  font-size: 11px;
+  color: var(--sf-faint);
+}
+.sfx-glimpse-tag {
+  margin-left: auto;
+  font-family: var(--sf-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sf-signal);
+  border: 1px solid rgba(242, 199, 68, 0.35);
+  border-radius: 3px;
+  padding: 2px 7px;
+}
+.sfx-glimpse-body { padding: 18px; }
+.sfx-glimpse-tiles {
+  margin-top: 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.sfx-glimpse-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 14px;
+}
+.sfx-glimpse-grid .sf-panel { margin-top: 14px; }
+@media (max-width: 860px) {
+  .sfx-glimpse-tiles { grid-template-columns: 1fr 1fr; }
+  .sfx-glimpse-grid { grid-template-columns: 1fr; }
+  .sfx-glimpse-body { padding: 13px; }
+}
