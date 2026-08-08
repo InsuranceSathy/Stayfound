@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Newsreader, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next"
@@ -18,6 +18,20 @@ const geistMono = Geist_Mono({
 const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
+});
+
+// The answer is prose a machine wrote, so it is set in a text serif; the
+// measurements around it are set in a mono. Two voices, no neutral SaaS sans.
+const newsreader = Newsreader({
+  variable: "--font-answer",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-instrument",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -42,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${newsreader.variable} ${plexMono.variable} antialiased`}
     >
       <body>
         {children}

@@ -5540,3 +5540,320 @@ canvas {
   margin: 0;
   max-width: 72ch;
 }
+
+/* ============================================================================
+   ANSWER HERO
+   The product's own artifact, used as the hero: a generated answer with the
+   customer missing from it. Deliberately monochrome — the single accent is
+   spent on the omission and nowhere else, so the eye has one place to land.
+   ========================================================================= */
+.ah {
+  --ah-ink: #0c0d10;
+  --ah-sheet: #121419;
+  --ah-vellum: #ece9e1; /* warm off-white: prose, not UI text */
+  --ah-graphite: #8d8c86;
+  --ah-faint: #5d5c58;
+  --ah-rule: rgba(236, 233, 225, 0.13);
+  --ah-signal: #f2c744; /* a proof-reader's mark; used once */
+  --ah-serif: var(--font-answer), ui-serif, Georgia, serif;
+  --ah-mono: var(--font-instrument), ui-monospace, Menlo, monospace;
+
+  background: var(--ah-ink);
+  padding: 72px 0 84px;
+  border-bottom: 1px solid var(--ah-rule);
+}
+.ah-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* eyebrow */
+.ah-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--ah-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--ah-faint);
+  margin: 0 0 20px;
+}
+.ah-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ah-signal);
+  box-shadow: 0 0 0 3px rgba(242, 199, 68, 0.14);
+}
+
+/* the answer sheet */
+.ah-sheet {
+  margin: 0;
+  background: var(--ah-sheet);
+  border: 1px solid var(--ah-rule);
+  border-radius: 4px; /* near-square: this is a document, not an app card */
+  padding: 26px 30px 22px;
+}
+.ah-prompt {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ah-rule);
+  margin-bottom: 20px;
+}
+.ah-prompt-k,
+.ah-sources-k {
+  font-family: var(--ah-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ah-faint);
+  flex: none;
+}
+.ah-prompt-v {
+  font-family: var(--ah-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ah-graphite);
+}
+
+/* the prose */
+.ah-answer {
+  font-family: var(--ah-serif);
+  font-size: clamp(21px, 2.5vw, 29px);
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  color: var(--ah-vellum);
+  margin: 0;
+  min-height: 4.5em; /* hold the box so typing doesn't reflow the page */
+}
+.ah-named {
+  background: none;
+  color: var(--ah-vellum);
+  font-weight: 600;
+  box-shadow: inset 0 -0.5em 0 rgba(236, 233, 225, 0.07);
+}
+.ah-caret {
+  display: inline-block;
+  width: 0.5ch;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--ah-vellum);
+  animation: ah-blink 1s steps(1) infinite;
+}
+@keyframes ah-blink {
+  50% { opacity: 0; }
+}
+
+/* the omission — the one coloured thing on the page */
+.ah-gap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  opacity: 0;
+  transform: translateY(4px);
+}
+.ah-gap.in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+}
+.ah-slot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 190px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px dashed rgba(242, 199, 68, 0.5);
+  border-radius: 3px;
+  background: rgba(242, 199, 68, 0.05);
+}
+.ah-slot-ghost {
+  font-family: var(--ah-serif);
+  font-size: 19px;
+  color: rgba(242, 199, 68, 0.42);
+}
+.ah-slot::after {
+  content: "";
+  width: 1px;
+  height: 18px;
+  margin-left: 8px;
+  background: var(--ah-signal);
+  animation: ah-blink 1.1s steps(1) infinite;
+}
+.ah-gap-note {
+  font-family: var(--ah-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  color: var(--ah-signal);
+}
+
+/* sources — the other real artifact of an answer */
+.ah-sources {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ah-rule);
+  opacity: 0;
+}
+.ah-sources.in {
+  opacity: 1;
+  transition: opacity 0.6s ease 0.3s;
+}
+.ah-source {
+  font-family: var(--ah-mono);
+  font-size: 11.5px;
+  color: var(--ah-graphite);
+  text-decoration: underline;
+  text-decoration-color: var(--ah-rule);
+  text-underline-offset: 3px;
+}
+
+/* the claim */
+.ah-say {
+  margin-top: 46px;
+  max-width: 60ch;
+}
+.ah-h1 {
+  font-family: var(--ah-serif);
+  font-size: clamp(31px, 4.6vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.028em;
+  font-weight: 400;
+  color: var(--ah-vellum);
+  margin: 0 0 16px;
+}
+.ah-h1 em {
+  font-style: italic;
+  color: var(--ah-signal);
+}
+.ah-sub {
+  font-family: var(--ah-serif);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ah-graphite);
+  margin: 0 0 26px;
+  max-width: 52ch;
+}
+.ah-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ah-btn {
+  font-family: var(--ah-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--ah-ink);
+  background: var(--ah-vellum);
+  border: 1px solid var(--ah-vellum);
+  border-radius: 3px;
+  padding: 12px 22px;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.ah-btn:hover {
+  background: var(--ah-signal);
+  border-color: var(--ah-signal);
+}
+.ah-btn-quiet {
+  font-family: var(--ah-mono);
+  font-size: 13px;
+  color: var(--ah-graphite);
+  text-decoration: none;
+  padding: 12px 6px;
+  border-bottom: 1px solid var(--ah-rule);
+}
+.ah-btn-quiet:hover { color: var(--ah-vellum); }
+.ah-btn:focus-visible,
+.ah-btn-quiet:focus-visible {
+  outline: 2px solid var(--ah-signal);
+  outline-offset: 3px;
+}
+.ah-note {
+  font-family: var(--ah-mono);
+  font-size: 11.5px;
+  color: var(--ah-faint);
+  margin: 18px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ah-caret,
+  .ah-slot::after { animation: none; }
+  .ah-gap,
+  .ah-sources { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .ah { padding: 44px 0 56px; }
+  .ah-wrap { padding: 0 18px; }
+  .ah-sheet { padding: 20px 18px 18px; }
+  .ah-answer { font-size: 19px; min-height: 5.1em; }
+  .ah-gap { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .ah-slot { min-width: 150px; }
+  .ah-say { margin-top: 34px; }
+  .ah-cta { width: 100%; }
+  .ah-btn { flex: 1; text-align: center; }
+}
+
+/* claim: headline against the supporting column, so the row fills the measure
+   instead of trailing off into dead space on the right */
+.ah-say {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 44px;
+  align-items: end;
+  max-width: none;
+}
+.ah-h1 { margin: 0; }
+.ah-h1 em { display: block; }
+.ah-sub { margin-bottom: 22px; }
+
+/* The marketing bar speaks the hero's language: no gradient pill, no purple.
+   Scoped to .site-nav so the app shell is untouched. */
+.site-nav .brand {
+  font-family: var(--font-answer), ui-serif, Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.site-nav .nav-links a,
+.site-nav .signin {
+  font-family: var(--font-instrument), ui-monospace, monospace;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+}
+.site-nav .nav-inner {
+  border-radius: 3px;
+  border-color: rgba(236, 233, 225, 0.1);
+  background: rgba(12, 13, 16, 0.7);
+}
+.site-nav .btn-primary {
+  background: #ece9e1;
+  background-image: none;
+  color: #0c0d10;
+  border: 1px solid #ece9e1;
+  border-radius: 3px;
+  font-family: var(--font-instrument), ui-monospace, monospace;
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: none;
+}
+.site-nav .btn-primary:hover {
+  background: #f2c744;
+  border-color: #f2c744;
+}
+.site-nav .btn-primary .arr { display: none; }
+
+@media (max-width: 860px) {
+  .ah-say { grid-template-columns: 1fr; gap: 26px; align-items: start; }
+}
