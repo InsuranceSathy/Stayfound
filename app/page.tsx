@@ -1,494 +1,131 @@
-import { VisibilityChart } from "@/components/visibility-chart";
-import { AnswerScroller } from "@/components/answer-scroller";
+import { AnswerHero } from "@/components/answer-hero";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { VisibilityCheck } from "@/components/visibility-check";
+import { ReportGlimpse } from "@/components/report-glimpse";
 
-const RANKS = [
-  { name: "Your brand", you: true, val: 61.5, trend: "+4.2", up: true },
-  { name: "Notion", val: 46.3, trend: "+0.6", up: true },
-  { name: "Asana", val: 45.1, trend: "-0.6", up: false },
-  { name: "Linear", val: 31.8, trend: "+3.8", up: true },
+const ENGINES = [
+  "ChatGPT",
+  "Gemini",
+  "Perplexity",
+  "Claude",
+  "Grok",
+  "Copilot",
+  "AI Overviews",
 ];
 
-// Answer share per engine — shown as stat chips in the chart header rather than
-// its own panel, so the fold still reaches the prompt and competitor tables.
-const ENGINE_ROWS = [
-  { name: "ChatGPT", val: 71 },
-  { name: "Perplexity", val: 64 },
-  { name: "Gemini", val: 48 },
-  { name: "Claude", val: 39 },
-  { name: "Grok", val: 22 },
-];
-
-const KPIS = [
+/**
+ * What a scan actually returns. Written from the report itself rather than from
+ * a feature list, so nothing here promises something the product doesn't do.
+ * The numbering is the order the report is read in, not decoration.
+ */
+const CONTENTS = [
   {
-    l: "Answer share",
-    v: "61.5%",
-    d: "↑ 2.1",
-    good: true,
-    sub: "named in 29 / 42",
-  },
-  { l: "Avg. position", v: "2.3", d: "↑ 0.4", good: true, sub: "when named" },
-  { l: "Citation rate", v: "38%", d: "↑ 6", good: true, sub: "answers linking you" },
-  { l: "Answers lost", v: "13", d: "↓ 3", good: true, sub: "rival named, you weren't" },
-  // Sources you own, not referral clicks — the dashboard measures what
-  // assistants say and cite, never site traffic. See components/dashboard/
-  // analytics-panel.tsx.
-  { l: "Sources you own", v: "9 / 24", d: "↑ 2", good: true, sub: "cited domains you're on" },
-];
-
-// Prompt-level truth: AI search is won or lost one question at a time, so the
-// unit of analysis is the prompt, not the day.
-const PROMPTS = [
-  {
-    q: "best project management software for startups",
-    pos: 1,
-    engines: 5,
-    val: 84,
-    first: "You win it",
+    k: "Where you rank",
+    v: "Every brand the assistants name in your category, the share of voice each one takes, and how far back you sit.",
   },
   {
-    q: "tools to track team workload across projects",
-    pos: 2,
-    engines: 4,
-    val: 61,
-    first: "Asana first",
+    k: "The pages they read",
+    v: "The sources behind the answers — the roundups, directories and threads — and which of them you are missing from.",
   },
   {
-    q: "notion vs asana for a small product team",
-    pos: 3,
-    engines: 4,
-    val: 52,
-    first: "Notion first",
-  },
-  {
-    q: "cheapest alternative to monday.com",
-    pos: null,
-    engines: 1,
-    val: 9,
-    first: "Linear wins it",
+    k: "The fixes",
+    v: "Ranked by impact, each with the steps to ship it. Where a fix is schema, crawler access or a listing, the block is written out ready to paste.",
   },
 ];
-const ENGINE_COUNT = 5;
 
 export default function Home() {
   return (
     <>
       <SiteHeader />
 
-      <header className="hero">
-        <div className="wrap">
-          <div className="hero-top">
-            <a
-              href="https://www.producthunt.com/products/stayfound?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-stayfound"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ph-badge"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1203821&theme=light&t=1784742393771"
-                alt="StayFound - We help your site to be visible for every ai engine. | Product Hunt"
-                width={250}
-                height={54}
-              />
-            </a>
-            <h1>
-              Be the brand AI keeps <span className="em">recommending</span>
-            </h1>
-            <div className="cta-row">
-              <a href="#report" className="btn btn-primary btn-lg">
-                Get my free report <span className="arr">→</span>
-              </a>
-              <a href="#inside" className="btn btn-bare btn-lg">
-                See what&apos;s inside
-              </a>
-            </div>
-            <p className="hero-sub">
-              Give us your domain — we&apos;ll run the full AI-visibility report
-              ourselves and email it to you.
-            </p>
-          </div>
-        </div>
+      <AnswerHero />
 
-        <div className="annot" aria-hidden="true">
-          <span>your real answers</span>
-          <svg width="112" height="52" viewBox="0 0 112 52" fill="none">
-            <path
-              d="M2 8c34-6 68 2 88 24"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeDasharray="0 0"
-            />
-            <path
-              d="M78 34l14 2-2-14"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-
-        <div className="wrap">
-          <div className="dash-shell">
-            <div className="browser">
-              <div className="browser-bar">
-                <div className="lights">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-                <div className="browser-url">
-                  stayfound.ai/<b>acme.com</b>
-                </div>
-                <svg
-                  className="browser-exp"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                </svg>
-              </div>
-
-              <div className="dash">
-                <div className="dash-bar">
-                  <span className="dash-chip">
-                    <span className="dot" />
-                    acme.com
-                  </span>
-                  <span className="seg">
-                    <span className="arw">‹</span>
-                    <span>Last 7d</span>
-                    <span className="on">Last 30d</span>
-                    <span>Last 90d</span>
-                    <span className="arw">›</span>
-                  </span>
-                  <span className="icon-btn">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M21 12a9 9 0 1 1-3-6.7" />
-                      <path d="M21 3v6h-6" />
-                    </svg>
-                  </span>
-                  <span className="dash-date">Jun 22 – Jul 21</span>
-                </div>
-
-                <div className="dash-kpis">
-                  {KPIS.map((k) => (
-                    <div key={k.l}>
-                      <p className="kpi-l">{k.l}</p>
-                      <div className="kpi-v">
-                        {k.v}
-                        <span
-                          className="kv-d"
-                          style={{ color: k.good ? "var(--good)" : "var(--bad)" }}
-                        >
-                          {k.d}
-                        </span>
-                      </div>
-                      <p className="kpi-sub">{k.sub}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="panel-full">
-                  <div className="panel-head">
-                    <div>
-                      <p className="metric-label" style={{ margin: 0 }}>
-                        Answer share
-                        <span className="metric-note">
-                          {" "}
-                          · 42 prompts × 5 engines, re-asked every 5 days
-                        </span>
-                      </p>
-                    </div>
-                    <div className="engines">
-                      {ENGINE_ROWS.map((e) => (
-                        <span className="pill" key={e.name}>
-                          {e.name}
-                          <b>{e.val}%</b>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <VisibilityChart />
-                </div>
-
-                <div className="dash-body">
-                  <div className="panel left">
-                    <div className="panel-tabs">
-                      <span className="ptabs">
-                        <span className="on">Prompt</span>
-                        <span>Page</span>
-                        <span>Topic</span>
-                      </span>
-                      <span className="sort-l">Answer share ↓</span>
-                    </div>
-                    <div className="prows">
-                      {PROMPTS.map((p) => (
-                        <div
-                          className={`prow ${p.pos === null ? "lost" : ""}`}
-                          key={p.q}
-                        >
-                          <span
-                            className="prow-fill"
-                            style={{ width: `${(p.val / 84) * 100}%` }}
-                          />
-                          <span className="prow-q">&ldquo;{p.q}&rdquo;</span>
-                          <span
-                            className="prow-eng"
-                            title={`Named in ${p.engines} of ${ENGINE_COUNT} engines`}
-                          >
-                            {p.engines}/{ENGINE_COUNT}
-                          </span>
-                          <span
-                            className="prow-pos"
-                            title={
-                              p.pos === null
-                                ? `Not named — ${p.first}`
-                                : `Ranked #${p.pos} — ${p.first}`
-                            }
-                          >
-                            {p.pos === null ? "—" : `#${p.pos}`}
-                          </span>
-                          <span className="prow-val">{p.val}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="panel">
-                    <div className="panel-tabs">
-                      <span className="ptabs">
-                        <span className="on">Competitor</span>
-                        <span>Category</span>
-                        <span>Source</span>
-                      </span>
-                      <span className="sort-l">Share of voice ↓</span>
-                    </div>
-                    <div className="hbars blue">
-                      {RANKS.map((r, i) => (
-                        <div
-                          className={`hbar ${r.you ? "you" : ""}`}
-                          key={r.name}
-                        >
-                          <span
-                            className="hbar-fill"
-                            style={{ width: `${(r.val / 61.5) * 100}%` }}
-                          />
-                          <span className="hbar-n">{i + 1}</span>
-                          <span className="hbar-name">
-                            {r.name}
-                            {r.you && <span className="badge-you">You</span>}
-                          </span>
-                          <span
-                            className="hbar-d"
-                            style={{
-                              color:
-                                r.trend === "0.0"
-                                  ? "var(--muted-2)"
-                                  : r.up
-                                    ? "var(--good)"
-                                    : "var(--bad)",
-                            }}
-                          >
-                            {r.trend === "0.0" ? "–" : `${r.trend}%`}
-                          </span>
-                          <span className="hbar-val">{r.val}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <section id="engines" className="strip" style={{ marginTop: 90 }}>
-        <div className="wrap strip-inner">
-          <span className="strip-label">Tracking every answer engine</span>
-          {["ChatGPT", "Gemini", "Perplexity", "Claude", "Grok", "Copilot", "AI Overviews"].map(
-            (e) => (
-              <span className="engine-name" key={e}>
-                <span className="gd" />
-                {e}
-              </span>
-            ),
-          )}
-        </div>
-      </section>
-
-      <AnswerScroller />
-
-      <section id="loop" className="section-pad">
-        <div className="wrap band">
-          <div className="band-head">
-            <h2 className="sec-title">Don&apos;t just watch AI search. Win it.</h2>
-            <p className="sec-sub">
-              Most tools stop at a dashboard. StayFound closes the loop — from
-              seeing where you lose, to fixing it, to shipping the fix on its
-              own.
-            </p>
-          </div>
-          <div className="loop">
-            <div className="step">
-              <div className="n">
-                <span className="n-num">01</span>
-                <span className="n-lab">Monitor</span>
-              </div>
-              <div className="ic">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--accent)"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M3 17l5-5 4 3 8-8" />
-                  <path d="M16 4h5v5" />
-                </svg>
-              </div>
-              <h3>Track every mention</h3>
-              <p>
-                See exactly which prompts surface your brand across every major
-                AI engine — and which competitor wins the ones you don&apos;t.
-              </p>
-              <div className="tag">ChatGPT · Gemini · Perplexity · Claude · Grok</div>
-            </div>
-            <div className="step">
-              <div className="n">
-                <span className="n-num">02</span>
-                <span className="n-lab">Optimize</span>
-              </div>
-              <div className="ic">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--accent)"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" />
-                  <circle cx="12" cy="12" r="3.4" />
-                </svg>
-              </div>
-              <h3>Find the highest-leverage moves</h3>
-              <p>
-                StayFound reads the sources winning answers cite, hands you the
-                schema and crawler rules to paste, and names the content to
-                publish next — the format, the title, and why it earns the
-                citation.
-              </p>
-              <div className="tag">Citation gaps · content to write · prioritized by lift</div>
-            </div>
-            <div className="step">
-              <div className="n">
-                <span className="n-num">03</span>
-                <span className="n-lab">Prove</span>
-              </div>
-              <div className="ic">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--accent)"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12l4 4L19 6" />
-                  <path d="M3 19h18" />
-                </svg>
-              </div>
-              <h3>Watch the answer change</h3>
-              <p>
-                Every scan is kept, so you see the score move engine by engine,
-                the sentiment shift, and the cited sources you win — proof the
-                work landed, not a promise it will.
-              </p>
-              <div className="tag">Score trend · sentiment · per-engine history</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="why" className="statband">
-        <div className="wrap why">
-          <div>
-            <div className="stat-big">60%</div>
-            <p className="stat-cap">
-              of Google searches now end without a click — the answer is the
-              destination. AI assistants are next.
-            </p>
-          </div>
-          <div>
-            <p>
-              Your buyers stopped scrolling ten blue links. They ask an
-              assistant <em>&ldquo;what&apos;s the best tool for this?&rdquo;</em>{" "}
-              and get one answer with a short list of names.
-            </p>
-            <p className="muted">
-              If you&apos;re not on that list, you never enter the conversation —
-              and you&apos;ll never see it in your analytics. StayFound makes that
-              invisible funnel visible, then helps you win it.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="check" className="section-pad" style={{ paddingTop: 0 }}>
-        <div className="wrap" id="report">
+      {/* The check sits directly under the hero. The hero makes someone want
+          their own number; making them scroll past four sections to get it was
+          the single biggest thing costing conversions. */}
+      <section className="sfx-check-band" id="report">
+        <div className="sfx-wrap sfx-check">
           <VisibilityCheck />
         </div>
       </section>
 
-      {/* Tight bottom padding: the footer is the end-cap now, so the CTA card
-          should sit close to it instead of floating in dead space. */}
-      <section className="section-pad" style={{ paddingTop: 0, paddingBottom: 56 }}>
-        <div className="wrap">
-          <div className="final">
-            <h2>Stop losing customers to answers you&apos;re not in.</h2>
-            <p>
-              Send us your domain and we&apos;ll run your AI-visibility report —
-              no setup, no account.
-            </p>
-            <div className="cta-row">
-              <a href="#report" className="btn btn-primary btn-lg">
-                Get my free report <span className="arr">→</span>
-              </a>
-              <a href="/demo" className="btn btn-ghost btn-lg">
-                Book a demo
-              </a>
-            </div>
+      <section className="sfx-engines" id="engines">
+        <div className="sfx-wrap sfx-engines-in">
+          <span className="sfx-engines-k">read every answer engine</span>
+          <div className="sfx-engine-list">
+            {ENGINES.map((e) => (
+              <span className="sfx-engine" key={e}>
+                {e}
+              </span>
+            ))}
           </div>
+        </div>
+      </section>
+
+      <section className="sfx-band" id="inside">
+        <div className="sfx-wrap">
+          <div className="sfx-head">
+            <h2 className="sfx-h2">What comes back</h2>
+            <p className="sfx-lede">
+              One page per question you actually have. No score without the
+              reason behind it.
+            </p>
+          </div>
+
+          {/* An index, not a card grid: the report is a document, so its
+              contents page is the honest way to show what it holds. */}
+          <ol className="sfx-index">
+            {CONTENTS.map((c, i) => (
+              <li className="sfx-row" key={c.k}>
+                <span className="sfx-row-n">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="sfx-row-k">{c.k}</h3>
+                <p className="sfx-row-v">{c.v}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <ReportGlimpse />
+
+      <section className="sfx-band sfx-why" id="loop">
+        <div className="sfx-wrap sfx-why-in">
+          <h2 className="sfx-h2">
+            You cannot fix what you never see.
+          </h2>
+          <div className="sfx-why-col">
+            <p>
+              A buyer asks an assistant which tool to use and gets one answer
+              naming three or four brands. There is no page two, no impression
+              count, and no line in your analytics for the times you were left
+              out — the visit simply never happens.
+            </p>
+            <p className="sfx-quiet">
+              That is the part search tools do not measure. StayFound reads the
+              answers themselves, so the omissions become something you can
+              count, work on, and watch change.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="sfx-final">
+        <div className="sfx-wrap sfx-final-in">
+          <h2 className="sfx-final-h">
+            Find out what the assistants say about you.
+          </h2>
+          <div className="sfx-final-cta">
+            <a href="#report" className="ah-btn">
+              Check my brand
+            </a>
+            <a href="/demo" className="ah-btn-quiet">
+              Book a demo
+            </a>
+          </div>
+          <p className="sfx-final-note">
+            One free check, no account. Takes about two minutes to run.
+          </p>
         </div>
       </section>
 
