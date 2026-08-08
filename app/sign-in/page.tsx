@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
-import { safeNext } from "@/lib/checkout-intent";
+import { RESUME_PATH, safeNext } from "@/lib/checkout-intent";
+import {
+  getPlan,
+  periodPrice,
+  type BillingInterval,
+  type Plan,
+} from "@/lib/plans";
 import { BrandMark } from "@/components/brand-mark";
 
 function GoogleIcon() {
@@ -32,6 +38,30 @@ function GoogleIcon() {
 export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [buying, setBuying] = useState<
+    { plan: Plan; interval: BillingInterval } | null
+  >(null);
+
+  // Someone arriving from a Get-<plan> button is mid-purchase, but the page
+  // said nothing about it — a generic sign-in screen in the middle of a
+  // checkout reads like the purchase was dropped. Read the plan out of `next`
+  // after mount rather than with useSearchParams, which would pull this
+  // statically prerendered page into a Suspense boundary.
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get("next");
+    if (!raw) return;
+    try {
+      const url = new URL(raw, window.location.origin);
+      if (url.pathname !== RESUME_PATH) return;
+      const plan = getPlan(url.searchParams.get("plan") ?? "");
+      if (!plan) return;
+      const interval: BillingInterval =
+        url.searchParams.get("interval") === "yearly" ? "yearly" : "monthly";
+      setBuying({ plan, interval });
+    } catch {
+      /* a malformed next is simply not a purchase */
+    }
+  }, []);
 
   async function continueWithGoogle() {
     setError(null);
@@ -59,10 +89,33 @@ export default function SignInPage() {
           <BrandMark size={34} />
           StayFound
         </Link>
-        <h1 className="auth-title">Win customers in AI search</h1>
-        <p className="auth-sub">
-          Sign in to track your brand across every AI engine and take action.
-        </p>
+        {buying ? (
+          <>
+            <div className="auth-intent">
+              <span className="auth-intent-k">continuing to</span>
+              <span className="auth-intent-plan">{buying.plan.name}</span>
+              <span className="auth-intent-price">
+                ${periodPrice(buying.plan, buying.interval)}
+                <span className="auth-intent-cadence">
+                  {buying.interval === "yearly" ? "/year" : "/month"}
+                </span>
+              </span>
+            </div>
+            <h1 className="auth-title">One step before checkout</h1>
+            <p className="auth-sub">
+              Sign in so the subscription attaches to your account. You&apos;ll
+              go straight to payment.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="auth-title">Win customers in AI search</h1>
+            <p className="auth-sub">
+              Sign in to track your brand across every AI engine and take
+              action.
+            </p>
+          </>
+        )}
 
         <button
           className="google-btn"
@@ -70,7 +123,11 @@ export default function SignInPage() {
           disabled={loading}
         >
           <GoogleIcon />
-          {loading ? "Redirecting to Google…" : "Continue with Google"}
+          {loading
+            ? "Redirecting to Google…"
+            : buying
+              ? "Continue with Google to pay"
+              : "Continue with Google"}
         </button>
 
         {error && <p className="auth-error">{error}</p>}

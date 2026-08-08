@@ -18,7 +18,7 @@ const PRINCIPLES = [
   {
     n: "02",
     h: "Close the loop",
-    p: "Monitor, optimize, autopublish. We don't stop at the problem — we ship the fix and prove the lift.",
+    p: "Measure, then fix. We don't stop at the problem — we hand you the exact change that closes it.",
   },
   {
     n: "03",
@@ -54,13 +54,15 @@ export default function AboutPage() {
             </p>
             <p>
               Buyers now ask ChatGPT, Gemini, Perplexity, Claude, and Grok{" "}
-              <em>&ldquo;what&apos;s the best tool for this?&rdquo;</em> and get a
+              <em>&ldquo;what&apos;s the best tool for this?&rdquo;</em>{" "}
+              and get a
               single answer with a short list of names. There&apos;s no page two.
               If you&apos;re not in the answer, you never enter the conversation —
               and you won&apos;t even see it happen in your analytics.
             </p>
             <p>
-              We built <strong>StayFound</strong> because that invisible funnel is
+              We built <strong>StayFound</strong>{" "}
+              because that invisible funnel is
               already costing companies real revenue, and the tools to fight back
               didn&apos;t exist. Most of what shipped first just watches the
               problem. We wanted something that wins.
@@ -68,8 +70,8 @@ export default function AboutPage() {
             <p>
               So StayFound does the whole loop: it shows you exactly where you lose
               across every AI engine, finds the highest-leverage moves to fix it,
-              and ships those fixes for you — then measures the lift in customers,
-              not vanity scores.
+              and hands you each fix ready to ship — schema, crawler access and
+              listings written out to paste.
             </p>
           </div>
         </section>

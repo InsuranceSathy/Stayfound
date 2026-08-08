@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: "Do I need to install anything?",
-    a: "No. Add your brand and category and StayFound starts tracking. Connecting your CMS is optional and only needed for autopublish.",
+    a: "No. Add your brand and category and StayFound starts tracking — there is nothing to install.",
   },
   {
     q: "Can I change plans later?",
