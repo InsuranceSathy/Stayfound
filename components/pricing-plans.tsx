@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { WaitlistButton } from "@/components/waitlist-form";
 import { readReferralId } from "@/lib/referral";
+import { signInThenCheckout } from "@/lib/checkout-intent";
 import {
   PLANS,
   YEARLY_MONTHS,
@@ -51,9 +52,10 @@ export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: bo
       });
 
       if (res.status === 401) {
-        // Checkout needs an account to attach the subscription to. Send them
-        // to sign in rather than showing "please sign in" next to a dead button.
-        window.location.assign("/sign-in");
+        // Checkout needs an account to attach the subscription to. The chosen
+        // plan rides along, so sign-in returns them to this purchase instead of
+        // dumping them on the dashboard.
+        window.location.assign(signInThenCheckout(plan, interval));
         return;
       }
 

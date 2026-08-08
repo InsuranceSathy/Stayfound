@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { requirePlan, type BillingInterval, type PlanId } from "@/lib/plans";
 import { readReferralId } from "@/lib/referral";
+import { signInThenCheckout } from "@/lib/checkout-intent";
 
 /**
  * What the paywall sells in one click.
@@ -137,7 +138,9 @@ export function VisibilityCheck() {
       });
 
       if (res.status === 401) {
-        window.location.assign("/sign-in");
+        // Signed out, which is the normal case on a public marketing page. The
+        // plan travels through sign-in so they come back to this purchase.
+        window.location.assign(signInThenCheckout(PAYWALL_PLAN, PAYWALL_INTERVAL));
         return;
       }
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
+import { safeNext } from "@/lib/checkout-intent";
 import { BrandMark } from "@/components/brand-mark";
 
 function GoogleIcon() {
@@ -36,7 +37,15 @@ export default function SignInPage() {
     setError(null);
     setLoading(true);
     try {
-      await signIn.social({ provider: "google", callbackURL: "/dashboard" });
+      // Read at click time rather than via useSearchParams, which would drag
+      // this statically prerendered page into a Suspense boundary for a value
+      // nothing renders. `safeNext` keeps it to same-origin paths — an
+      // attacker-supplied `next` would otherwise make our sign-in page an open
+      // redirect that arrives carrying our own credibility.
+      const next = safeNext(
+        new URLSearchParams(window.location.search).get("next"),
+      );
+      await signIn.social({ provider: "google", callbackURL: next });
     } catch {
       setError("Couldn't start sign-in. Please try again.");
       setLoading(false);
