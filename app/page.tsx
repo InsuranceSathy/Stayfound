@@ -2,6 +2,7 @@ import { AnswerHero } from "@/components/answer-hero";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { VisibilityCheck } from "@/components/visibility-check";
+import { ReportGlimpse } from "@/components/report-glimpse";
 
 const ENGINES = [
   "ChatGPT",
@@ -85,6 +86,8 @@ export default function Home() {
           </ol>
         </div>
       </section>
+
+      <ReportGlimpse />
 
       <section className="sfx-band sfx-why" id="loop">
         <div className="sfx-wrap sfx-why-in">
