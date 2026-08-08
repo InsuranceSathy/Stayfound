@@ -4,6 +4,7 @@ import { useState } from "react";
 import { requirePlan, type BillingInterval, type PlanId } from "@/lib/plans";
 import { readReferralId } from "@/lib/referral";
 import { signInThenCheckout } from "@/lib/checkout-intent";
+import { capture, EVENTS } from "@/lib/analytics";
 
 /**
  * What the paywall sells in one click.
@@ -55,6 +56,14 @@ export function VisibilityCheck() {
     setResult(data.result);
     setLive(data.live);
     setLoading(false);
+    // The score is the whole reason someone came: tracking it lets us ask
+    // whether a bad score converts better than a good one.
+    capture(EVENTS.REPORT_COMPLETED, {
+      brand,
+      category,
+      score: data.result?.score,
+      live: data.live,
+    });
   }
 
   async function pollJob(jobId: string, attempt = 0) {
@@ -87,6 +96,7 @@ export function VisibilityCheck() {
     setResult(null);
     setGated(false);
     setLoading(true);
+    capture(EVENTS.REPORT_STARTED, { brand, category });
     try {
       const res = await fetch("/api/free-check", {
         method: "POST",
@@ -97,9 +107,13 @@ export function VisibilityCheck() {
       if (data.gated) {
         setGated(true);
         setLoading(false);
+        // Their one free report is spent — this is the paywall being seen,
+        // and the denominator for everything that follows.
+        capture(EVENTS.PAYWALL_SHOWN, { brand, category, reason: "free_used" });
       } else if (!res.ok) {
         setError(data.error || "Something went wrong. Try again.");
         setLoading(false);
+        capture(EVENTS.REPORT_FAILED, { brand, category, reason: "request" });
       } else if (data.status === "done") {
         finish(data);
       } else if (data.status === "pending" && data.jobId) {
@@ -126,6 +140,7 @@ export function VisibilityCheck() {
    * that lists the plans is somewhere useful to be.
    */
   async function startCheckout() {
+    capture(EVENTS.PAYWALL_CTA_CLICKED, { plan: PAYWALL_PLAN, interval: PAYWALL_INTERVAL });
     try {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",

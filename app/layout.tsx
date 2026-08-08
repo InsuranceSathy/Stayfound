@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next"
+import { PostHogProvider } from "@/components/posthog-provider";
 import { endorselyOrgId } from "@/lib/referral";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,6 +59,7 @@ export default function RootLayout({
           />
         )}
         <Analytics />
+        <PostHogProvider />
       </body>
     </html>
   );

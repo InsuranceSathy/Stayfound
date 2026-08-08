@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
+import { resetAnalytics } from "@/lib/analytics";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export function SignOutButton() {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
+          // Drop the identity, or whoever signs in next on this browser is
+          // merged into the account that just left.
+          resetAnalytics();
           router.push("/");
           router.refresh();
         },

@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { addBrand, type AddBrandState } from "@/app/dashboard/actions";
+import { capture, EVENTS } from "@/lib/analytics";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -17,8 +18,30 @@ function SubmitButton() {
 export function AddBrandForm() {
   const [state, formAction] = useActionState<AddBrandState, FormData>(addBrand, {});
 
+  // Activation. Fires on the transition into a successful state rather than on
+  // submit, so a rejected form (duplicate brand, expired session) isn't counted
+  // as an activated account.
+  const submitted = useRef(false);
+  const recorded = useRef(false);
+  useEffect(() => {
+    if (!submitted.current || recorded.current) return;
+    if (state.error) {
+      submitted.current = false;
+      return;
+    }
+    recorded.current = true;
+    capture(EVENTS.BRAND_ADDED);
+  }, [state]);
+
   return (
-    <form className="check-form" action={formAction} style={{ marginTop: 0 }}>
+    <form
+      className="check-form"
+      action={(formData) => {
+        submitted.current = true;
+        formAction(formData);
+      }}
+      style={{ marginTop: 0 }}
+    >
       <div className="field">
         <label htmlFor="name">Your brand</label>
         <input id="name" name="name" placeholder="e.g. Linear" autoComplete="off" required />
