@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/#inside", label: "Product" },
   { href: "/#loop", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/demo", label: "Book a demo" },
 ];

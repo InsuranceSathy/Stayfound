@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { referralPortalUrl } from "@/lib/referral";
+import { allPosts, lastTouched } from "@/lib/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
@@ -37,6 +38,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
       lastModified,
     },
+    {
+      url: `${SITE_URL}/blog`,
+      changeFrequency: "weekly",
+      priority: 0.8,
+      lastModified,
+    },
+    // A post's own publish date, not today's — claiming everything changed on
+    // every deploy is how a sitemap stops being believed.
+    ...allPosts().map((post) => ({
+      url: `${SITE_URL}/blog/${post.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      lastModified: new Date(`${lastTouched(post)}T00:00:00Z`),
+    })),
     {
       url: `${SITE_URL}/privacy`,
       changeFrequency: "yearly",

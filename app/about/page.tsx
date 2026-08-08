@@ -18,7 +18,7 @@ const PRINCIPLES = [
   {
     n: "02",
     h: "Close the loop",
-    p: "Monitor, optimize, autopublish. We don't stop at the problem — we ship the fix and prove the lift.",
+    p: "Monitor, optimize, prove. We don't stop at the problem — we hand you the fix and measure whether it landed.",
   },
   {
     n: "03",

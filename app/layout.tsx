@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "StayFound — Be the brand AI keeps recommending",
     description:
-      "The AI answer visibility suite. Monitor, optimize, and autopublish your way into every answer.",
+      "The AI answer visibility suite. See where you lose, get the fix that wins it back, and watch the answer change.",
     type: "website",
   },
 };

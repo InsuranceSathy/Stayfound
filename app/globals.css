@@ -5540,3 +5540,270 @@ canvas {
   margin: 0;
   max-width: 72ch;
 }
+
+/* ---------- blog ---------- */
+.blog-list {
+  padding: 40px 28px 90px;
+  display: grid;
+  gap: 18px;
+  max-width: 860px;
+}
+.blog-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 30px 30px 26px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.blog-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+.blog-card h2 {
+  font-size: clamp(23px, 2.6vw, 30px);
+  line-height: 1.14;
+  letter-spacing: -0.028em;
+  font-weight: 740;
+  margin: 12px 0 12px;
+}
+.blog-excerpt {
+  font-size: 16.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 18px;
+  max-width: 62ch;
+}
+.blog-more {
+  font-size: 14.5px;
+  font-weight: 620;
+  color: var(--accent);
+}
+
+.post-meta {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--faint);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.post-meta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.post-meta a:hover {
+  text-decoration: underline;
+}
+.post-meta-hero {
+  margin-bottom: 20px;
+}
+.dot-sep {
+  color: var(--border-strong);
+}
+/* A headline is prose, not a hero statement — .page-title's 68px is built for
+   three-word titles and turns a real one into a wall. */
+.post-title {
+  font-size: clamp(32px, 4.2vw, 52px);
+  line-height: 1.06;
+  max-width: 20ch;
+}
+
+/* ---------- long-form prose ---------- */
+/* .prose above styles only p and strong (it was written for the About page).
+   Everything a real article needs lives here. */
+.prose h2 {
+  font-size: clamp(25px, 2.8vw, 33px);
+  line-height: 1.16;
+  letter-spacing: -0.03em;
+  font-weight: 760;
+  margin: 52px 0 18px;
+  scroll-margin-top: 100px;
+}
+.prose h3 {
+  font-size: 21px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 36px 0 12px;
+}
+.prose ul,
+.prose ol {
+  margin: 0 0 22px;
+  padding-left: 24px;
+  color: var(--text);
+}
+.prose li {
+  font-size: 18px;
+  line-height: 1.62;
+  margin-bottom: 12px;
+}
+.prose li::marker {
+  color: var(--accent);
+  font-weight: 640;
+}
+.prose a {
+  color: var(--accent);
+  text-decoration-color: var(--accent-line);
+  text-underline-offset: 3px;
+}
+.prose a:hover {
+  text-decoration-color: var(--accent);
+}
+.prose em {
+  color: var(--muted);
+}
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.prose blockquote {
+  margin: 26px 0;
+  padding: 4px 0 4px 22px;
+  border-left: 2px solid var(--accent);
+  color: var(--muted);
+}
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 44px 0;
+}
+
+/* ---------- tl;dr ---------- */
+.tldr {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  padding: 26px 28px 10px;
+  margin: 0 0 40px;
+}
+.tldr-h {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 14px !important;
+}
+.tldr ul {
+  margin-bottom: 18px;
+}
+.tldr li {
+  font-size: 16.5px;
+  line-height: 1.58;
+  color: var(--muted);
+}
+.tldr li strong {
+  color: var(--text);
+}
+
+/* ---------- comparison tables ---------- */
+/* The wrapper scrolls, not the page. A table this wide inside a 760px column
+   will push the body sideways on a phone otherwise, and horizontal body scroll
+   on mobile is the single most common way a good article reads as broken. */
+.cmp-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 8px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.cmp {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 680px;
+  font-size: 14.5px;
+}
+.cmp th,
+.cmp td {
+  text-align: left;
+  vertical-align: top;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.45;
+}
+.cmp thead th {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--surface-2);
+}
+.cmp tbody th {
+  font-weight: 640;
+  color: var(--text);
+  min-width: 190px;
+}
+.cmp tbody td {
+  color: var(--muted);
+}
+.cmp tbody tr:last-child th,
+.cmp tbody tr:last-child td {
+  border-bottom: 0;
+}
+.cmp .num {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  white-space: nowrap;
+  color: var(--text);
+}
+/* Our own column/row, tinted so the reader always knows which one is the
+   vendor's. Being obvious about it is more honest than being subtle. */
+.cmp .is-us {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+.cmp thead th.is-us,
+.cmp tbody th.is-us {
+  color: var(--accent);
+}
+.cmp a {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cmp a:hover {
+  text-decoration: underline;
+}
+.src-note {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: var(--faint) !important;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-bottom: 34px !important;
+}
+.src-note a {
+  color: var(--muted);
+}
+
+@media (max-width: 820px) {
+  .blog-list {
+    padding: 30px 20px 70px;
+  }
+  .blog-card {
+    padding: 24px 22px 22px;
+  }
+  .tldr {
+    padding: 22px 20px 8px;
+  }
+  .prose li {
+    font-size: 17px;
+  }
+}

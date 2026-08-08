@@ -32,7 +32,10 @@ const KPIS = [
   { l: "Avg. position", v: "2.3", d: "↑ 0.4", good: true, sub: "when named" },
   { l: "Citation rate", v: "38%", d: "↑ 6", good: true, sub: "answers linking you" },
   { l: "Answers lost", v: "13", d: "↓ 3", good: true, sub: "rival named, you weren't" },
-  { l: "AI referrals", v: "1,284", d: "↑ 31%", good: true, sub: "clicks out of answers" },
+  // Sources you own, not referral clicks — the dashboard measures what
+  // assistants say and cite, never site traffic. See components/dashboard/
+  // analytics-panel.tsx.
+  { l: "Sources you own", v: "9 / 24", d: "↑ 2", good: true, sub: "cited domains you're on" },
 ];
 
 // Prompt-level truth: AI search is won or lost one question at a time, so the
@@ -398,15 +401,17 @@ export default function Home() {
               </div>
               <h3>Find the highest-leverage moves</h3>
               <p>
-                StayFound reads the sources winning answers cite and tells you
-                exactly what to change — the page, the claim, the comparison.
+                StayFound reads the sources winning answers cite, hands you the
+                schema and crawler rules to paste, and names the content to
+                publish next — the format, the title, and why it earns the
+                citation.
               </p>
-              <div className="tag">Citation gaps · content briefs · prioritized by lift</div>
+              <div className="tag">Citation gaps · content to write · prioritized by lift</div>
             </div>
             <div className="step">
               <div className="n">
                 <span className="n-num">03</span>
-                <span className="n-lab">Autopublish</span>
+                <span className="n-lab">Prove</span>
               </div>
               <div className="ic">
                 <svg
@@ -423,12 +428,13 @@ export default function Home() {
                   <path d="M3 19h18" />
                 </svg>
               </div>
-              <h3>Ship it automatically</h3>
+              <h3>Watch the answer change</h3>
               <p>
-                Agentic actions publish the content and fixes that move your
-                visibility — then measure the lift in leads, not vanity metrics.
+                Every scan is kept, so you see the score move engine by engine,
+                the sentiment shift, and the cited sources you win — proof the
+                work landed, not a promise it will.
               </p>
-              <div className="tag">Agentic actions · ROI from AI search</div>
+              <div className="tag">Score trend · sentiment · per-engine history</div>
             </div>
           </div>
         </div>

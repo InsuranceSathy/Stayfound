@@ -7,8 +7,8 @@ to win the lead.
 The product loop:
 
 1. **Monitor** — track which prompts surface your brand across every AI engine.
-2. **Optimize** — find the highest-leverage moves (the pages, claims, citations to change).
-3. **Autopublish** — ship the fixes automatically and measure the lift.
+2. **Optimize** — find the highest-leverage moves (the pages, claims, citations to change) and recommend the content to publish next, typed and titled.
+3. **Prove** — keep every scan, so the score, sentiment and citation trend show whether the fix landed.
 
 ## Stack
 

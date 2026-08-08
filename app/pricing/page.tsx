@@ -23,7 +23,11 @@ const FAQS = [
   },
   {
     q: "Do I need to install anything?",
-    a: "No. Add your brand and category and StayFound starts tracking. Connecting your CMS is optional and only needed for autopublish.",
+    a: "No. Add your brand and category and StayFound starts tracking — there's no script to embed and no access to your site required.",
+  },
+  {
+    q: "Does it tell me what to actually do?",
+    a: "Yes. Every scan ranks the moves by impact and gives you the artefacts to paste — schema, llms.txt, crawler rules — plus content recommendations: the pages worth publishing to earn citations, each with a format, a working title, and why it wins the mention.",
   },
   {
     q: "Can I change plans later?",

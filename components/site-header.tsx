@@ -16,6 +16,7 @@ export function SiteHeader() {
           <Link href="/#inside">Product</Link>
           <Link href="/#loop">How it works</Link>
           <Link href="/pricing">Pricing</Link>
+          <Link href="/blog">Blog</Link>
           <Link href="/about">About</Link>
         </div>
         <div className="nav-right">
