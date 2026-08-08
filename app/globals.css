@@ -6215,7 +6215,8 @@ canvas {
    so every panel, table and chart follows from one place.
    ========================================================================= */
 .sf-shell,
-.sf-report {
+.sf-report,
+.sfx-check {
   --ground: var(--sf-ink);
   --ground-2: #0e1014;
   --surface: var(--sf-sheet);
@@ -6368,4 +6369,249 @@ canvas {
   .sfx-glimpse-tiles { grid-template-columns: 1fr 1fr; }
   .sfx-glimpse-grid { grid-template-columns: 1fr; }
   .sfx-glimpse-body { padding: 13px; }
+}
+
+/* ============================================================================
+   FREE CHECK — RESULT
+   The screen every visitor reaches from the main call to action, so it wears
+   the report's language rather than the old app skin: your brand in the
+   signal, everyone else in neutral gray, prose in the serif, counts in mono.
+   ========================================================================= */
+.sfx-check .result { margin-top: 34px; }
+.sfx-check .res-h {
+  font-family: var(--sf-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  font-weight: 500;
+}
+.sfx-check .score-block {
+  border-top: 1px solid var(--sf-rule);
+  padding-top: 26px;
+}
+.sfx-check .score-num {
+  font-family: var(--sf-mono);
+  font-weight: 500;
+  font-size: 58px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--sf-vellum);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+.sfx-check .score-sum {
+  font-family: var(--sf-serif);
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: var(--sf-graphite);
+  max-width: 68ch;
+}
+/* engines: a row of plain readings, not pill badges */
+.sfx-check .eng-chip {
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  background: none;
+  border: 1px solid var(--sf-rule);
+  border-radius: 3px;
+  color: var(--sf-graphite);
+}
+.sfx-check .eng-chip.in { color: var(--sf-vellum); }
+.sfx-check .eng-chip .led { background: var(--sf-faint); box-shadow: none; }
+.sfx-check .eng-chip.in .led { background: var(--sf-signal); }
+
+/* share of voice: the emphasis form, same as the app */
+.sfx-check .bar-row .nm {
+  font-family: var(--sf-serif);
+  font-size: 14.5px;
+  color: var(--sf-graphite);
+}
+.sfx-check .bar-row.you .nm { color: var(--sf-vellum); font-weight: 600; }
+.sfx-check .bar-track {
+  background: rgba(236, 233, 225, 0.06);
+  border-radius: 3px;
+}
+.sfx-check .bar-fill {
+  background: #77746c;
+  border-radius: 0 4px 4px 0;
+}
+.sfx-check .bar-row.you .bar-fill { background: var(--sf-signal); }
+.sfx-check .bar-val {
+  font-family: var(--sf-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--sf-graphite);
+}
+.sfx-check .badge-you {
+  font-family: var(--sf-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--sf-signal);
+  color: var(--sf-ink);
+  border-radius: 3px;
+}
+
+/* sentiment, citations, ideas, actions */
+.sfx-check .senti-pct { font-family: var(--sf-mono); }
+.sfx-check .senti-pct.pos { color: var(--sf-vellum); }
+.sfx-check .senti-pct.neg { color: var(--sf-graphite); }
+.sfx-check .theme-tag {
+  font-family: var(--sf-serif);
+  font-size: 14.5px;
+  color: var(--sf-vellum);
+}
+.sfx-check .theme-quote {
+  font-family: var(--sf-serif);
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--sf-graphite);
+}
+.sfx-check .cited-rank,
+.sfx-check .cited-domain {
+  font-family: var(--sf-mono);
+  color: var(--sf-vellum);
+}
+.sfx-check .cited-rank { color: var(--sf-signal); font-size: 11px; }
+.sfx-check .cited-note,
+.sfx-check .idea p,
+.sfx-check .action p,
+.sfx-check .a-body p {
+  font-family: var(--sf-serif);
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: var(--sf-graphite);
+}
+.sfx-check .idea,
+.sfx-check .action {
+  border-color: var(--sf-rule);
+  border-radius: 4px;
+  background: rgba(236, 233, 225, 0.015);
+}
+.sfx-check .idea-type {
+  font-family: var(--sf-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+}
+.sfx-check .idea h4,
+.sfx-check .action h4,
+.sfx-check .a-body h4 {
+  font-family: var(--sf-serif);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.015em;
+  color: var(--sf-vellum);
+}
+.sfx-check .impact {
+  font-family: var(--sf-mono);
+  border-radius: 3px;
+}
+.sfx-check .impact.high { background: rgba(242,199,68,0.13); color: var(--sf-signal); }
+
+/* the paywall that follows the free report */
+.sfx-check .paywall {
+  background: rgba(242, 199, 68, 0.045);
+  border: 1px solid rgba(242, 199, 68, 0.28);
+  border-radius: 4px;
+}
+.sfx-check .paywall h3 {
+  font-family: var(--sf-serif);
+  font-weight: 500;
+  font-size: 23px;
+  letter-spacing: -0.02em;
+  color: var(--sf-vellum);
+}
+.sfx-check .paywall p,
+.sfx-check .paywall-alt {
+  font-family: var(--sf-serif);
+  color: var(--sf-graphite);
+}
+.sfx-check .paywall .btn-primary {
+  background: var(--sf-vellum);
+  background-image: none;
+  color: var(--sf-ink);
+  border: 1px solid var(--sf-vellum);
+  border-radius: 3px;
+  font-family: var(--sf-mono);
+  font-size: 13px;
+  box-shadow: none;
+}
+.sfx-check .paywall .btn-primary:hover {
+  background: var(--sf-signal);
+  border-color: var(--sf-signal);
+}
+.sfx-check .btn-bare {
+  font-family: var(--sf-mono);
+  font-size: 13px;
+  color: var(--sf-graphite);
+}
+.sfx-check .est-tag,
+.sfx-check .badge-sample {
+  font-family: var(--sf-mono);
+  font-size: 10px;
+  color: var(--sf-faint);
+  background: none;
+  border: 1px solid var(--sf-rule);
+  border-radius: 3px;
+}
+
+/* waiting: a sheet filling in, not generic grey bars */
+.sfx-check .skeleton {
+  border: 1px solid var(--sf-rule);
+  border-radius: 4px;
+  padding: 20px;
+  background: rgba(236, 233, 225, 0.015);
+}
+.sfx-check .sk-line {
+  background: linear-gradient(
+    90deg,
+    rgba(236, 233, 225, 0.06),
+    rgba(236, 233, 225, 0.12),
+    rgba(236, 233, 225, 0.06)
+  );
+  background-size: 200% 100%;
+  border-radius: 3px;
+  animation: sfx-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes sfx-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sfx-check .sk-line { animation: none; }
+}
+
+/* Sentiment themes were filled green and red pills — two more loud colours
+   competing with the one the palette reserves. The column headings and the
+   check/cross already say which side a theme is on, so the tag can be plain
+   type with a rule beside it. */
+.sfx-check .theme-tag {
+  display: block;
+  background: none;
+  border: none;
+  border-left: 2px solid var(--sf-rule);
+  border-radius: 0;
+  padding: 1px 0 1px 12px;
+  font-family: var(--sf-serif);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--sf-vellum);
+}
+.sfx-check .theme.pos .theme-tag {
+  background: none;
+  border-left-color: var(--sf-signal);
+  color: var(--sf-vellum);
+}
+.sfx-check .theme.neg .theme-tag {
+  background: none;
+  border-left-color: #77746c;
+  color: var(--sf-vellum);
+}
+.sfx-check .theme-quote { padding-left: 14px; }
+/* the cited row for your own domain: signal, not the old purple wash */
+.sfx-check .cited-row.you {
+  background: rgba(242, 199, 68, 0.07);
+  border-radius: 3px;
 }
