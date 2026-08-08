@@ -6615,3 +6615,252 @@ canvas {
   background: rgba(242, 199, 68, 0.07);
   border-radius: 3px;
 }
+
+/* ============================================================================
+   PRICING
+   The money page, in the report's voice. It is the last old-skin surface a
+   buyer passes through before paying, and it was carrying red tick marks —
+   red reads as "no" next to a list of things you get.
+   ========================================================================= */
+.page-hero,
+.faq-section {
+  --accent: var(--sf-signal);
+  --accent-soft: rgba(242, 199, 68, 0.12);
+  --text: var(--sf-vellum);
+  --muted: var(--sf-graphite);
+}
+.page-title {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--sf-vellum);
+}
+.page-lead {
+  font-family: var(--sf-serif);
+  font-size: 17px;
+  line-height: 1.62;
+  color: var(--sf-graphite);
+  max-width: 56ch;
+}
+
+/* interval toggle: a pair of readings, not a pill switch */
+.interval-toggle {
+  background: none;
+  border: 1px solid var(--sf-rule);
+  border-radius: 3px;
+  padding: 3px;
+}
+.interval {
+  font-family: var(--sf-mono);
+  font-size: 12.5px;
+  border-radius: 2px;
+  color: var(--sf-graphite);
+  background: none;
+}
+.interval.on,
+.interval[aria-pressed="true"] {
+  background: var(--sf-vellum);
+  color: var(--sf-ink);
+}
+.save-tag {
+  font-family: var(--sf-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sf-signal);
+  background: rgba(242, 199, 68, 0.12);
+  border-radius: 3px;
+}
+
+/* tiers: sheets, squared off, one of them marked rather than glowing */
+.pricing-grid .tier,
+.pricing-grid > div {
+  background: var(--sf-sheet);
+  border: 1px solid var(--sf-rule);
+  border-radius: 4px;
+  box-shadow: none;
+}
+.tier-name {
+  font-family: var(--sf-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  font-weight: 500;
+}
+.tier-price { align-items: baseline; }
+.tier-amount {
+  font-family: var(--sf-mono);
+  font-weight: 500;
+  font-size: 42px;
+  letter-spacing: -0.03em;
+  color: var(--sf-vellum);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+.tier-cadence,
+.tier-billed {
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  color: var(--sf-faint);
+}
+.tier-blurb {
+  font-family: var(--sf-serif);
+  font-size: 15px;
+  line-height: 1.58;
+  color: var(--sf-graphite);
+}
+.tier-badge {
+  font-family: var(--sf-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--sf-signal);
+  background-image: none;
+  color: var(--sf-ink);
+  border-radius: 3px;
+  box-shadow: none;
+}
+/* the featured tier is marked with a rule, not a glow */
+.pricing-grid .featured,
+.pricing-grid [class*="featured"] {
+  border-color: rgba(242, 199, 68, 0.4);
+  box-shadow: none;
+}
+
+/* feature lists: the tick was red, which reads as a denial next to a benefit */
+.tier-features li {
+  font-family: var(--sf-serif);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--sf-graphite);
+}
+.tier-features li::marker { color: transparent; }
+.tier-features svg,
+.tier-features .check,
+.tier-features li > span:first-child {
+  color: var(--sf-signal);
+  fill: var(--sf-signal);
+  stroke: var(--sf-signal);
+}
+
+/* buttons match every other page */
+.pricing-grid .btn-primary,
+.enterprise .btn-primary {
+  background: var(--sf-vellum);
+  background-image: none;
+  color: var(--sf-ink);
+  border: 1px solid var(--sf-vellum);
+  border-radius: 3px;
+  font-family: var(--sf-mono);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: none;
+}
+.pricing-grid .btn-primary:hover,
+.enterprise .btn-primary:hover {
+  background: var(--sf-signal);
+  border-color: var(--sf-signal);
+}
+.pricing-grid .btn-ghost,
+.enterprise .btn-ghost {
+  font-family: var(--sf-mono);
+  font-size: 13px;
+  border-radius: 3px;
+  border-color: var(--sf-rule);
+  color: var(--sf-vellum);
+}
+.pricing-grid .btn .arr,
+.enterprise .btn .arr { display: none; }
+
+.pricing-note {
+  font-family: var(--sf-mono);
+  font-size: 11px;
+  color: var(--sf-faint);
+}
+
+/* enterprise + faq */
+.enterprise {
+  background: var(--sf-sheet);
+  border: 1px solid var(--sf-rule);
+  border-radius: 4px;
+}
+.enterprise h3,
+.enterprise h2 {
+  font-family: var(--sf-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--sf-vellum);
+}
+.enterprise p {
+  font-family: var(--sf-serif);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--sf-graphite);
+}
+.faq-section .sec-title {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: clamp(27px, 3.4vw, 38px);
+  letter-spacing: -0.026em;
+  color: var(--sf-vellum);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+.faq h3,
+.faq-list h3,
+.faq dt {
+  font-family: var(--sf-serif);
+  font-weight: 500;
+  font-size: 16.5px;
+  letter-spacing: -0.015em;
+  color: var(--sf-vellum);
+}
+.faq p,
+.faq-list p,
+.faq dd {
+  font-family: var(--sf-serif);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--sf-graphite);
+}
+
+/* The tick was a hardcoded orange-red on the path — red beside a benefit reads
+   as a denial, and no rule on the parent could reach a presentation attribute
+   on the child. The icon now takes currentColor and the list sets it. */
+.tier-features li { color: var(--sf-graphite); }
+.tier-features li svg { color: var(--sf-signal); }
+/* real selectors for the billing toggle */
+.interval-toggle {
+  background: none;
+  border-color: var(--sf-rule);
+  border-radius: 3px;
+}
+.interval-toggle button {
+  font-family: var(--sf-mono);
+  font-size: 12.5px;
+  color: var(--sf-graphite);
+  border-radius: 2px;
+}
+.interval-toggle button.on {
+  background: var(--sf-vellum);
+  color: var(--sf-ink);
+}
+.interval-toggle button:hover { color: var(--sf-vellum); }
+.interval-toggle button.on:hover { color: var(--sf-ink); }
+.interval-toggle .save-tag {
+  font-family: var(--sf-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sf-signal);
+  background: rgba(242, 199, 68, 0.14);
+  border: none;
+  border-radius: 3px;
+}
+.interval-toggle button.on .save-tag {
+  color: var(--sf-ink);
+  background: rgba(12, 13, 16, 0.14);
+}
