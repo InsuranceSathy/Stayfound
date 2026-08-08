@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { allPosts, formatPostDate } from "@/lib/blog";
+import { PostCard } from "@/components/blog/post-card";
+import { allPosts, allTags } from "@/lib/blog";
 
 export const metadata: Metadata = {
   title: "Blog — StayFound",
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
 
 export default function BlogIndexPage() {
   const posts = allPosts();
+  const tags = allTags();
+  const [featured, ...rest] = posts;
 
   return (
     <>
@@ -28,28 +31,26 @@ export default function BlogIndexPage() {
         </section>
 
         <section className="wrap blog-list">
-          {posts.map((post) => (
-            <Link
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              className="blog-card"
-            >
-              <p className="post-meta">
-                <time dateTime={post.publishedAt}>
-                  {formatPostDate(post.publishedAt)}
-                </time>
-                <span className="dot-sep" aria-hidden="true">
-                  ·
-                </span>
-                {post.readingMinutes} min read
-              </p>
-              <h2>{post.title}</h2>
-              <p className="blog-excerpt">{post.excerpt}</p>
-              <span className="blog-more">
-                Read it <span className="arr">→</span>
-              </span>
-            </Link>
-          ))}
+          {tags.length > 1 && (
+            <nav className="tag-row tag-filter" aria-label="Browse by topic">
+              <span className="tag-chip on">All</span>
+              {tags.map((t) => (
+                <Link key={t.slug} href={`/blog/tag/${t.slug}`} className="tag-chip">
+                  {t.label} <span className="tag-n">{t.count}</span>
+                </Link>
+              ))}
+            </nav>
+          )}
+
+          {featured && <PostCard post={featured} featured />}
+
+          {rest.length > 0 && (
+            <div className="blog-grid">
+              {rest.map((post) => (
+                <PostCard key={post.slug} post={post} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
       <SiteFooter />

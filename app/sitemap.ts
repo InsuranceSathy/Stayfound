@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { referralPortalUrl } from "@/lib/referral";
-import { allPosts, lastTouched } from "@/lib/blog";
+import { allPosts, allTags, lastTouched } from "@/lib/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
@@ -51,6 +51,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
       lastModified: new Date(`${lastTouched(post)}T00:00:00Z`),
+    })),
+    // Tag pages are real crawlable URLs, but they're indexes rather than
+    // content — low priority so they don't compete with the posts themselves.
+    ...allTags().map((tag) => ({
+      url: `${SITE_URL}/blog/tag/${tag.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+      lastModified,
     })),
     {
       url: `${SITE_URL}/privacy`,

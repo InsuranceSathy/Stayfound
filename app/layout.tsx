@@ -5,6 +5,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next"
 import { PostHogProvider } from "@/components/posthog-provider";
 import { endorselyOrgId } from "@/lib/referral";
+import { SITE_URL } from "@/lib/site";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -21,6 +22,12 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
+  // Without this, Next resolves file-convention images (the per-post
+  // opengraph-image routes) against http://localhost:3000 at build time, and
+  // every social preview in production points at a machine that isn't there.
+  // Explicit canonicals elsewhere are unaffected — this only fixes the
+  // generated ones.
+  metadataBase: new URL(SITE_URL),
   title: "StayFound — Be the brand AI keeps recommending",
   description:
     "StayFound tracks how ChatGPT, Gemini, Perplexity, Claude and Grok answer your buyers' questions — then shows you the fix that earns the next mention.",

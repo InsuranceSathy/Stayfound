@@ -6,6 +6,7 @@
 // of tables far more reliably than out of prose.
 
 import Link from "next/link";
+import { H2 } from "@/components/blog/heading";
 
 /** A sourced claim. Every competitor number on this page carries one. */
 function Src({ href, children }: { href: string; children: React.ReactNode }) {
@@ -52,9 +53,9 @@ export default function AiVisibilityToolsCompared2026() {
           </li>
           <li>
             <strong>StayFound</strong> goes a step further than the dashboard: we
-            generate the actual fix — schema, <code>llms.txt</code>, crawler
-            rules — ready to paste. Free tier, no card; $29 buys all five
-            engines.
+            generate the actual fix — schema, the third-party listings to claim,
+            crawler rules — ready to paste, plus the content worth writing. Free
+            tier, no card; $29 buys all five engines.
           </li>
           <li>
             We are in private beta and our prompt volumes are lower than
@@ -63,7 +64,7 @@ export default function AiVisibilityToolsCompared2026() {
         </ul>
       </div>
 
-      <h2>The funnel you can’t see</h2>
+      <H2>The funnel you can’t see</H2>
       <p>
         For twenty years, winning customers online meant winning Google. You
         earned a rank, you earned a click. That bargain is ending. Around{" "}
@@ -83,7 +84,7 @@ export default function AiVisibilityToolsCompared2026() {
         half. This post is an honest map of it, including where we sit.
       </p>
 
-      <h2>What StayFound does</h2>
+      <H2>What StayFound does</H2>
       <p>
         StayFound is an AI-visibility suite built around one loop:{" "}
         <strong>Monitor, then Optimize, then Prove.</strong> See exactly where
@@ -99,10 +100,14 @@ export default function AiVisibilityToolsCompared2026() {
         </li>
         <li>
           <strong>Optimize.</strong> We rank the moves by impact and hand you the
-          artefact, not the advice — paste-ready JSON-LD schema, an{" "}
-          <code>llms.txt</code>, crawler rules for your <code>robots.txt</code>,
-          and the specific directory listings that AI engines lean on for your
-          category.
+          artefact, not the advice — paste-ready JSON-LD schema, the specific
+          third-party listings AI engines lean on in your category, crawler
+          rules for your <code>robots.txt</code>, and an <code>llms.txt</code>{" "}
+          (with{" "}
+          <Link href="/blog/does-llms-txt-work-2026">
+            honest caveats about what that last one is worth
+          </Link>
+          ).
         </li>
         <li>
           <strong>Content recommendations.</strong> We also tell you what to
@@ -120,7 +125,7 @@ export default function AiVisibilityToolsCompared2026() {
         </li>
       </ul>
 
-      <h2>How the measurement actually works</h2>
+      <H2>How the measurement actually works</H2>
       <p>
         AI search is won or lost one question at a time, so our unit of analysis
         is the <strong>prompt</strong>, not the day. A daily average tells you
@@ -155,7 +160,7 @@ export default function AiVisibilityToolsCompared2026() {
         number that is real.
       </p>
 
-      <h2>The field</h2>
+      <H2>The field</H2>
       <p>
         Fair summaries. Each of these is a good tool that some team should buy
         instead of ours.
@@ -194,7 +199,7 @@ export default function AiVisibilityToolsCompared2026() {
         </li>
       </ul>
 
-      <h2>Capability comparison</h2>
+      <H2>Capability comparison</H2>
       <div className="cmp-wrap">
         <table className="cmp">
           <thead>
@@ -296,7 +301,7 @@ export default function AiVisibilityToolsCompared2026() {
         </table>
       </div>
 
-      <h2>Pricing comparison</h2>
+      <H2>Pricing comparison</H2>
       <div className="cmp-wrap">
         <table className="cmp">
           <thead>
@@ -392,15 +397,17 @@ export default function AiVisibilityToolsCompared2026() {
         <Link href="/pricing">our pricing page</Link>.
       </p>
 
-      <h2>What StayFound gives you that they don’t</h2>
+      <H2>What StayFound gives you that they don’t</H2>
       <ol>
         <li>
           <strong>You get the fix, not just the chart.</strong> Most of this
-          category ends at a dashboard. We generate the artefact — the JSON-LD
-          block, the{" "}
-          <code>llms.txt</code>, the crawler allow-rules for GPTBot,
-          OAI-SearchBot, PerplexityBot, ClaudeBot, Google-Extended and the rest.
-          You paste it. A chart that tells you you’re losing isn’t a product.
+          category ends at a dashboard. We generate the artefact: the JSON-LD
+          block — pages carrying schema see roughly{" "}
+          <strong>2.8× the citation rate</strong> — the named third-party
+          listings worth claiming in your category, and crawler allow-rules for
+          GPTBot, OAI-SearchBot, PerplexityBot, ClaudeBot, Google-Extended and
+          the rest. You paste it. A chart that tells you you’re losing isn’t a
+          product.
         </li>
         <li>
           <strong>You’re told what to write, specifically.</strong> Not “publish
@@ -432,7 +439,7 @@ export default function AiVisibilityToolsCompared2026() {
         </li>
       </ol>
 
-      <h2>What they do better than us</h2>
+      <H2>What they do better than us</H2>
       <p>
         This section exists because we would want to read it. AI answers change
         fast, and a comparison table written by a vendor is worth exactly as much
@@ -463,7 +470,7 @@ export default function AiVisibilityToolsCompared2026() {
         </li>
       </ul>
 
-      <h2>How to choose</h2>
+      <H2>How to choose</H2>
       <ul>
         <li>
           <strong>You don’t yet know if you appear in AI answers.</strong> Start
@@ -481,7 +488,7 @@ export default function AiVisibilityToolsCompared2026() {
         </li>
       </ul>
 
-      <h2>One last thing</h2>
+      <H2>One last thing</H2>
       <p>
         StayFound’s own product tells customers that comparison pages, listicles
         and year-specific posts are the formats AI engines cite most. Until this

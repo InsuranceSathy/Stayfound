@@ -3,7 +3,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { POSTS, getPost, lastTouched, formatPostDate } from "@/lib/blog";
+import { Toc } from "@/components/blog/toc";
+import { ReadingProgress } from "@/components/blog/reading-progress";
+import { PostCard } from "@/components/blog/post-card";
+import {
+  POSTS,
+  getPost,
+  lastTouched,
+  formatPostDate,
+  neighbors,
+  related,
+  tagSlug,
+} from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
 
 // Prerender every post at build time. Without this the pages render on demand
@@ -47,6 +58,9 @@ export default async function BlogPostPage({
 
   const { Body } = post;
   const url = `${SITE_URL}/blog/${post.slug}`;
+  const { newer, older } = neighbors(post.slug);
+  const more = related(post.slug);
+  const updated = lastTouched(post);
 
   // The product hands customers this exact schema block as a recommended fix
   // (see lib/snippets.ts). Publishing without it would be advice we don't take.
@@ -56,7 +70,7 @@ export default async function BlogPostPage({
     headline: post.title,
     description: post.description,
     datePublished: post.publishedAt,
-    dateModified: lastTouched(post),
+    dateModified: updated,
     keywords: post.tags.join(", "),
     author: { "@type": "Organization", name: "StayFound", url: SITE_URL },
     publisher: { "@type": "Organization", name: "StayFound", url: SITE_URL },
@@ -66,6 +80,7 @@ export default async function BlogPostPage({
   return (
     <>
       <SiteHeader />
+      <ReadingProgress />
       <main>
         <script
           type="application/ld+json"
@@ -89,14 +104,73 @@ export default async function BlogPostPage({
             </p>
             <h1 className="page-title post-title">{post.title}</h1>
             <p className="page-lead">{post.description}</p>
+            <div className="tag-row post-tags">
+              {post.tags.map((t) => (
+                <Link
+                  key={t}
+                  href={`/blog/tag/${tagSlug(t)}`}
+                  className="tag-chip"
+                >
+                  {t}
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
-        <article className="wrap prose-section">
-          <div className="prose">
-            <Body />
+        <div className="wrap post-layout">
+          <article className="post-body">
+            <div className="prose">
+              <Body />
+            </div>
+            {post.updatedAt && (
+              <p className="post-updated">
+                Last updated{" "}
+                <time dateTime={post.updatedAt}>
+                  {formatPostDate(post.updatedAt)}
+                </time>
+                .
+              </p>
+            )}
+          </article>
+
+          {/* Sticky on desktop, display:none under 1100px — see globals.css. */}
+          <div className="post-aside">
+            <Toc />
           </div>
-        </article>
+        </div>
+
+        {(newer || older) && (
+          <nav className="wrap post-nav" aria-label="More posts">
+            {older ? (
+              <Link href={`/blog/${older.slug}`} className="post-nav-link">
+                <span className="post-nav-dir">← Older</span>
+                <span className="post-nav-t">{older.title}</span>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {newer ? (
+              <Link href={`/blog/${newer.slug}`} className="post-nav-link ta-r">
+                <span className="post-nav-dir">Newer →</span>
+                <span className="post-nav-t">{newer.title}</span>
+              </Link>
+            ) : (
+              <span />
+            )}
+          </nav>
+        )}
+
+        {more.length > 0 && (
+          <section className="wrap related">
+            <h2 className="sec-title">Keep reading</h2>
+            <div className="blog-grid">
+              {more.map((p) => (
+                <PostCard key={p.slug} post={p} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="wrap">
           <div className="status-card">
