@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { persistScan } from "@/app/dashboard/actions";
+import { capture, EVENTS } from "@/lib/analytics";
 
 /**
  * Kicks off a scan without blocking a server action for two minutes.
@@ -54,6 +55,9 @@ export function ScanButton({
     setError(null);
     setElapsed(0);
     setRunning(true);
+    // `autoStart` distinguishes the very first scan of a new account from a
+    // deliberate refresh — they are different moments in the funnel.
+    capture(EVENTS.SCAN_STARTED, { brand, category, auto: autoStart });
 
     const finish = async (jobId: string | null) => {
       const res = await persistScan(jobId);
@@ -62,10 +66,12 @@ export function ScanButton({
         setError(res.error);
         setRunning(false);
         started.current = false;
+        capture(EVENTS.SCAN_FAILED, { brand, category, reason: "persist" });
         return;
       }
       setRunning(false);
       started.current = false;
+      capture(EVENTS.SCAN_COMPLETED, { brand, category, cached: jobId === null });
       router.refresh();
     };
 
@@ -100,8 +106,13 @@ export function ScanButton({
       setError((e as Error).message || "Something went wrong.");
       setRunning(false);
       started.current = false;
+      capture(EVENTS.SCAN_FAILED, {
+        brand,
+        category,
+        reason: (e as Error).message || "unknown",
+      });
     }
-  }, [brand, category, router]);
+  }, [brand, category, router, autoStart]);
 
   useEffect(() => {
     if (autoStart && !started.current) void run();
