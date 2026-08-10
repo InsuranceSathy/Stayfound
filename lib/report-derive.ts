@@ -137,6 +137,24 @@ export function scanKey(brand: string, category: string) {
   return `${brand.toLowerCase()}|${category.toLowerCase()}`;
 }
 
+/**
+ * Long-form age, for a sentence rather than a chip: "6 hours ago".
+ *
+ * A reading taken this morning is not stale — assistants change their answers
+ * over weeks, not minutes — so this is written to state a fact, never to
+ * apologise for one.
+ */
+export function measuredAgo(iso: string | Date): string {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins} minutes ago`;
+  const hours = Math.round(mins / 60);
+  if (hours === 1) return "an hour ago";
+  if (hours < 24) return `${hours} hours ago`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? "yesterday" : `${days} days ago`;
+}
+
 export function relativeTime(iso: string | Date): string {
   const then = new Date(iso).getTime();
   const m = Math.round((Date.now() - then) / 60000);

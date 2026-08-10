@@ -180,17 +180,26 @@ export async function setJobError(id: string, message: string): Promise<void> {
 
 const CACHE_TTL_HOURS = Number(process.env.SCORE_CACHE_TTL_HOURS || 24);
 
-export async function getCachedScore(
-  key: string,
-): Promise<{ live: boolean; source: string; data: VisibilityResult } | null> {
+export async function getCachedScore(key: string): Promise<{
+  live: boolean;
+  source: string;
+  data: VisibilityResult;
+  /** When this reading was actually taken, so the UI can say so. */
+  measuredAt: string;
+} | null> {
   await ensureSchema();
   const { rows } = await pool.query(
-    `SELECT live, source, data FROM score_cache
+    `SELECT live, source, data, created_at FROM score_cache
      WHERE cache_key = $1 AND created_at > now() - ($2 || ' hours')::interval`,
     [key, String(CACHE_TTL_HOURS)],
   );
   return rows[0]
-    ? { live: rows[0].live, source: rows[0].source, data: rows[0].data }
+    ? {
+        live: rows[0].live,
+        source: rows[0].source,
+        data: rows[0].data,
+        measuredAt: new Date(rows[0].created_at).toISOString(),
+      }
     : null;
 }
 

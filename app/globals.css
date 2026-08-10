@@ -9449,3 +9449,36 @@ canvas {
   background: rgba(242, 199, 68, 0.09);
 }
 .ah-gap { align-items: center; }
+
+/* ---- how old this reading is --------------------------------------------
+   Shown only when the result came from the stored scan rather than one just
+   run. It reports an age and offers the newer reading; it does not apologise,
+   because the number is not wrong — it is simply from earlier. */
+.freshness {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  margin: 22px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--sf-rule);
+  border-left: 2px solid rgba(242, 199, 68, 0.55);
+  border-radius: 3px;
+  background: rgba(242, 199, 68, 0.04);
+}
+.freshness-k { color: var(--sf-vellum); }
+.freshness-sep { color: var(--sf-faint); }
+.freshness-note { color: var(--sf-faint); }
+.freshness-cta {
+  margin-left: auto;
+  color: var(--sf-signal);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.freshness-cta:hover { text-decoration: underline; }
+@media (max-width: 620px) {
+  .freshness-cta { margin-left: 0; }
+}

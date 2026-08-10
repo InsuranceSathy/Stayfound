@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { requirePlan, type BillingInterval, type PlanId } from "@/lib/plans";
 import { readReferralId } from "@/lib/referral";
 import { signInThenCheckout } from "@/lib/checkout-intent";
 import { capture, EVENTS } from "@/lib/analytics";
 import { ScanProgress } from "@/components/scan-progress";
+import { measuredAgo } from "@/lib/report-derive";
 
 /**
  * What the paywall sells in one click.
@@ -52,6 +54,9 @@ export function VisibilityCheck() {
   const [result, setResult] = useState<Result | null>(null);
   const [live, setLive] = useState(true);
   const [gated, setGated] = useState(false);
+  // Set only when the result came from the 24h cache — its presence is what
+  // makes the page say when the reading was taken.
+  const [measuredAt, setMeasuredAt] = useState<string | null>(null);
   // Real elapsed seconds and the job's real state — the progress panel shows
   // these rather than a simulated bar.
   const [elapsed, setElapsed] = useState(0);
@@ -80,9 +85,10 @@ export function VisibilityCheck() {
     return () => clearInterval(t);
   }, [loading]);
 
-  function finish(data: { result: Result; live: boolean }) {
+  function finish(data: { result: Result; live: boolean; measuredAt?: string }) {
     setResult(data.result);
     setLive(data.live);
+    setMeasuredAt(data.measuredAt ?? null);
     setLoading(false);
     // The score is the whole reason someone came: tracking it lets us ask
     // whether a bad score converts better than a good one.
@@ -128,6 +134,7 @@ export function VisibilityCheck() {
     setGated(false);
     setElapsed(0);
     setQueued(true);
+    setMeasuredAt(null);
     setLoading(true);
     capture(EVENTS.REPORT_STARTED, { brand, category });
     try {
@@ -282,6 +289,24 @@ export function VisibilityCheck() {
 
       {result && (
         <>
+        {/* Only when this came from the stored reading rather than a scan we
+            just ran. It states the age and offers the newer one — it does not
+            call the result stale, because a reading from this morning is a
+            perfectly good reading of answers that move over weeks. */}
+        {measuredAt && (
+          <p className="freshness">
+            <span className="freshness-k">
+              Measured {measuredAgo(measuredAt)}
+            </span>
+            <span className="freshness-sep" aria-hidden="true">·</span>
+            <span className="freshness-note">
+              answers change slowly, but not never
+            </span>
+            <Link href="/pricing" className="freshness-cta">
+              Track it daily <span className="arr">→</span>
+            </Link>
+          </p>
+        )}
         <div className="result">
           <div className="score-block">
             <p className="res-h">Visibility score</p>
