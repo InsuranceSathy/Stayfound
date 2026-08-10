@@ -67,11 +67,15 @@ export async function POST(req: Request) {
   try {
     const cached = await getCachedScore(key);
     if (cached) {
+      // measuredAt is only set on this path. Its presence is what tells the
+      // page it is showing an earlier reading rather than one it just ran, so
+      // the result can say when it was taken instead of implying it is live.
       return withCookie({
         status: "done",
         live: cached.live,
         result: cached.data,
         source: cached.source,
+        measuredAt: cached.measuredAt,
       });
     }
   } catch {

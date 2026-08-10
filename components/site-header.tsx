@@ -20,9 +20,13 @@ export function SiteHeader() {
           <Link href="/about">About</Link>
         </div>
         <div className="nav-right">
-          {/* Self-serve sign-up is off while we run reports by hand — the only
-              way in is asking us for one. /sign-in still works by URL. */}
-          <Link href="/demo" className="signin">
+          {/* Checkout is open, so there are accounts to come back to. Sign in
+              was reachable only by typing the URL, which is fine for a private
+              beta and not fine once someone is paying monthly. */}
+          <Link href="/sign-in" className="signin">
+            Sign in
+          </Link>
+          <Link href="/demo" className="signin nav-demo">
             Book a demo
           </Link>
           <Link href="/#report" className="btn btn-primary">

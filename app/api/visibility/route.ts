@@ -48,6 +48,7 @@ export async function POST(req: Request) {
         live: cached.live,
         result: cached.data,
         source: cached.source,
+        measuredAt: cached.measuredAt,
       });
     }
   } catch {
