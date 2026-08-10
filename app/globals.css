@@ -8855,3 +8855,434 @@ canvas {
 }
 /* spacing here is set in CSS, not by a JSX {" "} that the transform can eat */
 .sf-confirm-cost { margin-left: 6px; }
+
+/* ============================================================================
+   THE REPORT, SIGNED IN
+   The marketing pages show an answer; this shows yours. Same language, same
+   two voices: the serif is for things you read — the verdict, the narrative,
+   what a move is — and the mono is for things you measure. Signal is reserved
+   for one meaning only: you. It marks your bar, the section you're on, and
+   nothing else, so it never has to compete with itself.
+
+   Chart colours were recomputed for the sheet surface rather than carried
+   over: signal on sheet is 11.4:1, graphite 5.5:1, and signal↔graphite holds
+   ΔE 24.2 under deuteranopia and protanopia (floor 8).
+   ========================================================================= */
+.sf-shell {
+  background: var(--sf-ink);
+  color: var(--sf-vellum);
+}
+:root {
+  --viz-surface: #121419;
+  --viz-you: var(--sf-signal);
+  --viz-ctx: #8d8c86;
+  --viz-track: rgba(242, 199, 68, 0.16);
+  --viz-mid: #3a3a37;
+}
+
+/* ---- the rail ---- */
+.sf-side {
+  background: var(--sf-ink);
+  border-right: 1px solid var(--sf-rule);
+}
+.sf-side-brand {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  color: var(--sf-vellum);
+}
+.sf-side-link.on { background: rgba(242, 199, 68, 0.09); }
+.sf-side-link:hover { background: rgba(236, 233, 225, 0.04); }
+.sf-side-l {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: -0.012em;
+  color: var(--sf-graphite);
+}
+.sf-side-link.on .sf-side-l { color: var(--sf-vellum); }
+.sf-side-hint,
+.sf-side-mail {
+  font-family: var(--sf-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--sf-faint);
+}
+.sf-side-n {
+  font-family: var(--sf-mono);
+  font-size: 10px;
+  color: var(--sf-faint);
+  background: transparent;
+  border: 1px solid var(--sf-rule);
+}
+.sf-side-link.on .sf-side-n {
+  color: var(--sf-signal);
+  background: transparent;
+  border-color: rgba(242, 199, 68, 0.35);
+}
+.sf-side-icon { color: var(--sf-faint); }
+.sf-side-link.on .sf-side-icon { color: var(--sf-signal); }
+.sf-side-foot { border-top: 1px solid var(--sf-rule); }
+
+/* ---- page header ---- */
+.sf-top-t {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 36px);
+  letter-spacing: -0.026em;
+  color: var(--sf-vellum);
+}
+.sf-top-s {
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  color: var(--sf-faint);
+}
+
+/* ---- panels: sheets on ink, separated by rules rather than boxes ---- */
+.sf-panel,
+.sf-tile,
+.sf-hero {
+  background: var(--sf-sheet);
+  border-color: var(--sf-rule);
+}
+.sf-panel-t {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 19px;
+  letter-spacing: -0.018em;
+  color: var(--sf-vellum);
+}
+.sf-panel-sub,
+.sf-sub-h {
+  font-family: var(--sf-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--sf-faint);
+  text-transform: none;
+}
+.sf-lede,
+.sf-narrative,
+.sf-empty {
+  font-family: var(--sf-serif);
+  color: var(--sf-graphite);
+}
+.sf-lede b { color: var(--sf-vellum); font-weight: 600; }
+.sf-link { color: var(--sf-signal); }
+
+/* ---- the verdict: the one thing read before anything is measured ---- */
+.sf-hero { border-left-width: 2px; }
+.sf-hero.tone-critical { border-left-color: var(--sf-signal); }
+.sf-hero.tone-warn { border-left-color: var(--sf-signal); }
+.sf-hero.tone-ok,
+.sf-hero.tone-good { border-left-color: var(--sf-vellum); }
+.sf-hero-num {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 68px;
+  letter-spacing: -0.03em;
+  color: var(--sf-vellum);
+}
+.sf-hero-scale {
+  font-family: var(--sf-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--sf-faint);
+}
+.sf-hero-verdict {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 25px;
+  letter-spacing: -0.022em;
+  color: var(--sf-vellum);
+}
+.sf-hero-mean {
+  font-family: var(--sf-serif);
+  font-size: 15.5px;
+  color: var(--sf-graphite);
+}
+.sf-hero-fact {
+  font-family: var(--sf-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--sf-faint);
+}
+.sf-hero-fact b { color: var(--sf-vellum); font-weight: 400; }
+
+/* ---- measurements wear the instrument face ---- */
+.sf-tile-l {
+  font-family: var(--sf-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--sf-faint);
+}
+.sf-tile-v {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 31px;
+  letter-spacing: -0.02em;
+  color: var(--sf-vellum);
+}
+.sf-tile-u { font-family: var(--sf-mono); font-size: 13px; color: var(--sf-faint); }
+.sf-tile-s { font-family: var(--sf-mono); font-size: 10.5px; color: var(--sf-faint); }
+.sf-delta { font-family: var(--sf-mono); }
+.sf-delta.up { color: var(--sf-signal); }
+.sf-delta.down { color: var(--sf-graphite); }
+
+.sf-meter-name { font-family: var(--sf-serif); font-size: 15px; color: var(--sf-vellum); }
+.sf-meter-val { font-family: var(--sf-mono); color: var(--sf-graphite); }
+.sf-meter-track { background: var(--viz-track); }
+.sf-pres { font-family: var(--sf-mono); font-size: 10.5px; letter-spacing: 0.04em; }
+.sf-pres.in { color: var(--sf-signal); }
+.sf-pres.out { color: var(--sf-faint); }
+
+.sf-bar-rank,
+.sf-bar-val { font-family: var(--sf-mono); color: var(--sf-faint); }
+.sf-bar-name { font-family: var(--sf-serif); font-size: 15px; color: var(--sf-graphite); }
+.sf-bar-row.you .sf-bar-name,
+.sf-bar-row.you .sf-bar-val { color: var(--sf-vellum); }
+.sf-bar-track { background: rgba(236, 233, 225, 0.06); }
+.sf-you-tag {
+  font-family: var(--sf-mono);
+  background: var(--sf-signal);
+  color: var(--sf-ink);
+}
+
+/* ---- prose blocks ---- */
+.sf-move-head h3,
+.sf-next-body h3,
+.sf-idea h3 {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  color: var(--sf-vellum);
+}
+.sf-move-why,
+.sf-move-body p,
+.sf-next-body p,
+.sf-idea p,
+.sf-steps li,
+.sf-src-note,
+.sf-drop > p {
+  font-family: var(--sf-serif);
+  color: var(--sf-graphite);
+}
+.sf-move-n {
+  font-family: var(--sf-mono);
+  color: var(--sf-signal);
+  background: transparent;
+  border: 1px solid var(--sf-rule);
+}
+.sf-impact {
+  font-family: var(--sf-mono);
+  border-radius: 3px;
+}
+.sf-impact.high { background: rgba(242, 199, 68, 0.14); color: var(--sf-signal); }
+.sf-impact.medium { background: rgba(236, 233, 225, 0.07); color: var(--sf-graphite); }
+.sf-impact.low { background: transparent; color: var(--sf-faint); border: 1px solid var(--sf-rule); }
+.sf-idea-type,
+.sf-src-tag,
+.sf-src-do,
+.sf-drop > summary,
+.sf-drop-tag { font-family: var(--sf-mono); }
+.sf-drop > summary { color: var(--sf-signal); }
+.sf-drop.sm > summary,
+.sf-drop.xs > summary { color: var(--sf-faint); }
+.sf-drop.sm > summary:hover,
+.sf-drop.xs > summary:hover { color: var(--sf-graphite); }
+.sf-src-dom { font-family: var(--sf-mono); color: var(--sf-vellum); }
+.sf-src-tag.mine { background: rgba(242, 199, 68, 0.14); color: var(--sf-signal); }
+.sf-src-tag.gap { background: transparent; color: var(--sf-faint); border: 1px solid var(--sf-rule); }
+.sf-src-do { color: var(--sf-signal); }
+.sf-srcs .sf-src { border-top-color: var(--sf-rule); }
+.sf-move { border-top-color: var(--sf-rule); }
+.sf-idea { border-color: var(--sf-rule); background: transparent; }
+.sf-theme-list b { font-family: var(--sf-serif); font-weight: 400; color: var(--sf-vellum); }
+.sf-theme-list q { font-family: var(--sf-serif); color: var(--sf-graphite); }
+.sf-summary { border-top-color: var(--sf-rule); }
+.sf-next { border-color: rgba(242, 199, 68, 0.28); }
+
+/* ---- tables ---- */
+.sf-table th {
+  font-family: var(--sf-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--sf-faint);
+  border-bottom-color: var(--sf-rule);
+}
+.sf-table td {
+  font-family: var(--sf-serif);
+  color: var(--sf-graphite);
+  border-bottom-color: rgba(236, 233, 225, 0.07);
+}
+.sf-table .num { font-family: var(--sf-mono); }
+.sf-table tr.you td { color: var(--sf-vellum); font-weight: 400; }
+.sf-table .muted { color: var(--sf-faint); }
+.sf-table .ahead { color: var(--sf-signal); }
+.sf-table .behind { color: var(--sf-graphite); }
+
+/* ---- code blocks keep the instrument face ---- */
+.sf-code { border-color: var(--sf-rule); background: rgba(0, 0, 0, 0.32); }
+.sf-code-bar { border-bottom-color: var(--sf-rule); background: transparent; }
+.sf-code-lang { background: rgba(242, 199, 68, 0.14); color: var(--sf-signal); }
+.sf-code-label, .sf-copy { font-family: var(--sf-mono); color: var(--sf-graphite); }
+.sf-copy { border-color: var(--sf-rule); background: transparent; }
+.sf-copy:hover { color: var(--sf-vellum); border-color: rgba(236, 233, 225, 0.3); }
+.sf-code code { color: var(--sf-vellum); }
+
+/* ---- scanning state ---- */
+.sf-scanning { font-family: var(--sf-serif); color: var(--sf-graphite); }
+.sf-scanning b { font-family: var(--sf-serif); font-weight: 400; color: var(--sf-vellum); }
+.sf-scan-sub { font-family: var(--sf-mono); font-size: 11px; color: var(--sf-faint); }
+.sf-scanning.block { background: rgba(242, 199, 68, 0.06); border-color: rgba(242, 199, 68, 0.24); }
+.sf-spinner { border-color: var(--sf-rule); border-top-color: var(--sf-signal); }
+.sf-mix-key { font-family: var(--sf-mono); color: var(--sf-faint); }
+.sf-key-item b { color: var(--sf-vellum); font-weight: 400; }
+.sf-spark-ends { font-family: var(--sf-mono); color: var(--sf-faint); }
+
+/* focus stays visible, now in the report's accent */
+.sf-side-link:focus-visible,
+.sf-drop > summary:focus-visible,
+.sf-copy:focus-visible,
+.sf-link:focus-visible { outline-color: var(--sf-signal); }
+
+/* ============================================================================
+   PHONE PASS
+   The hero and the check were laid out for a desk. On a phone the two check
+   fields sat side by side, which cut "project management software" off mid
+   word — the one input where being specific is the whole instruction. The
+   fields stack, and the pair of hero buttons stop competing for one line.
+   ========================================================================= */
+@media (max-width: 620px) {
+  /* the check reads as a form again, one question at a time */
+  .sfx-check .check-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  /* Same trap .demo-form hit: .field's `flex: 1 1 200px` basis is a width in
+     the desktop row, but a height once this container is a column — which
+     left ~200px of dead space under each input. Size to content instead. */
+  .sfx-check .field { flex: 0 0 auto; width: 100%; }
+  .sfx-check .field input { width: 100%; }
+  .sfx-check .check-submit { width: 100%; justify-content: center; }
+
+  /* primary gets the width, the quiet link sits under it rather than beside */
+  .ah-cta { flex-direction: column; align-items: stretch; gap: 14px; }
+  .ah-cta .ah-btn { width: 100%; justify-content: center; text-align: center; }
+  .ah-btn-quiet { align-self: flex-start; }
+  .sfx-final-cta { flex-direction: column; align-items: stretch; gap: 12px; }
+  .sfx-final-cta .ah-btn { width: 100%; justify-content: center; text-align: center; }
+  .sfx-final-cta .ah-btn-quiet { align-self: center; }
+}
+
+/* ============================================================================
+   LEAKS FROM THE OLD PALETTE
+   The redesign covered the pages it touched; these are the places the previous
+   violet system still showed through — the onboarding card's glow, the blog's
+   links and contents, the pricing badge, and a handful of chips inside the
+   report. Same rule as everywhere else: signal means one thing, so it marks
+   the live link or the thing that is yours, and everything else goes quiet.
+   ========================================================================= */
+
+/* ---- setting up a brand: the app's card, not the landing one ---- */
+.sf-shell .check {
+  background: var(--sf-sheet);
+  border: 1px solid var(--sf-rule);
+  border-radius: 16px;
+  /* the violet bloom under this card was the last thing still glowing */
+  box-shadow: none;
+  padding: 30px 30px 32px;
+}
+.sf-shell .res-h,
+.sf-shell .field label,
+.sf-shell .check-hint {
+  font-family: var(--sf-mono);
+  color: var(--sf-faint);
+}
+.sf-shell .res-h { font-size: 10.5px; letter-spacing: 0.1em; }
+.sf-shell .field input {
+  font-family: var(--sf-serif);
+  font-size: 16px;
+  color: var(--sf-vellum);
+  background: var(--sf-ink);
+  border: 1px solid var(--sf-rule);
+  border-radius: 3px;
+}
+.sf-shell .field input::placeholder { color: var(--sf-faint); }
+.sf-shell .field input:focus {
+  border-color: rgba(242, 199, 68, 0.55);
+  box-shadow: none;
+  outline: none;
+}
+.sf-shell .dash-hi {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  letter-spacing: -0.028em;
+  color: var(--sf-vellum);
+}
+.sf-shell .sec-sub {
+  font-family: var(--sf-serif);
+  color: var(--sf-graphite);
+}
+.sf-shell .check-error { color: var(--viz-neg); font-family: var(--sf-mono); }
+
+/* ---- chips inside the report ---- */
+/* The disclosure line above it is already the affordance; a second coloured
+   chip beside it was one accessory too many, so this counts and stays quiet. */
+.sf-drop-tag {
+  color: var(--sf-faint);
+  background: transparent;
+  border: 1px solid var(--sf-rule);
+}
+.sf-steps li::before { background: rgba(242, 199, 68, 0.5); }
+
+/* ---- long-form: the blog joins the system ---- */
+.prose a,
+.blog-more,
+.post-meta a,
+.post-nav-dir,
+.toc-link.on { color: var(--sf-signal); }
+.prose a { border-bottom-color: rgba(242, 199, 68, 0.4); }
+.prose a:hover { color: var(--sf-signal); border-bottom-color: var(--sf-signal); }
+.prose li::marker { color: rgba(242, 199, 68, 0.75); }
+.prose blockquote { border-left-color: rgba(242, 199, 68, 0.55); }
+.prose h2 .anchor { color: rgba(242, 199, 68, 0.45); }
+.blog-card:hover h2 a { color: var(--sf-signal); }
+.toc-link:hover { color: var(--sf-vellum); }
+
+/* ---- pricing: the badge stops being the only gradient on the site ---- */
+.tier-badge {
+  background: var(--sf-signal);
+  color: var(--sf-ink);
+  border-radius: 3px;
+}
+
+/* ---- the demo form, matched to the system's inputs ----------------------
+   The page around it was rebuilt in the new language but its fields kept the
+   old 11px radius and sans face, so the one place someone types on this page
+   read as a leftover. Same treatment as the check and the brand setup: ink
+   well, hairline rule, serif text, signal on focus. */
+.demo-layout .field input,
+.demo-form textarea {
+  font-family: var(--sf-serif);
+  font-size: 16px;
+  color: var(--sf-vellum);
+  background: var(--sf-ink);
+  border: 1px solid var(--sf-rule);
+  border-radius: 3px;
+}
+.demo-layout .field input::placeholder,
+.demo-form textarea::placeholder { color: var(--sf-faint); }
+.demo-layout .field input:focus,
+.demo-form textarea:focus {
+  border-color: rgba(242, 199, 68, 0.55);
+  box-shadow: none;
+  outline: none;
+}
+.demo-layout .field label {
+  font-family: var(--sf-mono);
+  color: var(--sf-faint);
+}
