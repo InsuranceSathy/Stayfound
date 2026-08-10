@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: "Do I need to install anything?",
-    a: "No. Add your brand and category and StayFound starts tracking — there's no script to embed and no access to your site required.",
+    a: "No. Add your brand and category and StayFound starts tracking — there is nothing to install.",
   },
   {
     q: "Does it tell me what to actually do?",

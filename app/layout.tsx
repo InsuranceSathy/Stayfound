@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Newsreader, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next"
@@ -21,6 +21,20 @@ const caveat = Caveat({
   subsets: ["latin"],
 });
 
+// The answer is prose a machine wrote, so it is set in a text serif; the
+// measurements around it are set in a mono. Two voices, no neutral SaaS sans.
+const newsreader = Newsreader({
+  variable: "--font-answer",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-instrument",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   // Without this, Next resolves file-convention images (the per-post
   // opengraph-image routes) against http://localhost:3000 at build time, and
@@ -34,7 +48,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "StayFound — Be the brand AI keeps recommending",
     description:
-      "The AI answer visibility suite. See where you lose, get the fix that wins it back, and watch the answer change.",
+      "See what ChatGPT, Gemini, Perplexity and Claude say about your category — and get the exact pages that put you in the answer.",
     type: "website",
   },
 };
@@ -49,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${newsreader.variable} ${plexMono.variable} antialiased`}
     >
       <body>
         {children}

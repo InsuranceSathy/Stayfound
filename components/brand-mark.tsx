@@ -1,4 +1,17 @@
+/**
+ * The mark is a citation bracket with your name inside it.
+ *
+ * The product's whole promise is being the brand an assistant cites, and a
+ * bracketed reference is the printed form of exactly that. It replaced a map
+ * pin, which read as "location" and was carried on the gradient tile every AI
+ * product wears.
+ *
+ * Drawn on a 100 grid with no gradient and no tile, so it sits in a line of
+ * type. The stroke thickens at small sizes — at 16px a hairline bracket fills
+ * in and the mark turns to mush.
+ */
 export function BrandMark({ size = 28 }: { size?: number }) {
+  const stroke = size <= 20 ? 11 : size <= 32 ? 9 : 8;
   return (
     <svg
       className="mark"
@@ -9,34 +22,19 @@ export function BrandMark({ size = 28 }: { size?: number }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <defs>
-        <linearGradient
-          id="sfGrad"
-          x1="8"
-          y1="8"
-          x2="92"
-          y2="92"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#7C6CF5" />
-          <stop offset="0.55" stopColor="#B07FF0" />
-          <stop offset="1" stopColor="#F472B6" />
-        </linearGradient>
-      </defs>
-      {/* app tile */}
-      <rect x="2" y="2" width="96" height="96" rx="27" fill="url(#sfGrad)" />
-      {/* pin — "found" */}
       <path
-        d="M50 20c-11.6 0-21 9.2-21 20.6 0 14.6 21 38.4 21 38.4s21-23.8 21-38.4C71 29.2 61.6 20 50 20z"
-        fill="#0B0A10"
-        fillOpacity="0.28"
+        d="M38 22H24v56h14"
+        stroke="currentColor"
+        strokeWidth={stroke}
+        strokeLinecap="square"
       />
       <path
-        d="M50 24c-9.4 0-17 7.4-17 16.6 0 11.8 17 31.4 17 31.4s17-19.6 17-31.4C67 31.4 59.4 24 50 24z"
-        fill="#fff"
+        d="M62 22h14v56H62"
+        stroke="currentColor"
+        strokeWidth={stroke}
+        strokeLinecap="square"
       />
-      {/* signal core */}
-      <circle cx="50" cy="40" r="6.4" fill="url(#sfGrad)" />
+      <circle cx="50" cy="50" r={size <= 20 ? 12 : 9} fill="var(--sf-signal, #f2c744)" />
     </svg>
   );
 }

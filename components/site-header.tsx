@@ -26,7 +26,7 @@ export function SiteHeader() {
             Book a demo
           </Link>
           <Link href="/#report" className="btn btn-primary">
-            Get my report <span className="arr">→</span>
+            Check my brand
           </Link>
           <MobileMenu />
         </div>

@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { AddBrandForm } from "@/components/add-brand-form";
 import { BillingPanel } from "@/components/billing-panel";
 import { ReferralPanel } from "@/components/referral-panel";
-import { removeBrand } from "@/app/dashboard/actions";
+import { ChangeBrand } from "@/components/dashboard/change-brand";
 import {
   getBrandForUser,
   getLatestSnapshot,
@@ -71,11 +71,7 @@ export default async function DashboardPage({
               <h1 className="sf-top-t">{brand.name}</h1>
               <p className="sf-top-s">{brand.category}</p>
             </div>
-            <form action={removeBrand}>
-              <button type="submit" className="btn btn-ghost btn-sm">
-                Change brand
-              </button>
-            </form>
+            <ChangeBrand brand={brand.name} scans={0} />
           </header>
           <section className="sf-panel">
             <div className="sf-panel-head">
@@ -126,11 +122,7 @@ export default async function DashboardPage({
             </p>
           </div>
           <div className="sf-top-actions">
-            <form action={removeBrand}>
-              <button type="submit" className="btn btn-ghost btn-sm">
-                Change brand
-              </button>
-            </form>
+            <ChangeBrand brand={brand.name} scans={history.length} />
             <ScanButton
               brand={brand.name}
               category={brand.category}
