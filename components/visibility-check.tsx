@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { requirePlan, type BillingInterval, type PlanId } from "@/lib/plans";
 import { readReferralId } from "@/lib/referral";
 import { signInThenCheckout } from "@/lib/checkout-intent";
 import { capture, EVENTS } from "@/lib/analytics";
+import { ScanProgress } from "@/components/scan-progress";
 
 /**
  * What the paywall sells in one click.
@@ -51,6 +52,33 @@ export function VisibilityCheck() {
   const [result, setResult] = useState<Result | null>(null);
   const [live, setLive] = useState(true);
   const [gated, setGated] = useState(false);
+  // Real elapsed seconds and the job's real state — the progress panel shows
+  // these rather than a simulated bar.
+  const [elapsed, setElapsed] = useState(0);
+  const [queued, setQueued] = useState(true);
+
+  // The hero hands over the name typed into the answer. Fill it in and put the
+  // cursor on the category, which is the only thing still missing — and the
+  // field whose specificity decides whether the competitors come back right.
+  useEffect(() => {
+    function onBrand(e: Event) {
+      const value = (e as CustomEvent<string>).detail;
+      if (!value) return;
+      setBrand(value);
+      requestAnimationFrame(() => {
+        const el = document.getElementById("category") as HTMLInputElement | null;
+        el?.focus();
+      });
+    }
+    window.addEventListener("sf:brand", onBrand);
+    return () => window.removeEventListener("sf:brand", onBrand);
+  }, []);
+
+  useEffect(() => {
+    if (!loading) return;
+    const t = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => clearInterval(t);
+  }, [loading]);
 
   function finish(data: { result: Result; live: boolean }) {
     setResult(data.result);
@@ -78,6 +106,9 @@ export function VisibilityCheck() {
         cache: "no-store",
       });
       const data = await res.json();
+      // "running" means a worker picked it up — the only progress signal the
+      // backend actually gives us.
+      if (data.status === "running") setQueued(false);
       if (data.status === "done") return finish(data);
       if (data.status === "error") {
         setError("Scan failed. Please try again.");
@@ -95,6 +126,8 @@ export function VisibilityCheck() {
     setError(null);
     setResult(null);
     setGated(false);
+    setElapsed(0);
+    setQueued(true);
     setLoading(true);
     capture(EVENTS.REPORT_STARTED, { brand, category });
     try {
@@ -245,20 +278,7 @@ export function VisibilityCheck() {
         </div>
       )}
 
-      {loading && (
-        <>
-          <p className="check-note" style={{ marginTop: 18 }}>
-            Querying the AI engines across several buyer prompts. A new brand can
-            take up to a minute — results are cached instantly after.
-          </p>
-          <div className="skeleton" aria-hidden="true">
-            <div className="sk-line" style={{ width: "30%", height: 40 }} />
-            <div className="sk-line" style={{ width: "80%" }} />
-            <div className="sk-line" style={{ width: "65%" }} />
-            <div className="sk-line" style={{ width: "72%" }} />
-          </div>
-        </>
-      )}
+      {loading && <ScanProgress elapsed={elapsed} queued={queued} />}
 
       {result && (
         <>

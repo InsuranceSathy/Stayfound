@@ -42,6 +42,7 @@ const FULL_LENGTH = ANSWER.reduce((n, t) => n + t.value.length, 0);
 
 export function AnswerHero() {
   const [typed, setTyped] = useState(0);
+  const [slot, setSlot] = useState("");
   const [, force] = useReducer((n: number) => n + 1, 0);
 
   useEffect(() => {
@@ -66,6 +67,20 @@ export function AnswerHero() {
   }, [typed]);
 
   const done = typed >= FULL_LENGTH;
+
+  /**
+   * Hand the name to the check without a page load, and put the cursor on the
+   * one thing still missing — the category. Scrolling someone to the top of a
+   * form they have already half-filled is how you get it abandoned.
+   */
+  function handoff() {
+    const value = slot.trim();
+    if (!value) return;
+    window.dispatchEvent(new CustomEvent("sf:brand", { detail: value }));
+    document
+      .getElementById("report")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   // Reveal by character across the token list, so names light up as they arrive.
   let consumed = 0;
@@ -104,14 +119,35 @@ export function AnswerHero() {
             {!done && <span className="ah-caret" aria-hidden="true" />}
           </p>
 
-          {/* The omission. Everything else on this page is monochrome so that
-              this is the one thing the eye goes to. */}
-          <div className={`ah-gap ${done ? "in" : ""}`} aria-hidden={!done}>
-            <span className="ah-slot">
-              <span className="ah-slot-ghost">your brand</span>
+          {/* The omission, and the only editable thing on the page. Typing your
+              own name into the hole is the whole argument in one gesture, so
+              the slot is a real field rather than a picture of one — it hands
+              the name to the check below instead of asking for it twice. */}
+          <form
+            className={`ah-gap ${done ? "in" : ""}`}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handoff();
+            }}
+          >
+            <label className="ah-slot">
+              <span className="sr-only">Your brand</span>
+              <input
+                className="ah-slot-input"
+                value={slot}
+                onChange={(e) => setSlot(e.target.value)}
+                onBlur={() => slot.trim() && handoff()}
+                placeholder="your brand"
+                aria-label="Your brand"
+                autoComplete="organization"
+                spellCheck={false}
+                tabIndex={done ? 0 : -1}
+              />
+            </label>
+            <span className="ah-gap-note">
+              {slot.trim() ? "press enter to check it" : "where you would be"}
             </span>
-            <span className="ah-gap-note">where you would be</span>
-          </div>
+          </form>
 
           <div className={`ah-sources ${done ? "in" : ""}`}>
             <span className="ah-sources-k">read</span>
