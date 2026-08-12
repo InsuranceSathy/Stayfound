@@ -1,16 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { WaitlistButton } from "@/components/waitlist-form";
-import { readReferralId } from "@/lib/referral";
-import { signInThenCheckout } from "@/lib/checkout-intent";
+import { IntervalToggle, usePlanCheckout } from "@/components/paywall-cta";
 import {
   PLANS,
   YEARLY_MONTHS,
   checkoutOpen,
   displayMonthly,
-  type BillingInterval,
-  type PlanId,
 } from "@/lib/plans";
 
 function Check() {
@@ -37,66 +33,27 @@ function Check() {
  */
 export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: boolean }) {
   const canBuy = checkoutOpen();
-  const [interval, setInterval] = useState<BillingInterval>("monthly");
-  const [pending, setPending] = useState<PlanId | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  async function subscribe(plan: PlanId) {
-    setError(null);
-    setPending(plan);
-    try {
-      const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, interval, referral: readReferralId() }),
-      });
-
-      if (res.status === 401) {
-        // Checkout needs an account to attach the subscription to. The chosen
-        // plan rides along, so sign-in returns them to this purchase instead of
-        // dumping them on the dashboard.
-        window.location.assign(signInThenCheckout(plan, interval));
-        return;
-      }
-
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        setError(data.error || "Couldn't start checkout. Please try again.");
-        setPending(null);
-        return;
-      }
-      // Dodo's hosted checkout — a full navigation, not a popup, so the card
-      // form is on Dodo's origin where it belongs.
-      window.location.assign(data.url);
-    } catch {
-      setError("Couldn't reach the server. Please try again.");
-      setPending(null);
-    }
-  }
+  // Same checkout the report paywall uses. The two surfaces look nothing alike
+  // — a feature grid here, three chips there — but the call, the 401 handoff,
+  // the referral tag and the analytics are one implementation, so a fix to
+  // buying applies wherever buying happens. `inline` because the fallback for a
+  // failed checkout is /pricing, and this *is* /pricing.
+  const {
+    interval,
+    setInterval,
+    plan: chosen,
+    pending,
+    error,
+    startCheckout,
+  } = usePlanCheckout({ onFailure: "inline" });
 
   return (
     <>
-      {canBuy && yearlyAvailable && (
-        <div className="interval-toggle" role="group" aria-label="Billing period">
-          <button
-            type="button"
-            className={interval === "monthly" ? "on" : ""}
-            aria-pressed={interval === "monthly"}
-            onClick={() => setInterval("monthly")}
-          >
-            Monthly
-          </button>
-          <button
-            type="button"
-            className={interval === "yearly" ? "on" : ""}
-            aria-pressed={interval === "yearly"}
-            onClick={() => setInterval("yearly")}
-          >
-            Yearly
-            <span className="save-tag">{12 - YEARLY_MONTHS} months free</span>
-          </button>
-        </div>
-      )}
+      <IntervalToggle
+        interval={interval}
+        setInterval={setInterval}
+        yearlyAvailable={yearlyAvailable}
+      />
 
       <section className="wrap pricing-grid">
         {PLANS.map((t) => {
@@ -136,11 +93,13 @@ export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: bo
                 <button
                   type="button"
                   className={`btn ${t.featured ? "btn-primary" : "btn-ghost"} tier-cta`}
-                  onClick={() => subscribe(t.id)}
-                  disabled={pending !== null}
+                  onClick={() => startCheckout(t.id)}
+                  disabled={pending}
                 >
-                  {pending === t.id ? "Opening checkout…" : `Get ${t.name}`}
-                  {pending !== t.id && <span className="arr">→</span>}
+                  {pending && chosen === t.id
+                    ? "Opening checkout…"
+                    : `Get ${t.name}`}
+                  {!(pending && chosen === t.id) && <span className="arr">→</span>}
                 </button>
               )}
 

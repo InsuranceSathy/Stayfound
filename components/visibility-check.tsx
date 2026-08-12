@@ -214,7 +214,8 @@ export function VisibilityCheck({
     }
   }
 
-  const { startCheckout, selected } = checkout;
+  // The locked blocks buy the selection rather than naming a plan of their own.
+  const { buySelected, selected } = checkout;
 
   const maxShare = result
     ? Math.max(...result.competitors.map((c) => c.share), 1)
@@ -230,7 +231,7 @@ export function VisibilityCheck({
    */
   function unlockBar(label = "Unlock the full report") {
     return (
-      <button type="button" className="sf-unlock" onClick={startCheckout}>
+      <button type="button" className="sf-unlock" onClick={buySelected}>
         <span className="sf-unlock-ico" aria-hidden="true">
           🔒
         </span>
@@ -391,7 +392,7 @@ export function VisibilityCheck({
 
             {/* Two named problems is enough to prove the advice is specific;
                 the third, and the how under all of them, is the purchase. */}
-            <div className="actions sf-lockable" onClick={startCheckout}>
+            <div className="actions sf-lockable" onClick={buySelected}>
               <p className="res-h">Recommended moves</p>
               {result.actions.map((a, i) => {
                 const lock = lockedItem(i, REVEAL.actions);
@@ -426,7 +427,7 @@ export function VisibilityCheck({
         {result.sentiment &&
           (result.sentiment.positiveThemes.length > 0 ||
             result.sentiment.negativeThemes.length > 0) && (
-            <div className="sentiment-block sf-lockable" onClick={startCheckout}>
+            <div className="sentiment-block sf-lockable" onClick={buySelected}>
               <p className="res-h">How AI talks about you — {result.sentiment.label}</p>
               {/* One theme readable per column: the good news and the bad news
                   are different questions, so a reader who sees only one of them
@@ -482,7 +483,7 @@ export function VisibilityCheck({
           )}
 
         {result.citedSources && result.citedSources.length > 0 && (
-          <div className="ideas-block sf-lockable" onClick={startCheckout}>
+          <div className="ideas-block sf-lockable" onClick={buySelected}>
             <p className="res-h">
               Likely cited sources <span className="est-tag">estimated</span>
             </p>
@@ -520,7 +521,7 @@ export function VisibilityCheck({
         )}
 
         {result.contentIdeas && result.contentIdeas.length > 0 && (
-          <div className="ideas-block sf-lockable" onClick={startCheckout}>
+          <div className="ideas-block sf-lockable" onClick={buySelected}>
             <p className="res-h">Content suggestions to boost your visibility</p>
             {/* One readable brief; the rest of the backlog is the product. */}
             <div className="ideas-grid">
