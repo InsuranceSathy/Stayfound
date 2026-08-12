@@ -131,15 +131,15 @@ export function AnswerHero() {
             }}
           >
             <label className="ah-slot">
-              <span className="sr-only">Your brand</span>
+              <span className="sr-only">Your domain</span>
               <input
                 className="ah-slot-input"
                 value={slot}
                 onChange={(e) => setSlot(e.target.value)}
                 onBlur={() => slot.trim() && handoff()}
-                placeholder="your brand"
-                aria-label="Your brand"
-                autoComplete="organization"
+                placeholder="yourbrand.com"
+                aria-label="Your domain"
+                autoComplete="url"
                 spellCheck={false}
                 tabIndex={done ? 0 : -1}
               />

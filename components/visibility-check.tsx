@@ -22,6 +22,16 @@ const PAYWALL_PLAN: PlanId = "solo";
 const PAYWALL_INTERVAL: BillingInterval = "monthly";
 const plan = requirePlan(PAYWALL_PLAN);
 
+/**
+ * How many items in each locked block keep a readable heading. Everything past
+ * the count blurs whole, heading included.
+ *
+ * This is the one dial for how much of the report the free check gives away —
+ * change these numbers rather than the JSX. `themes` counts per column, so 1
+ * shows one ✓ and one ✕.
+ */
+const REVEAL = { actions: 2, themes: 1, cited: 1, ideas: 1 };
+
 type Engine = { name: string; mentioned: boolean; score: number };
 type Competitor = { name: string; share: number; you?: boolean };
 type Action = { title: string; detail: string; impact: "high" | "medium" | "low" };
@@ -46,9 +56,47 @@ type Result = {
   citedSources?: CitedSource[];
 };
 
+/**
+ * The blur that makes the free report a sample rather than the product.
+ *
+ * Wraps body copy — a move's detail, a theme's quote — or, for everything past
+ * the first item in a block, the whole item. It is `aria-hidden` because
+ * unreadable text is noise to a screen reader; the unlock button below each
+ * block is the accessible way through, so nothing is announced that cannot be
+ * acted on.
+ *
+ * This hides the words from the eye, not from the DOM: the copy is still in the
+ * page source. That is the deliberate trade for keeping the whole gate on the
+ * client — the shape and length of the real answer is what sells the upgrade.
+ */
+function LockedText({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="sf-locked" aria-hidden="true">
+      {children}
+    </span>
+  );
+}
+
+/**
+ * Props for an item past its block's reveal count: the whole card blurs as one
+ * shape. Spread onto the item root alongside its own classes, so each block
+ * keeps `theme pos`, `cited-row you` and friends.
+ */
+function lockedItem(i: number, reveal: number) {
+  const past = i >= reveal;
+  return {
+    className: past ? "sf-locked" : "",
+    "aria-hidden": past || undefined,
+  } as const;
+}
+
 export function VisibilityCheck() {
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("");
+  // Who the answers should be about. The engines recommend different brands to
+  // a buyer in the UK than to one in the USA, so without this the score
+  // measures the wrong market.
+  const [market, setMarket] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
@@ -98,6 +146,11 @@ export function VisibilityCheck() {
       score: data.result?.score,
       live: data.live,
     });
+    // Every finished report now renders with locked blocks in it, so the
+    // paywall is seen here — not only on the hard gate at the second report.
+    // Without this the funnel would count the blurred report as a free win and
+    // read the click-through rate against the wrong denominator.
+    capture(EVENTS.PAYWALL_SHOWN, { plan: PAYWALL_PLAN, reason: "locked_report" });
   }
 
   async function pollJob(jobId: string, attempt = 0) {
@@ -133,12 +186,12 @@ export function VisibilityCheck() {
     setQueued(true);
     setMeasuredAt(null);
     setLoading(true);
-    capture(EVENTS.REPORT_STARTED, { brand, category });
+    capture(EVENTS.REPORT_STARTED, { brand, category, market });
     try {
       const res = await fetch("/api/free-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brand, category }),
+        body: JSON.stringify({ brand, category, market }),
       });
       const data = await res.json();
       if (data.gated) {
@@ -208,6 +261,26 @@ export function VisibilityCheck() {
     ? Math.max(...result.competitors.map((c) => c.share), 1)
     : 1;
 
+  /**
+   * The way out of a locked block. Called rather than rendered as a component
+   * so it does not get a fresh element type on every render of the parent.
+   *
+   * Every locked block gets its own, at the point where the reader has just hit
+   * the blur — asking them to scroll to the bottom paywall to act on what they
+   * are looking at right now is a step that loses people.
+   */
+  function unlockBar(label = "Unlock the full report") {
+    return (
+      <button type="button" className="sf-unlock" onClick={startCheckout}>
+        <span className="sf-unlock-ico" aria-hidden="true">
+          🔒
+        </span>
+        {label}
+        <span className="arr">→</span>
+      </button>
+    );
+  }
+
   return (
     <div className="check">
       <p className="sec-eyebrow">Free AI visibility check</p>
@@ -215,28 +288,40 @@ export function VisibilityCheck() {
         How visible is your brand in AI search?
       </h2>
       <p className="sec-sub">
-        Enter your brand and what you sell. We&apos;ll estimate where you stand
-        across the major AI assistants — in seconds.
+        Enter your domain, what you sell and who you sell it to. We&apos;ll
+        estimate where you stand across the major AI assistants — in seconds.
       </p>
 
+      {/* The ids stay `brand` and `category` whatever the labels say: they are
+          internal, and the hero handoff focuses #category by id. */}
       <form className="check-form" onSubmit={run}>
         <div className="field">
-          <label htmlFor="brand">Brand name</label>
+          <label htmlFor="brand">Domain name</label>
           <input
             id="brand"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
-            placeholder="e.g. Linear"
+            placeholder="yourbrand.com"
             autoComplete="off"
           />
         </div>
         <div className="field">
-          <label htmlFor="category">Category</label>
+          <label htmlFor="category">Category of business</label>
           <input
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             placeholder="e.g. project management software"
+            autoComplete="off"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="market">Target customers</label>
+          <input
+            id="market"
+            value={market}
+            onChange={(e) => setMarket(e.target.value)}
+            placeholder="e.g. USA, Canada, UK"
             autoComplete="off"
           />
         </div>
@@ -251,9 +336,10 @@ export function VisibilityCheck() {
       </form>
 
       <p className="check-hint">
-        Tip: be specific. &ldquo;Corporate compliance software&rdquo; surfaces
-        your real competitors; &ldquo;services&rdquo; just returns the biggest
-        companies.
+        All three are needed. Be specific: &ldquo;corporate compliance
+        software&rdquo; surfaces your real competitors where &ldquo;services&rdquo;
+        just returns the biggest companies, and naming the market is what makes
+        the assistants answer for your buyers rather than everyone&apos;s.
       </p>
 
       {error && <p className="check-error">{error}</p>}
@@ -353,17 +439,29 @@ export function VisibilityCheck() {
               </div>
             ))}
 
-            <div className="actions">
+            {/* Two named problems is enough to prove the advice is specific;
+                the third, and the how under all of them, is the purchase. */}
+            <div className="actions sf-lockable" onClick={startCheckout}>
               <p className="res-h">Recommended moves</p>
-              {result.actions.map((a, i) => (
-                <div className="action" key={i}>
-                  <span className={`impact ${a.impact}`}>{a.impact}</span>
-                  <div className="a-body">
-                    <h4>{a.title}</h4>
-                    <p>{a.detail}</p>
+              {result.actions.map((a, i) => {
+                const lock = lockedItem(i, REVEAL.actions);
+                return (
+                  <div
+                    className={`action ${lock.className}`}
+                    aria-hidden={lock["aria-hidden"]}
+                    key={i}
+                  >
+                    <span className={`impact ${a.impact}`}>{a.impact}</span>
+                    <div className="a-body">
+                      <h4>{a.title}</h4>
+                      <p>
+                        <LockedText>{a.detail}</LockedText>
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+              {unlockBar(`Unlock how to make all ${result.actions.length} moves`)}
             </div>
 
             <p className="check-note">
@@ -378,37 +476,63 @@ export function VisibilityCheck() {
         {result.sentiment &&
           (result.sentiment.positiveThemes.length > 0 ||
             result.sentiment.negativeThemes.length > 0) && (
-            <div className="sentiment-block">
+            <div className="sentiment-block sf-lockable" onClick={startCheckout}>
               <p className="res-h">How AI talks about you — {result.sentiment.label}</p>
+              {/* One theme readable per column: the good news and the bad news
+                  are different questions, so a reader who sees only one of them
+                  has not seen the block. */}
               <div className="sentiment-cols">
                 <div>
                   <p className="senti-pct pos">
                     {result.sentiment.positivePct}% positive
                   </p>
-                  {result.sentiment.positiveThemes.map((t, i) => (
-                    <div className="theme pos" key={i}>
-                      <span className="theme-tag">✓ {t.theme}</span>
-                      {t.quote && <p className="theme-quote">“{t.quote}”</p>}
-                    </div>
-                  ))}
+                  {result.sentiment.positiveThemes.map((t, i) => {
+                    const lock = lockedItem(i, REVEAL.themes);
+                    return (
+                      <div
+                        className={`theme pos ${lock.className}`}
+                        aria-hidden={lock["aria-hidden"]}
+                        key={i}
+                      >
+                        <span className="theme-tag">✓ {t.theme}</span>
+                        {t.quote && (
+                          <p className="theme-quote">
+                            <LockedText>“{t.quote}”</LockedText>
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
                 <div>
                   <p className="senti-pct neg">
                     {result.sentiment.negativePct}% negative
                   </p>
-                  {result.sentiment.negativeThemes.map((t, i) => (
-                    <div className="theme neg" key={i}>
-                      <span className="theme-tag">✕ {t.theme}</span>
-                      {t.quote && <p className="theme-quote">“{t.quote}”</p>}
-                    </div>
-                  ))}
+                  {result.sentiment.negativeThemes.map((t, i) => {
+                    const lock = lockedItem(i, REVEAL.themes);
+                    return (
+                      <div
+                        className={`theme neg ${lock.className}`}
+                        aria-hidden={lock["aria-hidden"]}
+                        key={i}
+                      >
+                        <span className="theme-tag">✕ {t.theme}</span>
+                        {t.quote && (
+                          <p className="theme-quote">
+                            <LockedText>“{t.quote}”</LockedText>
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
+              {unlockBar("Unlock what AI actually says about you")}
             </div>
           )}
 
         {result.citedSources && result.citedSources.length > 0 && (
-          <div className="ideas-block">
+          <div className="ideas-block sf-lockable" onClick={startCheckout}>
             <p className="res-h">
               Likely cited sources <span className="est-tag">estimated</span>
             </p>
@@ -416,33 +540,60 @@ export function VisibilityCheck() {
               Where AI answers in this category tend to pull from. Getting listed
               in these is the fastest way to get cited.
             </p>
+            {/* The ranks stay legible down the whole list, so the reader can
+                count what is hidden even where the domain is not. */}
             <div className="cited-list">
-              {result.citedSources.map((s, i) => (
-                <div className={`cited-row ${s.isYou ? "you" : ""}`} key={i}>
-                  <span className="cited-rank">{i + 1}</span>
-                  <span className="cited-domain">
-                    {s.domain}
-                    {s.isYou && <span className="badge-you">You</span>}
-                  </span>
-                  <span className="cited-note">{s.note}</span>
-                </div>
-              ))}
+              {result.citedSources.map((s, i) => {
+                const lock = lockedItem(i, REVEAL.cited);
+                return (
+                  <div
+                    className={`cited-row ${s.isYou ? "you" : ""} ${lock.className}`}
+                    aria-hidden={lock["aria-hidden"]}
+                    key={i}
+                  >
+                    <span className="cited-rank">{i + 1}</span>
+                    <span className="cited-domain">
+                      {s.domain}
+                      {s.isYou && <span className="badge-you">You</span>}
+                    </span>
+                    <span className="cited-note">
+                      <LockedText>{s.note}</LockedText>
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+            {unlockBar(
+              `Unlock why all ${result.citedSources.length} sources get cited`
+            )}
           </div>
         )}
 
         {result.contentIdeas && result.contentIdeas.length > 0 && (
-          <div className="ideas-block">
+          <div className="ideas-block sf-lockable" onClick={startCheckout}>
             <p className="res-h">Content suggestions to boost your visibility</p>
+            {/* One readable brief; the rest of the backlog is the product. */}
             <div className="ideas-grid">
-              {result.contentIdeas.map((idea, i) => (
-                <div className="idea" key={i}>
-                  <span className="idea-type">{idea.type}</span>
-                  <h4>{idea.title}</h4>
-                  <p>{idea.description}</p>
-                </div>
-              ))}
+              {result.contentIdeas.map((idea, i) => {
+                const lock = lockedItem(i, REVEAL.ideas);
+                return (
+                  <div
+                    className={`idea ${lock.className}`}
+                    aria-hidden={lock["aria-hidden"]}
+                    key={i}
+                  >
+                    <span className="idea-type">{idea.type}</span>
+                    <h4>{idea.title}</h4>
+                    <p>
+                      <LockedText>{idea.description}</LockedText>
+                    </p>
+                  </div>
+                );
+              })}
             </div>
+            {unlockBar(
+              `Unlock all ${result.contentIdeas.length} article briefs`
+            )}
           </div>
         )}
 
