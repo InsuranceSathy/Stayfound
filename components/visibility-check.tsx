@@ -2,25 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { requirePlan, type BillingInterval, type PlanId } from "@/lib/plans";
-import { readReferralId } from "@/lib/referral";
-import { signInThenCheckout } from "@/lib/checkout-intent";
+import { PlanPicker, usePlanCheckout } from "@/components/paywall-cta";
 import { capture, EVENTS } from "@/lib/analytics";
 import { ScanProgress } from "@/components/scan-progress";
 import { measuredAgo } from "@/lib/report-derive";
-
-/**
- * What the paywall sells in one click.
- *
- * Solo, because this paywall follows a *single* free report on a single brand —
- * the visitor has shown they want that one brand tracked, not a portfolio. The
- * price is read from the plan catalogue rather than written into the copy, so
- * the button cannot advertise a number Dodo does not charge; anyone who needs
- * more than one brand gets the compare-plans link instead of a surprise.
- */
-const PAYWALL_PLAN: PlanId = "solo";
-const PAYWALL_INTERVAL: BillingInterval = "monthly";
-const plan = requirePlan(PAYWALL_PLAN);
 
 /**
  * How many items in each locked block keep a readable heading. Everything past
@@ -90,7 +75,15 @@ function lockedItem(i: number, reveal: number) {
   } as const;
 }
 
-export function VisibilityCheck() {
+export function VisibilityCheck({
+  yearlyAvailable = false,
+}: {
+  /** Whether Dodo has yearly products configured — resolved by the page. */
+  yearlyAvailable?: boolean;
+}) {
+  // Shared by both paywalls and every unlock bar, so the plan a visitor picks
+  // is the plan every route to checkout buys.
+  const checkout = usePlanCheckout();
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("");
   // Who the answers should be about. The engines recommend different brands to
@@ -150,7 +143,10 @@ export function VisibilityCheck() {
     // paywall is seen here — not only on the hard gate at the second report.
     // Without this the funnel would count the blurred report as a free win and
     // read the click-through rate against the wrong denominator.
-    capture(EVENTS.PAYWALL_SHOWN, { plan: PAYWALL_PLAN, reason: "locked_report" });
+    capture(EVENTS.PAYWALL_SHOWN, {
+      plan: checkout.plan,
+      reason: "locked_report",
+    });
   }
 
   async function pollJob(jobId: string, attempt = 0) {
@@ -218,44 +214,7 @@ export function VisibilityCheck() {
     }
   }
 
-  /**
-   * The paywall CTA, on the subscription checkout that the rest of the app
-   * uses. It replaced a separate /api/checkout route that opened a one-time
-   * `/payments` link: that one recorded nothing, so a customer who paid got no
-   * entitlement, and its single product id was not tied to a plan.
-   *
-   * This is a public page, so most people clicking are signed out — checkout
-   * needs an account to attach the subscription to. Every failure falls back to
-   * /pricing rather than dead-ending on an error: whatever went wrong, the page
-   * that lists the plans is somewhere useful to be.
-   */
-  async function startCheckout() {
-    capture(EVENTS.PAYWALL_CTA_CLICKED, { plan: PAYWALL_PLAN, interval: PAYWALL_INTERVAL });
-    try {
-      const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan: PAYWALL_PLAN,
-          interval: PAYWALL_INTERVAL,
-          referral: readReferralId(),
-        }),
-      });
-
-      if (res.status === 401) {
-        // Signed out, which is the normal case on a public marketing page. The
-        // plan travels through sign-in so they come back to this purchase.
-        window.location.assign(signInThenCheckout(PAYWALL_PLAN, PAYWALL_INTERVAL));
-        return;
-      }
-
-      const data = await res.json();
-      if (data.url) window.location.assign(data.url);
-      else window.location.assign("/pricing");
-    } catch {
-      window.location.assign("/pricing");
-    }
-  }
+  const { startCheckout, selected } = checkout;
 
   const maxShare = result
     ? Math.max(...result.competitors.map((c) => c.share), 1)
@@ -348,22 +307,13 @@ export function VisibilityCheck() {
         <div className="paywall">
           <h3>You&apos;ve used your free report.</h3>
           <p>
-            {plan.name} tracks your brand across every AI engine — daily scans,
-            competitor alerts, cited sources, and the fixes to climb.
+            {selected.name} tracks your brand across every AI engine — daily
+            scans, competitor alerts, cited sources, and the fixes to climb.
           </p>
-          <div className="cta-row" style={{ justifyContent: "center" }}>
-            <button className="btn btn-primary btn-lg" onClick={startCheckout}>
-              Get {plan.name} — ${plan.monthly}/mo <span className="arr">→</span>
-            </button>
-            <a
-              href="https://app.stayfound.tech"
-              className="btn btn-bare btn-lg"
-            >
-              Log in
-            </a>
-          </div>
+          <PlanPicker {...checkout} yearlyAvailable={yearlyAvailable} />
           <p className="paywall-alt">
-            Tracking more than one brand? <a href="/pricing">Compare plans</a>.
+            Want the feature lists side by side?{" "}
+            <a href="/pricing">Compare plans</a>.
           </p>
         </div>
       )}
@@ -600,19 +550,14 @@ export function VisibilityCheck() {
         <div className="paywall" style={{ marginTop: 30 }}>
           <h3>That&apos;s your one free report.</h3>
           <p>
-            {plan.name} tracks this score over time, tells you when a competitor
-            overtakes you, and hands you the fixes to win the answer back.
+            {selected.name} tracks this score over time, tells you when a
+            competitor overtakes you, and hands you the fixes to win the answer
+            back.
           </p>
-          <div className="cta-row" style={{ justifyContent: "center" }}>
-            <button className="btn btn-primary btn-lg" onClick={startCheckout}>
-              Get {plan.name} — ${plan.monthly}/mo <span className="arr">→</span>
-            </button>
-            <a href="https://app.stayfound.tech" className="btn btn-bare btn-lg">
-              Log in
-            </a>
-          </div>
+          <PlanPicker {...checkout} yearlyAvailable={yearlyAvailable} />
           <p className="paywall-alt">
-            Tracking more than one brand? <a href="/pricing">Compare plans</a>.
+            Want the feature lists side by side?{" "}
+            <a href="/pricing">Compare plans</a>.
           </p>
         </div>
         </>
