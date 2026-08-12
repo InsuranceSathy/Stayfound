@@ -37,16 +37,38 @@ export async function POST(req: Request) {
 
   let brand = "";
   let category = "";
+  let market = "";
   try {
     const b = await req.json();
     brand = String(b.brand ?? "").trim().slice(0, 80);
     category = String(b.category ?? "").trim().slice(0, 120);
+    market = String(b.market ?? "").trim().slice(0, 80);
   } catch {
     return withCookie({ error: "Invalid request." }, 400);
   }
-  if (!brand || !category) {
-    return withCookie({ error: "Enter both a brand and a category." }, 400);
+  if (!brand || !category || !market) {
+    // Names the three fields as the form labels them, since this string is
+    // rendered verbatim under that form.
+    return withCookie(
+      {
+        error:
+          "Enter your domain, your category of business and your target customers.",
+      },
+      400
+    );
   }
+
+  /**
+   * The market rides inside the category string rather than as its own column.
+   *
+   * Everything downstream — the cache key, the scan job, the buyer prompts in
+   * lib/measure.ts, the competitor discovery — already takes one phrase
+   * describing what is being asked about, and "domain registrars for customers
+   * in Canada" is a better version of that phrase than "domain registrars".
+   * Threading a separate field through the schema, the job table and every
+   * prompt template would buy nothing the assistants can see.
+   */
+  const scope = `${category} for customers in ${market}`.slice(0, 200);
 
   // One free report per device.
   const used = await getFreeUsed(deviceId);
@@ -55,7 +77,9 @@ export async function POST(req: Request) {
   }
   await markFreeUsed(deviceId, brand);
 
-  const key = `${brand.toLowerCase()}|${category.toLowerCase()}`;
+  // Keyed on the scope, so the same brand asked about a different market is a
+  // different reading rather than a cache hit on the wrong one.
+  const key = `${brand.toLowerCase()}|${scope.toLowerCase()}`;
 
   // Demo fixtures → instant.
   const demo = getDemoReport(brand);
@@ -83,7 +107,7 @@ export async function POST(req: Request) {
   }
 
   // Otherwise enqueue a background scan.
-  const { job, created } = await createOrGetJob(key, brand, category);
-  if (created) after(() => runScan(job.id, brand, category, key));
+  const { job, created } = await createOrGetJob(key, brand, scope);
+  if (created) after(() => runScan(job.id, brand, scope, key));
   return withCookie({ status: "pending", jobId: job.id });
 }

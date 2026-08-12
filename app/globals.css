@@ -4447,6 +4447,77 @@ canvas {
   text-underline-offset: 2px;
 }
 
+/* ---------------------------------------------------------------------------
+   Locked report content
+   The free check shows the score and the competitor bars in full, then one
+   readable heading per block with the rest blurred. The blur is deliberately
+   light enough that the reader can see there is a real paragraph of specific
+   advice under it — a solid gray box would look like a placeholder, and a
+   placeholder does not sell anything.
+   --------------------------------------------------------------------------- */
+.sf-locked {
+  -webkit-filter: blur(4.5px);
+  filter: blur(4.5px);
+  opacity: 0.75;
+  /* Not selectable and not hoverable: the text is scenery, and the click has
+     to reach the .sf-lockable wrapper underneath it. */
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+/* A blurred block still occupies its own row — `display` has to survive the
+   wrapper span so a locked <p> does not collapse to an inline run. */
+p > .sf-locked,
+.cited-note > .sf-locked {
+  display: block;
+}
+
+.sf-lockable {
+  position: relative;
+  cursor: pointer;
+}
+
+.sf-unlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 16px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text, #ece9f5);
+  /* Same tint and hairline as .paywall, so the unlock bars and the closing
+     paywall block read as one system rather than four stray buttons. */
+  background: rgba(144, 133, 233, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.sf-lockable:hover .sf-unlock,
+.sf-unlock:hover {
+  background: rgba(144, 133, 233, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.sf-unlock:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.sf-unlock-ico {
+  font-size: 13px;
+  line-height: 1;
+}
+/* The lock is a paywall, not a puzzle: anyone who cannot tolerate the blur
+   still gets the headings, the unlock bar, and the paywall block. */
+@media (prefers-reduced-motion: reduce) {
+  .sf-unlock {
+    transition: none;
+  }
+}
+
 /* ============================================================================
    DASHBOARD (sf-*)
    Chart colours are validated against the dark panel surface: the emphasis
@@ -7083,6 +7154,27 @@ canvas {
   border-radius: 3px;
 }
 
+/* the unlock bars under each locked block — signal-tinted like the paywall
+   below them, but quieter, since there are four of them on the page */
+.sfx-check .sf-unlock {
+  font-family: var(--sf-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--sf-vellum);
+  background: rgba(242, 199, 68, 0.045);
+  border: 1px solid rgba(242, 199, 68, 0.28);
+  border-radius: 3px;
+}
+.sfx-check .sf-lockable:hover .sf-unlock,
+.sfx-check .sf-unlock:hover {
+  background: rgba(242, 199, 68, 0.1);
+  border-color: rgba(242, 199, 68, 0.45);
+}
+.sfx-check .sf-unlock:focus-visible {
+  outline-color: var(--sf-signal);
+}
+
 /* waiting: a sheet filling in, not generic grey bars */
 .sfx-check .skeleton {
   border: 1px solid var(--sf-rule);
@@ -8318,6 +8410,27 @@ canvas {
   background: none;
   border: 1px solid var(--sf-rule);
   border-radius: 3px;
+}
+
+/* the unlock bars under each locked block — signal-tinted like the paywall
+   below them, but quieter, since there are four of them on the page */
+.sfx-check .sf-unlock {
+  font-family: var(--sf-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--sf-vellum);
+  background: rgba(242, 199, 68, 0.045);
+  border: 1px solid rgba(242, 199, 68, 0.28);
+  border-radius: 3px;
+}
+.sfx-check .sf-lockable:hover .sf-unlock,
+.sfx-check .sf-unlock:hover {
+  background: rgba(242, 199, 68, 0.1);
+  border-color: rgba(242, 199, 68, 0.45);
+}
+.sfx-check .sf-unlock:focus-visible {
+  outline-color: var(--sf-signal);
 }
 
 /* waiting: a sheet filling in, not generic grey bars */
