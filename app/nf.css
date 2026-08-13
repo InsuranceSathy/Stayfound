@@ -1,0 +1,2078 @@
+/* ============================================================================
+   NF — the StayFound marketing design system (ported from the /design lab).
+   Everything is scoped under .nf so the app shell and dashboard are untouched.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------------
+   1. Neutralise the globals that leak in from globals.css
+   ------------------------------------------------------------------------- */
+
+.nf nav {
+  position: static;
+  top: auto;
+  z-index: auto;
+  padding: 0;
+}
+.nf h1,
+.nf h2,
+.nf h3 {
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  margin: 0;
+}
+.nf .mark {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+.nf button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.nf input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Lab chrome
+   ------------------------------------------------------------------------- */
+
+.nf {
+  background: #101114;
+}
+
+/* ===========================================================================
+   3. THE SYSTEM  (.nf)
+   ========================================================================= */
+
+.nf {
+  --paper: #fbfbf9;
+  --paper-2: #f2f1ec;
+  --ink: #101114;
+  --body: #55575f;
+  --muted: #87878f;
+  --rule: #e3e2dd;
+  --rule-2: #d1d0c9;
+
+  --accent: #f0490f;
+  --accent-deep: #d13b06;
+  --accent-wash: #fdeee7;
+
+  /* BrandMark paints its dot with var(--sf-signal, #f2c744) — override it here
+     so the logo carries the same signal as the rest of the page. */
+  --sf-signal: #f0490f;
+
+  --display: var(--font-archivo), -apple-system, system-ui, sans-serif;
+  --text: var(--font-inst-sans), -apple-system, system-ui, sans-serif;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--text);
+}
+
+.nf .wrap-p {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ---- header -------------------------------------------------------------
+   Thin, quiet, and the only rule on the page above the fold. The CTA is an
+   outline, not a filled block: on a page whose hero already contains the
+   primary action, a second filled button competes with it. */
+
+.nf .hd {
+  border-bottom: 1px solid var(--rule);
+}
+.nf .hd-in {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 40px;
+  height: 76px;
+}
+.nf .hd-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  font-stretch: 96%;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.nf .hd-links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+.nf .hd-links a {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--body);
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.nf .hd-links a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.nf .hd-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-left: auto;
+}
+.nf .hd-quiet {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--body);
+  transition: color 0.15s ease;
+}
+.nf .hd-quiet:hover {
+  color: var(--ink);
+}
+.nf .hd-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+  border: 1px solid var(--rule-2);
+  padding: 11px 18px;
+  border-radius: 2px;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.nf .hd-cta:hover {
+  border-color: var(--ink);
+  background: var(--paper-2);
+}
+
+/* ---- buttons ------------------------------------------------------------ */
+
+.nf .btn-p {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  padding: 17px 28px;
+  border-radius: 2px;
+  transition: background 0.16s ease;
+}
+.nf .btn-p:hover {
+  background: var(--accent-deep);
+}
+.nf .btn-p svg {
+  transition: transform 0.16s ease;
+}
+.nf .btn-p:hover svg {
+  transform: translateX(3px);
+}
+.nf .btn-s {
+  display: inline-flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 17px 20px;
+  border: 1px solid var(--rule-2);
+  border-radius: 2px;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.nf .btn-s:hover {
+  border-color: var(--ink);
+  background: var(--paper-2);
+}
+.nf .fineprint {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* the joined check control — field and button share one frame. Lives here in
+   the system (not in a variant block): the hero, the check band and any future
+   section all use it. */
+.nf .m-check {
+  display: flex;
+  margin-top: 34px;
+  max-width: 480px;
+  border: 1px solid var(--rule-2);
+  border-radius: 3px;
+  background: #fff;
+  padding: 5px;
+  gap: 5px;
+  box-shadow: 0 1px 2px rgba(30, 20, 10, 0.05),
+    0 12px 32px -18px rgba(30, 20, 10, 0.18);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.nf .m-check:focus-within {
+  border-color: var(--ink);
+  box-shadow: 0 1px 2px rgba(30, 20, 10, 0.05),
+    0 16px 40px -18px rgba(30, 20, 10, 0.24);
+}
+.nf .m-check input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 16px;
+  color: var(--ink);
+  padding: 0 14px;
+}
+.nf .m-check input::placeholder {
+  color: var(--muted);
+}
+.nf .m-check .btn-p {
+  padding: 14px 22px;
+  font-size: 15px;
+  flex: none;
+}
+.nf .m-fine {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 16px 0 0;
+}
+@media (max-width: 640px) {
+  .nf .m-check {
+    flex-direction: column;
+    padding: 8px;
+  }
+  .nf .m-check input {
+    padding: 12px 10px;
+  }
+  .nf .m-check .btn-p {
+    justify-content: center;
+  }
+}
+
+/* ---- shared motion: one gesture ---------------------------------------- */
+
+@keyframes dl-rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.nf .rise {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: dl-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.nf .rise.d1 { animation-delay: 0.05s; }
+.nf .rise.d2 { animation-delay: 0.15s; }
+.nf .rise.d3 { animation-delay: 0.25s; }
+.nf .rise.d4 { animation-delay: 0.35s; }
+
+/* ---- mobile sheet ------------------------------------------------------- */
+
+.nf-burger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+}
+.nf-burger i {
+  display: block;
+  position: relative;
+  width: 19px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 0.24s ease, background 0.15s ease;
+}
+.nf-burger i::before,
+.nf-burger i::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 19px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 0.24s ease;
+}
+.nf-burger i::before { transform: translateY(-6px); }
+.nf-burger i::after { transform: translateY(6px); }
+.nf-burger.on i { background: transparent; }
+.nf-burger.on i::before { transform: rotate(45deg); }
+.nf-burger.on i::after { transform: rotate(-45deg); }
+
+.nf-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+.nf-sheet.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+.nf-scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: rgba(16, 17, 20, 0.35);
+}
+.nf .nf-panel {
+  position: absolute;
+  inset: 0 0 auto 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px 24px;
+  background: #fbfbf9;
+  border-bottom: 1px solid #e3e2dd;
+  transform: translateY(-10px);
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nf-sheet.on .nf-panel {
+  transform: none;
+}
+.nf .nf-panel a {
+  font-family: var(--font-inst-sans), system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: #55575f;
+  padding: 15px 0;
+  border-bottom: 1px solid #e3e2dd;
+}
+.nf .nf-panel a:last-of-type {
+  border-bottom: none;
+}
+.nf .nf-panel .nf-panel-cta {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  background: #f0490f;
+  border-bottom: none;
+  border-radius: 2px;
+  padding: 16px;
+}
+
+@media (max-width: 940px) {
+  .nf .hd-links,
+  .nf .hd-quiet,
+  .nf .hd-cta {
+    display: none;
+  }
+  .nf .nf-burger {
+    display: flex;
+  }
+  .nf .hd-in {
+    height: 66px;
+  }
+}
+@media (max-width: 640px) {
+  .nf .hd-in,
+  .nf .wrap-p {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+/* ===========================================================================
+   N — PARROT
+   Technical-drawing register: fine blueprint grid, registration crosses, huge
+   type, and a halftone macaw with an orange glow behind it. The grid is
+   motivated here — it is a drawing sheet, not decoration.
+   ========================================================================= */
+
+/* register details: mono-uppercase nav, dashed rule under the header */
+.nf .hd {
+  border-bottom: 1px dashed var(--rule-2);
+}
+.nf .hd-links a,
+.nf .hd-quiet {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.nf .hd-cta {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nf .n-hero {
+  position: relative;
+  background-image: linear-gradient(
+      to right,
+      rgba(16, 17, 20, 0.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(16, 17, 20, 0.045) 1px, transparent 1px);
+  background-size: 34px 34px;
+  border-bottom: 1px solid var(--rule);
+  overflow: hidden;
+}
+/* registration crosses, like a print proof */
+.nf .n-reg {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  pointer-events: none;
+  z-index: 2;
+}
+.nf .n-reg::before,
+.nf .n-reg::after {
+  content: "";
+  position: absolute;
+  background: var(--accent);
+}
+.nf .n-reg::before {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  transform: translateX(-50%);
+}
+.nf .n-reg::after {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+.nf .n-reg-tl { top: 16px; left: 16px; }
+.nf .n-reg-tr { top: 16px; right: 16px; }
+.nf .n-reg-bl { bottom: 60px; left: 16px; }
+.nf .n-reg-br { bottom: 60px; right: 16px; }
+
+.nf .n-fold {
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  gap: 30px;
+  align-items: center;
+  padding-top: 40px;
+}
+.nf .n-h1 {
+  font-family: var(--display);
+  font-size: clamp(40px, 5.4vw, 78px);
+  font-weight: 700;
+  font-stretch: 93%;
+  line-height: 0.98;
+  letter-spacing: -0.042em;
+  color: var(--ink);
+}
+.nf .n-h1 > span {
+  display: block;
+}
+.nf .n-h1-b {
+  margin-top: 0.04em;
+}
+.nf .n-h1-b em {
+  font-style: normal;
+  color: var(--accent);
+  /* the orange phrase must never split across a line break */
+  white-space: nowrap;
+}
+.nf .n-lede {
+  font-size: 17.5px;
+  line-height: 1.6;
+  color: var(--body);
+  margin: 26px 0 0;
+  max-width: 44ch;
+}
+.nf .m-check {
+  background: var(--paper);
+}
+
+/* the bird */
+.nf .n-stage {
+  position: relative;
+  align-self: end;
+  margin-bottom: -6px; /* sit on the ticker rule */
+}
+.nf .n-glow {
+  position: absolute;
+  inset: 8% 4% 6% 10%;
+  border-radius: 50%;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(240, 73, 15, 0.16),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.nf .n-bird {
+  position: relative;
+  /* the PNG carries transparent margin from the isolation ellipse — oversize
+     and shift it so the head itself fills the column */
+  width: 124%;
+  max-width: none;
+  height: auto;
+  display: block;
+  margin: -10% -10% -8% -14%;
+}
+/* the speech line — pinned by the beak, pointing left toward the copy */
+.nf .n-say {
+  position: absolute;
+  left: -6%;
+  top: 34%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--paper);
+  border: 1px solid var(--rule-2);
+  border-radius: 999px 999px 999px 3px;
+  padding: 9px 15px;
+  box-shadow: 0 10px 26px -14px rgba(30, 20, 10, 0.25);
+  animation: n-stamp 0.4s cubic-bezier(0.22, 1, 0.36, 1) 1.4s both;
+}
+.nf .n-say-redact {
+  display: inline-block;
+  height: 0.72em;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #d9d8d2, #e6e5df);
+  text-decoration: none;
+}
+.nf .n-say-redact.w1 { width: 4ch; }
+.nf .n-say-redact.w2 { width: 5.5ch; }
+.nf .n-say b {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  white-space: nowrap;
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nf .n-say b.on {
+  color: var(--accent);
+}
+
+.nf .n-caption {
+  position: absolute;
+  left: 4%;
+  bottom: 10%;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 6px 10px;
+}
+
+/* ticker band closing the fold — a continuous marquee, Greptile-style */
+.nf .n-ticker {
+  position: relative;
+  border-top: 1px solid var(--rule);
+  background: var(--paper);
+  overflow: hidden;
+}
+.nf .n-ticker-track {
+  display: flex;
+  width: max-content;
+}
+.nf .n-ticker-run {
+  display: flex;
+  align-items: center;
+  flex: none;
+  animation: n-marquee 26s linear infinite;
+}
+.nf .n-ticker:hover .n-ticker-run {
+  animation-play-state: paused;
+}
+@keyframes n-marquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+.nf .n-ticker-run em {
+  display: inline-flex;
+  align-items: center;
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--body);
+  padding: 17px 0;
+  white-space: nowrap;
+}
+.nf .n-ticker-run em i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin: 0 26px;
+  flex: none;
+}
+
+/* the bird prints in: a stepped wipe, like a plate coming off the press */
+@keyframes n-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0% 0);
+  }
+}
+/* after printing in, the bird breathes — a slow 4px drift so the fold stays
+   alive without demanding attention. The wipe runs on the img, the float on
+   its wrapper, so the two transforms never fight. */
+@keyframes n-float {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    /* the tilt is deliberately at the threshold of perception — the bird
+       should feel alive, not animated */
+    transform: translateY(-5px) rotate(0.4deg);
+  }
+}
+/* the glow breathes with the float */
+@keyframes n-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* every ~6s one redaction bar dips, as if the parrot says the name again */
+@keyframes n-tick {
+  0%,
+  90%,
+  100% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 0.25;
+  }
+}
+.nf .n-bird {
+  animation: n-print 1.15s steps(14, end) 0.35s both;
+}
+/* The stage runs its entrance AND the float in one declaration — a separate
+   `animation:` rule would override the .rise entrance and leave the stage
+   stuck at opacity 0. The component must NOT also carry .rise. */
+.nf .n-stage {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: dl-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards,
+    n-float 7s ease-in-out 1.8s infinite;
+}
+@keyframes n-glow-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.nf .n-glow {
+  /* fade in once, then breathe with the float */
+  animation: n-glow-in 0.9s ease 1.1s both,
+    n-breathe 7s ease-in-out 2s infinite;
+}
+.nf .n-say-redact.w2 {
+  animation: n-tick 6s steps(1) 3s infinite;
+}
+.nf .n-say-redact.w1 {
+  animation: n-tick 6s steps(1) 5.6s infinite;
+}
+
+/* registration crosses snap in one after another */
+@keyframes n-reg-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.nf .n-reg {
+  animation: n-reg-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.nf .n-reg-tl { animation-delay: 0.15s; }
+.nf .n-reg-tr { animation-delay: 0.27s; }
+.nf .n-reg-br { animation-delay: 0.39s; }
+.nf .n-reg-bl { animation-delay: 0.51s; }
+
+/* the caption stamps in after the print finishes */
+@keyframes n-stamp {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.nf .n-caption {
+  animation: n-stamp 0.4s cubic-bezier(0.22, 1, 0.36, 1) 1.55s both;
+}
+
+@media (max-width: 1040px) {
+  .nf .n-fold {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding-top: 48px;
+  }
+  .nf .n-stage {
+    max-width: 460px;
+    justify-self: end;
+    margin-top: -30px;
+  }
+}
+@media (max-width: 640px) {
+  .nf .n-hero {
+    /* 34px squares read oversized on a 390px screen */
+    background-size: 26px 26px;
+  }
+  .nf .n-stage {
+    max-width: 88%;
+    margin-top: 0;
+  }
+  .nf .n-reg {
+    display: none;
+  }
+  .nf .n-caption {
+    display: none;
+  }
+}
+
+
+
+/* ===========================================================================
+   N — SECTIONS v2
+   The drawing-sheet system carried through the whole page. One continuous
+   ruled shell runs from the ticker to the dark band; figure chips sit ON the
+   rules; artifacts get mono gutter annotations like an annotated proof.
+   One reveal per section, transform/opacity only.
+   ========================================================================= */
+
+/* the shell: two rules running the full height of the middle of the page */
+.nf .ns2-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  border-left: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+}
+.nf .ns2-sec {
+  position: relative;
+  padding: 84px 48px 88px;
+  border-bottom: 1px solid var(--rule);
+}
+.nf .ns2-sec:last-child {
+  border-bottom: none;
+}
+
+/* section header: the fig chip sits ON the top rule */
+.nf .ns2-hd {
+  margin-bottom: 46px;
+}
+.nf .ns2-fig {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 6px 11px;
+}
+.nf .ns2-sec > .ns2-hd .ns2-fig,
+.nf .ns2-check-frame > .ns2-fig {
+  position: absolute;
+  top: 0;
+  transform: translateY(-50%);
+}
+.nf .ns2-h2 {
+  font-family: var(--display);
+  font-size: clamp(28px, 3.6vw, 46px);
+  font-weight: 700;
+  font-stretch: 95%;
+  letter-spacing: -0.034em;
+  line-height: 1.04;
+  color: var(--ink);
+  max-width: 26ch;
+  margin-top: 8px;
+}
+.nf .ns2-h2 span {
+  color: var(--muted);
+}
+.nf .ns2-lede {
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: var(--body);
+  margin: 18px 0 0;
+  max-width: 42ch;
+}
+
+/* the one reveal gesture */
+.nf .ns2-sec .ns2-hd,
+.nf .ns2-sec .ns2-proof,
+.nf .ns2-sec .ns2-index,
+.nf .ns2-sec .ns2-split,
+.nf .ns2-sec .ns2-check-frame {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nf .ns2-sec.is-in .ns2-hd,
+.nf .ns2-sec.is-in .ns2-proof,
+.nf .ns2-sec.is-in .ns2-index,
+.nf .ns2-sec.is-in .ns2-split,
+.nf .ns2-sec.is-in .ns2-check-frame {
+  opacity: 1;
+  transform: none;
+}
+.nf .ns2-sec.is-in .ns2-proof,
+.nf .ns2-sec.is-in .ns2-index {
+  transition-delay: 0.12s;
+}
+
+/* ---- 1. specimen: annotated proof --------------------------------------- */
+
+.nf .ns2-specimen {
+  /* the artifact sits on the drawing grid */
+  background-image: linear-gradient(
+      to right,
+      rgba(16, 17, 20, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(16, 17, 20, 0.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+.nf .ns2-proof {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.nf .ns2-gutter {
+  margin: 0;
+  padding: 26px 24px;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.nf .ns2-gutter dt {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 5px;
+}
+.nf .ns2-gutter dd {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+}
+.nf .ns2-gutter-verdict {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+.nf .ns2-gutter-verdict dd {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12.5px;
+}
+.nf .ns2-proof-body {
+  padding: 30px 34px 28px;
+}
+.nf .ns2-ans {
+  font-size: clamp(19px, 2.1vw, 25px);
+  line-height: 1.65;
+  font-weight: 450;
+  color: var(--ink);
+  margin: 0;
+  max-width: 34ch;
+}
+.nf .ns2-redact {
+  display: inline-block;
+  height: 0.8em;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #d9d8d2, #e6e5df);
+  vertical-align: -0.08em;
+  text-decoration: none;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.45s;
+}
+.nf .ns2-sec.is-in .ns2-redact {
+  transform: scaleX(1);
+}
+.nf .ns2-sec.is-in .ns2-redact.w1 { transition-delay: 0.57s; }
+.nf .ns2-sec.is-in .ns2-redact.w3 { transition-delay: 0.69s; }
+.nf .ns2-redact.w1 { width: 4.5ch; }
+.nf .ns2-redact.w2 { width: 6ch; }
+.nf .ns2-redact.w3 { width: 5ch; }
+.nf .ns2-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 0 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1.5px dashed rgba(240, 73, 15, 0.55);
+  background: var(--accent-wash);
+  padding: 9px 14px;
+  opacity: 0;
+  transform: translateY(6px) scale(0.97);
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.85s,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.85s;
+}
+.nf .ns2-sec.is-in .ns2-slot {
+  opacity: 1;
+  transform: none;
+}
+.nf .ns2-slot span {
+  font-weight: 800;
+  opacity: 0.75;
+}
+.nf .ns2-proof-note {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 24px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  max-width: 46ch;
+}
+
+/* ---- 2. contents: index at display scale --------------------------------- */
+
+.nf .ns2-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nf .ns2-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 30px;
+  align-items: baseline;
+  padding: 30px 0;
+  border-top: 1px solid var(--rule);
+  /* rows deal in one after another off the section reveal — slight, 3 steps */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nf .ns2-sec.is-in .ns2-row {
+  opacity: 1;
+  transform: none;
+}
+.nf .ns2-sec.is-in .ns2-row:nth-child(1) { transition-delay: 0.2s; }
+.nf .ns2-sec.is-in .ns2-row:nth-child(2) { transition-delay: 0.32s; }
+.nf .ns2-sec.is-in .ns2-row:nth-child(3) { transition-delay: 0.44s; }
+.nf .ns2-row-n {
+  font-family: var(--display);
+  font-size: clamp(44px, 5vw, 72px);
+  font-weight: 700;
+  font-stretch: 90%;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: var(--paper);
+  -webkit-text-stroke: 1.5px var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.nf .ns2-row-k {
+  font-family: var(--display);
+  font-size: clamp(20px, 2.2vw, 27px);
+  font-weight: 700;
+  letter-spacing: -0.024em;
+  color: var(--ink);
+  margin: 0;
+}
+.nf .ns2-row-v {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--body);
+  margin: 0;
+  max-width: 44ch;
+}
+
+/* ---- 3. report plate: the same split geometry as the hero ------------------ */
+
+.nf .ns2-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 56px;
+  align-items: center;
+}
+.nf .ns2-split-copy .ns2-fig {
+  position: static;
+  transform: none;
+}
+.nf .ns2-split-copy .ns2-h2 {
+  margin-top: 22px;
+}
+.nf .ns2-plate {
+  background: #fff;
+  border: 1px solid var(--rule);
+  box-shadow: 0 1px 2px rgba(30, 20, 10, 0.04),
+    0 26px 60px -38px rgba(30, 20, 10, 0.3);
+}
+.nf .ns2-sec.is-in .ns2-plate {
+  animation: n-print 0.9s steps(12, end) 0.2s both;
+}
+.nf .ns2-plate-hd {
+  padding: 13px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.nf .ns2-plate-hd .ns2-fig {
+  border: none;
+  padding: 0;
+  color: var(--muted);
+}
+.nf .ns2-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--rule);
+}
+.nf .ns2-kpi {
+  padding: 22px 24px 24px;
+  border-right: 1px solid var(--rule);
+}
+.nf .ns2-kpi:last-child {
+  border-right: none;
+}
+.nf .ns2-kpi-k {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+.nf .ns2-kpi-v {
+  font-family: var(--display);
+  font-size: clamp(32px, 3.6vw, 48px);
+  font-weight: 700;
+  font-stretch: 93%;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: var(--ink);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.nf .ns2-kpi-v small {
+  font-family: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--muted);
+  margin-left: 7px;
+}
+.nf .ns2-fixrow {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 17px 24px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+}
+.nf .ns2-fixrow:last-child {
+  border-bottom: none;
+}
+.nf .ns2-fixrow-k {
+  flex: none;
+  width: 62px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.nf .ns2-fixrow-v {
+  flex: 1;
+  color: var(--ink);
+  font-weight: 500;
+}
+.nf .ns2-fixrow b {
+  flex: none;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--accent);
+  padding: 4px 8px;
+}
+.nf .ns2-fixrow b.quiet {
+  color: var(--body);
+  background: var(--paper-2);
+}
+
+/* ---- 4. check band: the full technical frame -------------------------------- */
+
+.nf .ns2-check {
+  background-image: linear-gradient(
+      to right,
+      rgba(16, 17, 20, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(16, 17, 20, 0.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+.nf .ns2-check-frame {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 54px 48px 46px;
+  border: 1px dashed var(--rule-2);
+  background: var(--paper);
+  text-align: center;
+}
+.nf .ns2-check-frame .n-reg {
+  animation: none;
+  opacity: 1;
+}
+.nf .ns2-check-frame .n-reg-tl { top: -8px; left: -8px; }
+.nf .ns2-check-frame .n-reg-tr { top: -8px; right: -8px; }
+.nf .ns2-check-frame .n-reg-bl { bottom: -8px; left: -8px; }
+.nf .ns2-check-frame .n-reg-br { bottom: -8px; right: -8px; }
+.nf .ns2-check-frame .ns2-fig {
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.nf .ns2-check-frame .ns2-h2 {
+  margin: 0 auto;
+}
+/* the job sheet: the three fields the product actually collects */
+.nf .ns2-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 34px 0 0;
+  text-align: left;
+}
+.nf .ns2-field {
+  background: #fff;
+  border: 1px solid var(--rule-2);
+  padding: 12px 14px 11px;
+  transition: border-color 0.16s ease;
+  /* the fields deal themselves in, one after another, off the section reveal */
+  opacity: 0;
+  transform: translateY(8px);
+}
+.nf .ns2-sec.is-in .ns2-field {
+  opacity: 1;
+  transform: none;
+  transition: border-color 0.16s ease,
+    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nf .ns2-sec.is-in .ns2-field:nth-child(1) { transition-delay: 0s, 0.25s, 0.25s; }
+.nf .ns2-sec.is-in .ns2-field:nth-child(2) { transition-delay: 0s, 0.35s, 0.35s; }
+.nf .ns2-sec.is-in .ns2-field:nth-child(3) { transition-delay: 0s, 0.45s, 0.45s; }
+.nf .ns2-field:focus-within {
+  /* the cell is the focus indicator — 2px of ink, not a second ring inside */
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.nf .ns2-field input:focus-visible {
+  outline: none;
+}
+.nf .ns2-field label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.nf .ns2-field input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 15.5px;
+  color: var(--ink);
+  padding: 0;
+}
+.nf .ns2-field input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* the arrival: the domain cell flashes once and keeps its provenance tag, so
+   it is obvious where the value entered from */
+@keyframes ns2-arrive {
+  0% {
+    background: var(--accent-wash);
+    border-color: var(--accent);
+  }
+  100% {
+    background: #fff;
+    border-color: var(--accent);
+  }
+}
+.nf .ns2-field.got {
+  border-color: var(--accent);
+  animation: ns2-arrive 1.4s ease 0.1s both;
+}
+.nf .ns2-from {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-transform: none;
+  animation: n-stamp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.nf .ns2-form-cta {
+  grid-column: 1 / -1;
+  justify-content: center;
+  margin-top: 4px;
+}
+.nf .ns2-check-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 16px 0 0;
+}
+
+/* ---- 5. final CTA ------------------------------------------------------------ */
+
+.nf .ns2-final {
+  position: relative;
+  background: var(--ink);
+  overflow: hidden;
+}
+.nf .ns2-final-in {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.58fr);
+  gap: 40px;
+  align-items: center;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+.nf .ns2-final-copy {
+  padding: 100px 0;
+}
+.nf .ns2-final-h {
+  font-family: var(--display);
+  font-size: clamp(32px, 4.6vw, 60px);
+  font-weight: 700;
+  font-stretch: 95%;
+  letter-spacing: -0.036em;
+  line-height: 1.02;
+  color: #fff;
+  max-width: 16ch;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nf .ns2-final.is-in .ns2-final-h {
+  opacity: 1;
+  transform: none;
+}
+.nf .ns2-final-h em {
+  font-style: normal;
+  color: var(--accent);
+}
+.nf .ns2-final-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+  opacity: 0;
+  transition: opacity 0.55s ease 0.16s;
+}
+.nf .ns2-final.is-in .ns2-final-row {
+  opacity: 1;
+}
+.nf .ns2-final-quiet {
+  font-size: 15px;
+  font-weight: 600;
+  color: #a8aab6;
+  transition: color 0.15s ease;
+}
+.nf .ns2-final-quiet:hover {
+  color: #fff;
+}
+.nf .ns2-final-bird {
+  align-self: end;
+  margin-bottom: -7%;
+}
+.nf .ns2-final-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.7s ease 0.22s;
+}
+.nf .ns2-final.is-in .ns2-final-img {
+  opacity: 1;
+}
+
+/* ---- 6. footer ------------------------------------------------------------------ */
+
+.nf .ns2-foot {
+  background: var(--paper);
+}
+.nf .ns2-foot-in {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding-top: 54px;
+  padding-bottom: 44px;
+}
+.nf .ns2-foot-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.nf .ns2-foot-brand p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 14px 0 0;
+  max-width: 34ch;
+}
+.nf .ns2-foot-nav {
+  display: flex;
+  gap: 8px 26px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.nf .ns2-foot-nav a {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--body);
+  transition: color 0.15s ease;
+}
+.nf .ns2-foot-nav a:hover {
+  color: var(--ink);
+}
+.nf .ns2-foot-fine {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  padding-bottom: 22px;
+  border-top: 1px solid var(--rule);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* ---- responsive -------------------------------------------------------------------- */
+
+@media (max-width: 1000px) {
+  .nf .ns2-shell {
+    border-left: none;
+    border-right: none;
+  }
+  .nf .ns2-sec {
+    padding: 64px 24px 68px;
+  }
+  .nf .ns2-proof {
+    grid-template-columns: 1fr;
+  }
+  .nf .ns2-gutter {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 18px 34px;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 20px 24px;
+  }
+  .nf .ns2-gutter-verdict {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+  .nf .ns2-row {
+    grid-template-columns: 90px 1fr;
+    gap: 8px 22px;
+  }
+  .nf .ns2-row-v {
+    grid-column: 2;
+  }
+  .nf .ns2-split {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .nf .ns2-final-in {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 0 24px;
+  }
+  .nf .ns2-final-copy {
+    padding: 64px 0 44px;
+  }
+  .nf .ns2-final-bird {
+    max-width: 400px;
+    justify-self: end;
+    margin-bottom: -9%;
+  }
+}
+@media (max-width: 640px) {
+  .nf .ns2-proof-body {
+    padding: 22px 20px 20px;
+  }
+  .nf .ns2-kpis {
+    grid-template-columns: 1fr;
+  }
+  .nf .ns2-kpi {
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+  }
+  .nf .ns2-kpi:last-child {
+    border-bottom: none;
+  }
+  .nf .ns2-fixrow {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+  .nf .ns2-check-frame {
+    padding: 44px 22px 38px;
+  }
+  .nf .ns2-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Focus, no-JS, reduced motion
+   ------------------------------------------------------------------------- */
+
+.nf a:focus-visible,
+.nf button:focus-visible,
+.nf input:focus-visible {
+  outline: 2px solid #f0490f;
+  outline-offset: 3px;
+}
+
+/* no-JS: the reveal classes never arrive, so nothing may start hidden */
+@media (scripting: none) {
+  .nf .ns2-sec .ns2-hd,
+  .nf .ns2-sec .ns2-proof,
+  .nf .ns2-sec .ns2-index,
+  .nf .ns2-sec .ns2-split,
+  .nf .ns2-sec .ns2-check-frame,
+  .nf .ns2-row,
+  .nf .ns2-field,
+  .nf .ns2-redact,
+  .nf .ns2-slot,
+  .nf .ns2-final-h,
+  .nf .ns2-final-row,
+  .nf .ns2-final-img {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf .rise {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .nf .n-ticker-run,
+  .nf .n-bird,
+  .nf .n-glow,
+  .nf .n-reg,
+  .nf .n-say,
+  .nf .n-say-redact,
+  .nf .n-caption {
+    animation: none;
+  }
+  .nf .n-stage {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .nf .ns2-sec .ns2-hd,
+  .nf .ns2-sec .ns2-proof,
+  .nf .ns2-sec .ns2-index,
+  .nf .ns2-sec .ns2-split,
+  .nf .ns2-sec .ns2-check-frame,
+  .nf .ns2-row,
+  .nf .ns2-field,
+  .nf .ns2-redact,
+  .nf .ns2-slot,
+  .nf .ns2-final-h,
+  .nf .ns2-final-row,
+  .nf .ns2-final-img {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .nf .ns2-sec.is-in .ns2-plate {
+    animation: none;
+    clip-path: none;
+  }
+  /* the arrival keeps its provenance tag but loses the flash */
+  .nf .ns2-field.got,
+  .nf .ns2-from {
+    animation: none;
+  }
+  .nf-sheet,
+  .nf .nf-panel,
+  .nf-burger i,
+  .nf-burger i::before,
+  .nf-burger i::after {
+    transition: none;
+  }
+}
+
+/* ===========================================================================
+   SITE-WIDE BRIDGE
+   The rest of the marketing site (pricing, blog, about, demo, legal, sign-in)
+   is written against the old --sf-* tokens: ink ground, vellum text, amber
+   signal. Redefining those tokens here flips every one of those pages to the
+   N palette without touching their layout CSS. This file is imported after
+   globals.css in the root layout, so these :root definitions win.
+
+   The dashboard/app shell uses the legacy --ground/--surface tokens and no
+   .nf wrapper, so it is deliberately unaffected.
+   ========================================================================= */
+:root {
+  --sf-ink: #fbfbf9;      /* old page ground -> paper */
+  --sf-sheet: #ffffff;    /* raised sheet -> white */
+  --sf-vellum: #101114;   /* old text -> ink */
+  --sf-graphite: #55575f; /* secondary text */
+  --sf-faint: #87878f;    /* labels */
+  --sf-rule: #e3e2dd;     /* hairlines */
+  --sf-signal: #d13b06;   /* the accent, darkened for light-ground contrast */
+  --sf-serif: var(--font-archivo), -apple-system, system-ui, sans-serif;
+  --sf-mono: var(--font-inst-sans), -apple-system, system-ui, sans-serif;
+}
+
+/* Marketing pages render the .nf header, the dashboard does not — so the
+   page ground flips only where the new design is actually present. */
+body:has(.nf) {
+  background: #fbfbf9;
+  color: #101114;
+}
+html:has(.nf) {
+  background: #fbfbf9;
+}
+
+/* The old marketing CSS renders primary buttons as vellum-filled; on paper
+   they must become the accent. Scoped to pages that carry the new header. */
+body:has(.nf) .ah-btn,
+body:has(.nf) .btn-primary {
+  background: #f0490f;
+  border-color: #f0490f;
+  color: #fff;
+  box-shadow: none;
+  background-image: none;
+}
+body:has(.nf) .ah-btn:hover,
+body:has(.nf) .btn-primary:hover {
+  background: #d13b06;
+  border-color: #d13b06;
+}
+
+/* ===========================================================================
+   THE LIVE CHECK, RE-SKINNED
+   visibility-check.tsx keeps its markup and logic (scans, results, paywall);
+   these rules restyle it into the job sheet inside the framed cut-out.
+   ========================================================================= */
+
+.nf .ns2-check-frame {
+  text-align: left;
+}
+.nf .check .sec-eyebrow {
+  /* the frame already carries the "run the check" chip */
+  display: none;
+}
+.nf .check .sec-title {
+  font-family: var(--display);
+  font-size: clamp(26px, 3.2vw, 40px);
+  font-weight: 700;
+  font-stretch: 95%;
+  letter-spacing: -0.032em;
+  line-height: 1.05;
+  color: var(--ink);
+  text-align: center;
+  margin: 0 0 10px;
+}
+.nf .check .sec-sub {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--body);
+  text-align: center;
+  max-width: 52ch;
+  margin: 0 auto;
+}
+
+.nf .check-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 30px 0 0;
+  align-items: stretch;
+}
+.nf .check .field {
+  background: #fff;
+  border: 1px solid var(--rule-2);
+  padding: 12px 14px 11px;
+  transition: border-color 0.16s ease;
+}
+.nf .check .field:focus-within {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.nf .check .field label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.nf .check .field input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 15.5px;
+  color: var(--ink);
+  padding: 0;
+}
+.nf .check .field input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+.nf .check .field input:focus-visible {
+  outline: none;
+}
+
+/* arrival from the hero: flash once, keep the orange border + provenance tag */
+@keyframes nf-arrive {
+  0% {
+    background: var(--accent-wash);
+    border-color: var(--accent);
+  }
+  100% {
+    background: #fff;
+    border-color: var(--accent);
+  }
+}
+.nf .check .field.got {
+  border-color: var(--accent);
+  animation: nf-arrive 1.4s ease 0.1s both;
+}
+.nf .check .field-from {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-transform: none;
+  animation: n-stamp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nf .check .check-submit {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 2px;
+  padding: 17px 28px;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: background 0.16s ease;
+  box-shadow: none;
+}
+.nf .check .check-submit:hover:not(:disabled) {
+  background: var(--accent-deep);
+  transform: none;
+}
+.nf .check .check-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.nf .check .check-hint {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: center;
+  max-width: 60ch;
+  margin: 16px auto 0;
+}
+.nf .check .check-error {
+  color: #c02626;
+  font-size: 14px;
+  margin-top: 14px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .nf .check-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf .check .field.got,
+  .nf .check .field-from {
+    animation: none;
+  }
+}
+
+/* footer link columns (the real footer has three, plus referral gating) */
+.nf .ns2-foot-cols {
+  display: flex;
+  gap: 40px 64px;
+  flex-wrap: wrap;
+}
+.nf .ns2-foot-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 120px;
+}
+.nf .ns2-foot-col p {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 4px;
+}
+.nf .ns2-foot-col a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--body);
+  transition: color 0.15s ease;
+}
+.nf .ns2-foot-col a:hover {
+  color: var(--ink);
+}
+
+/* legacy components that carry hardcoded dark surfaces or the old purple glow —
+   bridged here rather than edited in place, so the dashboard (which shares the
+   legacy tokens) is untouched */
+body:has(.nf) .page-hero::before {
+  display: none;
+}
+body:has(.nf) .blog-card,
+body:has(.nf) .blog-card.is-featured {
+  background: #ffffff;
+  border-color: #e3e2dd;
+}
+body:has(.nf) .blog-card:hover {
+  border-color: #101114;
+}
+body:has(.nf) .blog-card:hover h2 a,
+body:has(.nf) .blog-card.is-featured h2 a {
+  color: #101114;
+}
+body:has(.nf) .tag-chip {
+  background: #ffffff;
+  border-color: #d1d0c9;
+  color: #55575f;
+}
+body:has(.nf) .tag-chip.on,
+body:has(.nf) .tag-chip:hover {
+  border-color: #101114;
+  color: #101114;
+  background: #ffffff;
+}
+
+/* legacy text tokens, re-anchored for the light ground on marketing pages
+   (the dashboard keeps the originals) */
+body:has(.nf) {
+  --text: #101114;
+  --muted: #55575f;
+  --muted-2: #7b7e8c;
+  --faint: #87878f;
+  --border: #e3e2dd;
+  --border-strong: #d1d0c9;
+  --accent: #f0490f;
+  --accent-soft: rgba(240, 73, 15, 0.1);
+  --accent-line: rgba(240, 73, 15, 0.4);
+}
+
+/* the check's legacy dark card chrome — the framed cut-out is its container
+   now, so the inner card dissolves into it */
+.nf .check {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* ===========================================================================
+   NAV FIX + SUBPAGE POLISH (about, blog, legal — the legacy page shells)
+   ========================================================================= */
+
+/* The legacy .page-hero slides up under the header with margin-top:-88px — a
+   relic of the old floating pill nav. Under the NF header it silently covered
+   the nav and swallowed every click after the first navigation. */
+body:has(.nf) .page-hero {
+  margin-top: 0;
+  padding: 84px 0 28px;
+}
+/* belt and braces: the header always wins the stacking contest */
+.nf .hd {
+  position: relative;
+  z-index: 60;
+  background: var(--paper);
+}
+
+/* subpage titles in the display face, NF scale */
+body:has(.nf) .page-title {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-size: clamp(34px, 4.6vw, 58px);
+  font-weight: 700;
+  font-stretch: 95%;
+  letter-spacing: -0.036em;
+  line-height: 1.02;
+  color: #101114;
+}
+body:has(.nf) .page-lead {
+  font-family: var(--font-inst-sans), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #55575f;
+}
+
+/* ---- about + blog, dressed in the NF vocabulary ------------------------- */
+
+/* subpage heroes get the drawing sheet: grid + a hairline under the fold */
+body:has(.nf) .page-hero {
+  background-image: linear-gradient(
+      to right,
+      rgba(16, 17, 20, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(16, 17, 20, 0.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  border-bottom: 1px solid #e3e2dd;
+  padding-bottom: 56px;
+}
+
+/* about: the numbered principles read like the homepage index */
+body:has(.nf) .sec-title {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-weight: 700;
+  font-stretch: 95%;
+  letter-spacing: -0.032em;
+  color: #101114;
+}
+body:has(.nf) .principle {
+  border-top: 1px solid #e3e2dd;
+  padding-top: 22px;
+}
+body:has(.nf) .principle-n {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-weight: 700;
+  font-stretch: 90%;
+  color: #fbfbf9;
+  -webkit-text-stroke: 1.2px #f0490f;
+}
+body:has(.nf) .status-card {
+  background: #ffffff;
+  border: 1px dashed #d1d0c9;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* blog cards: mono-flavoured meta, orange read-more, square corners */
+body:has(.nf) .blog-card {
+  border-radius: 0;
+}
+body:has(.nf) .post-meta {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #87878f;
+}
+body:has(.nf) .blog-excerpt {
+  color: #55575f;
+}
+body:has(.nf) .blog-more {
+  color: #f0490f;
+  font-weight: 700;
+}
+body:has(.nf) .tag-chip {
+  border-radius: 0;
+}
+body:has(.nf) .progress-bar {
+  background: #f0490f;
+}
+body:has(.nf) .toc-link.on {
+  color: #f0490f;
+}
+
+/* ---- the remaining legacy dark surfaces, swept in one pass ----------------
+   Every selector here still painted var(--surface)/var(--ground) dark cards on
+   marketing pages; their headings had flipped to ink and disappeared. The
+   dashboard keeps the originals (no .nf ancestor there). */
+body:has(.nf) .tldr,
+body:has(.nf) .principle,
+body:has(.nf) .cmp-wrap,
+body:has(.nf) .demo-card,
+body:has(.nf) .auth-card,
+body:has(.nf) .enterprise,
+body:has(.nf) .waitlist-panel,
+body:has(.nf) .post-nav-link,
+body:has(.nf) .idea,
+body:has(.nf) .sf-panel,
+body:has(.nf) .sf-hero,
+body:has(.nf) .sf-tile,
+body:has(.nf) .sf-side {
+  background: #ffffff;
+  border-color: #e3e2dd;
+  box-shadow: none;
+}
+body:has(.nf) .tldr {
+  border: 1px dashed #d1d0c9;
+  border-radius: 0;
+}
+body:has(.nf) .principle {
+  border-radius: 0;
+}
+body:has(.nf) .cmp thead th {
+  background: #f2f1ec;
+  color: #101114;
+}
+body:has(.nf) .prose code {
+  background: #f2f1ec;
+  color: #101114;
+  border: 1px solid #e3e2dd;
+}
+body:has(.nf) .est-tag {
+  background: #f2f1ec;
+  color: #55575f;
+}
+/* gradient text (e.g. "private beta") — the one accent, not a purple sunset */
+body:has(.nf) .grad-text {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  color: #f0490f;
+}
+
+/* the last gradient text: "private beta" in the about status card */
+body:has(.nf) .status-text strong {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  color: #f0490f;
+}
+
+/* the about status card: legacy layout left a 40ch text column adrift in a
+   full-width frame with the buttons floating loose — recomposed as one row
+   that stacks cleanly on small screens */
+body:has(.nf) .status-card {
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px 48px;
+  flex-wrap: wrap;
+  padding: 34px 38px;
+  margin-bottom: 72px;
+}
+body:has(.nf) .status-text {
+  font-size: 19px;
+  margin: 0;
+  flex: 1 1 380px;
+}
+body:has(.nf) .status-card .cta-row {
+  flex: none;
+  margin: 0;
+}
+
+/* demo page: the direct booking path above the fallback form */
+body:has(.nf) .demo-cal {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  font-size: 16px;
+  padding: 16px 24px;
+}
+body:has(.nf) .demo-or {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #87878f;
+  margin: 18px 0;
+}
+body:has(.nf) .demo-or::before,
+body:has(.nf) .demo-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e3e2dd;
+}
+body:has(.nf) .demo-skip {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #55575f;
+}
+body:has(.nf) .demo-skip a {
+  color: #f0490f;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

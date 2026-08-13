@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat, Newsreader, IBM_Plex_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Caveat,
+  Newsreader,
+  IBM_Plex_Mono,
+  Archivo,
+  Instrument_Sans,
+} from "next/font/google";
 import "./globals.css";
+// The NF marketing design system (ported from the /design lab). Imported after
+// globals.css on purpose: its :root token bridge must win the cascade.
+import "./nf.css";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next"
 import { PostHogProvider } from "@/components/posthog-provider";
@@ -35,6 +46,23 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
+// The NF marketing faces. Archivo carries display sizes (its width axis lets
+// headlines be tuned optically, not just bolded); Instrument Sans carries
+// everything read at text size.
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  axes: ["wdth"],
+  display: "swap",
+});
+
+const instrumentSans = Instrument_Sans({
+  variable: "--font-inst-sans",
+  subsets: ["latin"],
+  axes: ["wdth"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   // Without this, Next resolves file-convention images (the per-post
   // opengraph-image routes) against http://localhost:3000 at build time, and
@@ -63,7 +91,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${newsreader.variable} ${plexMono.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${newsreader.variable} ${plexMono.variable} ${archivo.variable} ${instrumentSans.variable} antialiased`}
     >
       <body>
         {children}
