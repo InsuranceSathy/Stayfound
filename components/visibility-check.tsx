@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { PlanPicker, usePlanCheckout } from "@/components/paywall-cta";
+import { useRouter } from "next/navigation";
 import { capture, EVENTS } from "@/lib/analytics";
 import { ScanProgress } from "@/components/scan-progress";
 import { measuredAgo } from "@/lib/report-derive";
@@ -16,6 +16,16 @@ import { measuredAgo } from "@/lib/report-derive";
  * shows one ✓ and one ✕.
  */
 const REVEAL = { actions: 2, themes: 1, cited: 1, ideas: 1 };
+
+/**
+ * Where every lock on this page leads.
+ *
+ * The report does not sell — it shows what is missing and hands the buying
+ * decision to the one page that presents plans. `from=report` keeps the hop
+ * attributable without putting a price in front of someone who has not asked
+ * for one yet.
+ */
+const PRICING_HREF = "/pricing?from=report";
 
 type Engine = { name: string; mentioned: boolean; score: number };
 type Competitor = { name: string; share: number; you?: boolean };
@@ -75,15 +85,8 @@ function lockedItem(i: number, reveal: number) {
   } as const;
 }
 
-export function VisibilityCheck({
-  yearlyAvailable = false,
-}: {
-  /** Whether Dodo has yearly products configured — resolved by the page. */
-  yearlyAvailable?: boolean;
-}) {
-  // Shared by both paywalls and every unlock bar, so the plan a visitor picks
-  // is the plan every route to checkout buys.
-  const checkout = usePlanCheckout();
+export function VisibilityCheck() {
+  const router = useRouter();
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("");
   // Who the answers should be about. The engines recommend different brands to
@@ -143,10 +146,7 @@ export function VisibilityCheck({
     // paywall is seen here — not only on the hard gate at the second report.
     // Without this the funnel would count the blurred report as a free win and
     // read the click-through rate against the wrong denominator.
-    capture(EVENTS.PAYWALL_SHOWN, {
-      plan: checkout.plan,
-      reason: "locked_report",
-    });
+    capture(EVENTS.PAYWALL_SHOWN, { reason: "locked_report" });
   }
 
   async function pollJob(jobId: string, attempt = 0) {
@@ -214,8 +214,19 @@ export function VisibilityCheck({
     }
   }
 
-  // The locked blocks buy the selection rather than naming a plan of their own.
-  const { buySelected, selected } = checkout;
+  /** Every route out of a lock is the same hop, and it is logged the same way. */
+  function toPricing() {
+    capture(EVENTS.PAYWALL_CTA_CLICKED, { reason: "to_pricing" });
+  }
+
+  /**
+   * The blurred area itself is a click target, for the reader who tries to
+   * click the thing they cannot read rather than the bar under it.
+   */
+  function lockedAreaClick() {
+    toPricing();
+    router.push(PRICING_HREF);
+  }
 
   const maxShare = result
     ? Math.max(...result.competitors.map((c) => c.share), 1)
@@ -231,13 +242,13 @@ export function VisibilityCheck({
    */
   function unlockBar(label = "Unlock the full report") {
     return (
-      <button type="button" className="sf-unlock" onClick={buySelected}>
+      <Link href={PRICING_HREF} className="sf-unlock" onClick={toPricing}>
         <span className="sf-unlock-ico" aria-hidden="true">
           🔒
         </span>
         {label}
         <span className="arr">→</span>
-      </button>
+      </Link>
     );
   }
 
@@ -308,14 +319,21 @@ export function VisibilityCheck({
         <div className="paywall">
           <h3>You&apos;ve used your free report.</h3>
           <p>
-            {selected.name} tracks your brand across every AI engine — daily
-            scans, competitor alerts, cited sources, and the fixes to climb.
+            StayFound tracks your brand across every AI engine — daily scans,
+            competitor alerts, cited sources, and the fixes to climb.
           </p>
-          <PlanPicker {...checkout} yearlyAvailable={yearlyAvailable} />
-          <p className="paywall-alt">
-            Want the feature lists side by side?{" "}
-            <a href="/pricing">Compare plans</a>.
-          </p>
+          <div className="cta-row" style={{ justifyContent: "center" }}>
+            <Link
+              href={PRICING_HREF}
+              className="btn btn-primary btn-lg"
+              onClick={toPricing}
+            >
+              See plans <span className="arr">→</span>
+            </Link>
+            <a href="https://app.stayfound.tech" className="btn btn-bare btn-lg">
+              Log in
+            </a>
+          </div>
         </div>
       )}
 
@@ -392,7 +410,7 @@ export function VisibilityCheck({
 
             {/* Two named problems is enough to prove the advice is specific;
                 the third, and the how under all of them, is the purchase. */}
-            <div className="actions sf-lockable" onClick={buySelected}>
+            <div className="actions sf-lockable" onClick={lockedAreaClick}>
               <p className="res-h">Recommended moves</p>
               {result.actions.map((a, i) => {
                 const lock = lockedItem(i, REVEAL.actions);
@@ -427,7 +445,7 @@ export function VisibilityCheck({
         {result.sentiment &&
           (result.sentiment.positiveThemes.length > 0 ||
             result.sentiment.negativeThemes.length > 0) && (
-            <div className="sentiment-block sf-lockable" onClick={buySelected}>
+            <div className="sentiment-block sf-lockable" onClick={lockedAreaClick}>
               <p className="res-h">How AI talks about you — {result.sentiment.label}</p>
               {/* One theme readable per column: the good news and the bad news
                   are different questions, so a reader who sees only one of them
@@ -483,7 +501,7 @@ export function VisibilityCheck({
           )}
 
         {result.citedSources && result.citedSources.length > 0 && (
-          <div className="ideas-block sf-lockable" onClick={buySelected}>
+          <div className="ideas-block sf-lockable" onClick={lockedAreaClick}>
             <p className="res-h">
               Likely cited sources <span className="est-tag">estimated</span>
             </p>
@@ -521,7 +539,7 @@ export function VisibilityCheck({
         )}
 
         {result.contentIdeas && result.contentIdeas.length > 0 && (
-          <div className="ideas-block sf-lockable" onClick={buySelected}>
+          <div className="ideas-block sf-lockable" onClick={lockedAreaClick}>
             <p className="res-h">Content suggestions to boost your visibility</p>
             {/* One readable brief; the rest of the backlog is the product. */}
             <div className="ideas-grid">
@@ -551,15 +569,21 @@ export function VisibilityCheck({
         <div className="paywall" style={{ marginTop: 30 }}>
           <h3>That&apos;s your one free report.</h3>
           <p>
-            {selected.name} tracks this score over time, tells you when a
-            competitor overtakes you, and hands you the fixes to win the answer
-            back.
+            StayFound tracks this score over time, tells you when a competitor
+            overtakes you, and hands you the fixes to win the answer back.
           </p>
-          <PlanPicker {...checkout} yearlyAvailable={yearlyAvailable} />
-          <p className="paywall-alt">
-            Want the feature lists side by side?{" "}
-            <a href="/pricing">Compare plans</a>.
-          </p>
+          <div className="cta-row" style={{ justifyContent: "center" }}>
+            <Link
+              href={PRICING_HREF}
+              className="btn btn-primary btn-lg"
+              onClick={toPricing}
+            >
+              Unlock the full report <span className="arr">→</span>
+            </Link>
+            <a href="https://app.stayfound.tech" className="btn btn-bare btn-lg">
+              Log in
+            </a>
+          </div>
         </div>
         </>
       )}

@@ -3,7 +3,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { VisibilityCheck } from "@/components/visibility-check";
 import { ReportGlimpse } from "@/components/report-glimpse";
-import { yearlyConfigured } from "@/lib/dodo";
 
 const ENGINES = [
   "ChatGPT",
@@ -47,9 +46,7 @@ export default function Home() {
           the single biggest thing costing conversions. */}
       <section className="sfx-check-band" id="report">
         <div className="sfx-wrap sfx-check">
-          {/* Whether the paywall can offer yearly is a question about Dodo's
-              configured products, which only the server can answer. */}
-          <VisibilityCheck yearlyAvailable={yearlyConfigured()} />
+          <VisibilityCheck />
         </div>
       </section>
 
