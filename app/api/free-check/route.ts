@@ -3,11 +3,12 @@ import { cookies } from "next/headers";
 import {
   getCachedScore,
   createOrGetJob,
-  getFreeUsed,
+  getDeviceContext,
   markFreeUsed,
 } from "@/lib/queries";
 import { getDemoReport } from "@/lib/demo-fixtures";
 import { runScan } from "@/lib/scan";
+import { scanScope } from "@/lib/report-derive";
 
 export const maxDuration = 300;
 
@@ -58,24 +59,32 @@ export async function POST(req: Request) {
     );
   }
 
-  /**
-   * The market rides inside the category string rather than as its own column.
-   *
-   * Everything downstream — the cache key, the scan job, the buyer prompts in
-   * lib/measure.ts, the competitor discovery — already takes one phrase
-   * describing what is being asked about, and "domain registrars for customers
-   * in Canada" is a better version of that phrase than "domain registrars".
-   * Threading a separate field through the schema, the job table and every
-   * prompt template would buy nothing the assistants can see.
-   */
-  const scope = `${category} for customers in ${market}`.slice(0, 200);
+  // Built by the shared helper so the dashboard measures the same phrase — see
+  // `scanScope` in lib/report-derive.ts for why the market rides inside it.
+  const scope = scanScope(category, market);
 
-  // One free report per device.
-  const used = await getFreeUsed(deviceId);
-  if (used >= 1) {
+  /**
+   * One free *report* per device — not one request.
+   *
+   * The report lives on a page someone leaves the moment they click a lock to
+   * go and look at the price, so counting requests meant that coming back and
+   * asking for the same report again was refused as a second one. Same brand,
+   * same scope, same device is a re-view: it is served from the cache, or by
+   * joining the scan still running for it below. That also un-strands a scan
+   * that failed or was abandoned, which the old count spent regardless.
+   *
+   * A different brand or a different scope is still a second report, and still
+   * gated.
+   */
+  const ctx = await getDeviceContext(deviceId);
+  const sameReport =
+    !!ctx &&
+    ctx.brand.toLowerCase() === brand.toLowerCase() &&
+    scanScope(ctx.category, ctx.market).toLowerCase() === scope.toLowerCase();
+  if (ctx && ctx.freeUsed >= 1 && !sameReport) {
     return withCookie({ gated: true });
   }
-  await markFreeUsed(deviceId, brand);
+  if (!sameReport) await markFreeUsed(deviceId, brand, category, market);
 
   // Keyed on the scope, so the same brand asked about a different market is a
   // different reading rather than a cache hit on the wrong one.

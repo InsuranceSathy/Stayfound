@@ -15,7 +15,21 @@ function SubmitButton() {
   );
 }
 
-export function AddBrandForm() {
+/**
+ * What the free check on the public site already asked for.
+ *
+ * Passed in when this device ran one, so someone who has just paid to unlock a
+ * report is not asked to type it in again — and, because the market is part of
+ * what was measured, so the first scan here reproduces that report rather than
+ * a different reading of the same brand.
+ */
+export type BrandDefaults = {
+  name: string;
+  category: string;
+  market: string;
+};
+
+export function AddBrandForm({ defaults }: { defaults?: BrandDefaults | null }) {
   const [state, formAction] = useActionState<AddBrandState, FormData>(addBrand, {});
 
   // Activation. Fires on the transition into a successful state rather than on
@@ -44,7 +58,14 @@ export function AddBrandForm() {
     >
       <div className="field">
         <label htmlFor="name">Your brand</label>
-        <input id="name" name="name" placeholder="e.g. Linear" autoComplete="off" required />
+        <input
+          id="name"
+          name="name"
+          placeholder="e.g. Linear"
+          defaultValue={defaults?.name}
+          autoComplete="off"
+          required
+        />
       </div>
       <div className="field">
         <label htmlFor="category">Category</label>
@@ -52,8 +73,22 @@ export function AddBrandForm() {
           id="category"
           name="category"
           placeholder="e.g. project management software"
+          defaultValue={defaults?.category}
           autoComplete="off"
           required
+        />
+      </div>
+      {/* Optional here, unlike the public check: an account can exist without
+          having run one. But it is what the engines answer differently on, so a
+          brand tracked without it is tracked against the wrong market. */}
+      <div className="field">
+        <label htmlFor="market">Target customers</label>
+        <input
+          id="market"
+          name="market"
+          placeholder="e.g. USA, Canada, UK"
+          defaultValue={defaults?.market}
+          autoComplete="off"
         />
       </div>
       <SubmitButton />

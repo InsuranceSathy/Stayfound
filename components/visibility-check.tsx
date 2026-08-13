@@ -22,10 +22,12 @@ const REVEAL = { actions: 2, themes: 1, cited: 1, ideas: 1 };
  *
  * The report does not sell — it shows what is missing and hands the buying
  * decision to the one page that presents plans. `from=report` keeps the hop
- * attributable without putting a price in front of someone who has not asked
- * for one yet.
+ * attributable; `#plans` lands them on the cards, because someone who clicked a
+ * lock has asked for a price and should not have to scroll past a hero to find
+ * one. Not straight to checkout: a lock names no plan, and the route would bounce
+ * a signed-out browser into a card form it has never seen a price on.
  */
-const PRICING_HREF = "/pricing?from=report";
+const PRICING_HREF = "/pricing?from=report#plans";
 
 type Engine = { name: string; mentioned: boolean; score: number };
 type Competitor = { name: string; share: number; you?: boolean };
@@ -85,6 +87,47 @@ function lockedItem(i: number, reveal: number) {
   } as const;
 }
 
+/**
+ * Where the finished report is kept so that leaving this page does not destroy
+ * it.
+ *
+ * Every lock links out to /pricing, which unmounts this component — so without
+ * this, the one thing we are asking someone to pay for disappears the moment
+ * they go to look at the price, and the free-report gate greets them on the way
+ * back. `sessionStorage` rather than `local`: it belongs to the tab that ran the
+ * check, and expires with it.
+ *
+ * It holds the locked copy, which is already in the page source — the same trade
+ * `LockedText` documents. Nothing here is trusted for anything but redisplay.
+ */
+const SAVED_KEY = "sf:report";
+
+type SavedReport = {
+  brand: string;
+  category: string;
+  market: string;
+  result: Result;
+  live: boolean;
+  measuredAt: string | null;
+};
+
+function readSaved(): SavedReport | null {
+  try {
+    const raw = sessionStorage.getItem(SAVED_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as SavedReport;
+    // Shape check, not validation: a stale key from an older deploy must not
+    // throw inside a render. Anything unrecognisable is dropped.
+    if (!saved?.brand || typeof saved.result?.score !== "number") return null;
+    if (!Array.isArray(saved.result.engines)) return null;
+    if (!Array.isArray(saved.result.competitors)) return null;
+    if (!Array.isArray(saved.result.actions)) return null;
+    return saved;
+  } catch {
+    return null;
+  }
+}
+
 export function VisibilityCheck() {
   const router = useRouter();
   const [brand, setBrand] = useState("");
@@ -123,6 +166,31 @@ export function VisibilityCheck() {
     return () => window.removeEventListener("sf:brand", onBrand);
   }, []);
 
+  // Put back the report this tab already ran — after a hop out to /pricing and
+  // back, a reload, or a restored tab. Mount-only; a hero hand-off arrives later
+  // as an event, so it still wins the brand field if one comes.
+  //
+  // set-state-in-effect is disabled deliberately, not worked around. The rule
+  // guards against effects that re-render in a loop; this one reads an external
+  // store once, on mount, and cannot re-run. It has to be an effect rather than
+  // a state initializer because the server cannot see sessionStorage: seeding at
+  // render time would make the client's first render disagree with the markup it
+  // is hydrating.
+  useEffect(() => {
+    const saved = readSaved();
+    if (!saved) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBrand(saved.brand);
+    setCategory(saved.category);
+    setMarket(saved.market);
+    setResult(saved.result);
+    setLive(saved.live);
+    setMeasuredAt(saved.measuredAt);
+    // Deliberately no PAYWALL_SHOWN here: the locks were already counted when
+    // this report was generated, and counting them again on every back-button
+    // would inflate the denominator that finish() keeps honest.
+  }, []);
+
   useEffect(() => {
     if (!loading) return;
     const t = setInterval(() => setElapsed((e) => e + 1), 1000);
@@ -134,6 +202,20 @@ export function VisibilityCheck() {
     setLive(data.live);
     setMeasuredAt(data.measuredAt ?? null);
     setLoading(false);
+    // Saved before anything else can navigate away from it.
+    try {
+      const saved: SavedReport = {
+        brand,
+        category,
+        market,
+        result: data.result,
+        live: data.live,
+        measuredAt: data.measuredAt ?? null,
+      };
+      sessionStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+    } catch {
+      /* private mode, or a full quota — the report still renders */
+    }
     // The score is the whole reason someone came: tracking it lets us ask
     // whether a bad score converts better than a good one.
     capture(EVENTS.REPORT_COMPLETED, {
@@ -178,6 +260,13 @@ export function VisibilityCheck() {
     setError(null);
     setResult(null);
     setGated(false);
+    // The saved copy goes with the report it belongs to: a run that fails or is
+    // gated must not leave the previous report restorable behind the error.
+    try {
+      sessionStorage.removeItem(SAVED_KEY);
+    } catch {
+      /* nothing to clear */
+    }
     setElapsed(0);
     setQueued(true);
     setMeasuredAt(null);

@@ -138,6 +138,27 @@ export function scanKey(brand: string, category: string) {
 }
 
 /**
+ * The one phrase every scan is run against.
+ *
+ * The market rides inside the category string rather than as its own argument:
+ * everything downstream — the cache key, the scan job, the buyer prompts in
+ * lib/measure.ts, the competitor discovery — already takes one phrase
+ * describing what is being asked about, and "domain registrars for customers in
+ * Canada" is a better version of that phrase than "domain registrars".
+ *
+ * It lives here, next to `scanKey`, because the free check and the dashboard
+ * must build it identically. When they disagree the reports disagree: the same
+ * brand gets two different keys, so the report someone paid to unlock is a
+ * fresh measurement with different numbers rather than the one they saw.
+ */
+export function scanScope(category: string, market?: string | null) {
+  const scope = market?.trim()
+    ? `${category} for customers in ${market.trim()}`
+    : category;
+  return scope.slice(0, 200);
+}
+
+/**
  * Long-form age, for a sentence rather than a chip: "6 hours ago".
  *
  * A reading taken this morning is not stale — assistants change their answers

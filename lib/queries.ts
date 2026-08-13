@@ -6,6 +6,12 @@ export type Brand = {
   user_id: string;
   name: string;
   category: string;
+  /**
+   * Who the answers should be about — "USA, Canada, UK". Nullable because
+   * brands created before the column existed have no market, and a scan reads
+   * it through `scanScope`, which treats absent as "no market clause".
+   */
+  market: string | null;
   created_at: string;
 };
 
@@ -83,33 +89,97 @@ export async function ensureSchema() {
       updated_at  timestamptz NOT NULL DEFAULT now()
     )
   `);
+
+  // Columns added after their tables shipped. `CREATE TABLE IF NOT EXISTS`
+  // above is a no-op on a database that already has the table, so a new column
+  // needs its own idempotent statement or it only ever exists on a fresh
+  // install. Postgres 9.6+ for ADD COLUMN IF NOT EXISTS.
+  //
+  // All three exist to carry one thing: the scope a report was measured at, so
+  // the reading someone paid to unlock is the reading they saw.
+  await pool.query(`ALTER TABLE brand ADD COLUMN IF NOT EXISTS market text`);
+  await pool.query(
+    `ALTER TABLE device_usage ADD COLUMN IF NOT EXISTS last_category text`,
+  );
+  await pool.query(
+    `ALTER TABLE device_usage ADD COLUMN IF NOT EXISTS last_market text`,
+  );
   schemaReady = true;
 }
 
-/** How many free reports this device has already run. */
-export async function getFreeUsed(deviceId: string): Promise<number> {
+/** What this device already spent its free report on, if anything. */
+export type DeviceContext = {
+  freeUsed: number;
+  brand: string;
+  category: string;
+  market: string;
+};
+
+/**
+ * The free report this device has already run — brand, category and market.
+ *
+ * Two callers, one row. The free check compares the stored three against what
+ * is being asked for, so re-opening the same report is served rather than
+ * gated; the dashboard reads them to prefill onboarding after a purchase, which
+ * works because `sf_device` is a year-long cookie that survives both sign-in
+ * and the round trip out to Dodo and back.
+ *
+ * Nulls collapse to empty strings: every caller compares or prefills, and both
+ * want "" rather than a null check.
+ */
+export async function getDeviceContext(
+  deviceId: string,
+): Promise<DeviceContext | null> {
   await ensureSchema();
-  const { rows } = await pool.query<{ free_used: number }>(
-    `SELECT free_used FROM device_usage WHERE device_id = $1`,
+  const { rows } = await pool.query<{
+    free_used: number;
+    last_brand: string | null;
+    last_category: string | null;
+    last_market: string | null;
+  }>(
+    `SELECT free_used, last_brand, last_category, last_market
+       FROM device_usage WHERE device_id = $1`,
     [deviceId],
   );
-  return rows[0]?.free_used ?? 0;
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    freeUsed: row.free_used,
+    brand: row.last_brand ?? "",
+    category: row.last_category ?? "",
+    market: row.last_market ?? "",
+  };
 }
 
-/** Record that this device consumed a free report. */
+/**
+ * Record that this device consumed a free report, and on what.
+ *
+ * The three fields are what make the report re-openable: `free_used` alone
+ * cannot tell "back button on the report I just ran" from "a second brand", and
+ * the first of those must not be refused.
+ */
 export async function markFreeUsed(
   deviceId: string,
   brand: string,
+  category: string,
+  market: string,
 ): Promise<void> {
   await ensureSchema();
   await pool.query(
-    `INSERT INTO device_usage (device_id, free_used, last_brand)
-     VALUES ($1, 1, $2)
+    `INSERT INTO device_usage (device_id, free_used, last_brand, last_category, last_market)
+     VALUES ($1, 1, $2, $3, $4)
      ON CONFLICT (device_id) DO UPDATE
        SET free_used = device_usage.free_used + 1,
            last_brand = EXCLUDED.last_brand,
+           last_category = EXCLUDED.last_category,
+           last_market = EXCLUDED.last_market,
            updated_at = now()`,
-    [deviceId, brand.slice(0, 120)],
+    [
+      deviceId,
+      brand.slice(0, 120),
+      category.slice(0, 200),
+      market.slice(0, 120),
+    ],
   );
 }
 
@@ -233,11 +303,15 @@ export async function createBrand(
   userId: string,
   name: string,
   category: string,
+  market: string | null = null,
 ): Promise<Brand> {
   await ensureSchema();
   const { rows } = await pool.query<Brand>(
-    `INSERT INTO brand (user_id, name, category) VALUES ($1, $2, $3) RETURNING *`,
-    [userId, name, category],
+    `INSERT INTO brand (user_id, name, category, market)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    // Empty market stored as NULL, so "no market given" is one value rather
+    // than two that `scanScope` would have to agree about.
+    [userId, name, category, market || null],
   );
   return rows[0];
 }
