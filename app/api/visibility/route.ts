@@ -12,7 +12,11 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     brand = String(body.brand ?? "").trim().slice(0, 80);
-    category = String(body.category ?? "").trim().slice(0, 120);
+    // 200, matching `scanScope`: the dashboard sends a scope here ("compliance
+    // software for customers in USA, Canada"), not a bare category. Cutting it
+    // at 120 would build a different cache key from the same brand and quietly
+    // re-measure instead of reusing the reading that is already stored.
+    category = String(body.category ?? "").trim().slice(0, 200);
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }

@@ -2964,6 +2964,11 @@ canvas {
   gap: 16px;
   margin-top: 48px;
   align-items: start;
+  /* #plans is a real destination — the report's locks link straight to it — so
+     it clears the sticky nav pill rather than taking the 24px that section[id]
+     gives an anchor nobody aims at. Same value as .prose h2, the other thing
+     that gets scrolled to under that nav. */
+  scroll-margin-top: 100px;
 }
 @media (max-width: 1000px) {
   .pricing-grid {

@@ -49,7 +49,10 @@ export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: bo
         yearlyAvailable={yearlyAvailable}
       />
 
-      <section className="wrap pricing-grid">
+      {/* Anchored: the report's locks link to /pricing#plans, so a buyer who
+          arrived mid-decision lands on the cards instead of scrolling past a
+          hero written for someone who has not seen a price yet. */}
+      <section className="wrap pricing-grid" id="plans">
         {PLANS.map((t) => {
           const price = displayMonthly(t, interval);
           const free = t.monthly === 0;
