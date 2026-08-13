@@ -1,7 +1,7 @@
 "use client";
 
 import { WaitlistButton } from "@/components/waitlist-form";
-import { IntervalToggle, usePlanCheckout } from "@/components/paywall-cta";
+import { IntervalToggle, usePlanCheckout } from "@/components/plan-checkout";
 import {
   PLANS,
   YEARLY_MONTHS,
@@ -38,14 +38,8 @@ export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: bo
   // the referral tag and the analytics are one implementation, so a fix to
   // buying applies wherever buying happens. `inline` because the fallback for a
   // failed checkout is /pricing, and this *is* /pricing.
-  const {
-    interval,
-    setInterval,
-    plan: chosen,
-    pending,
-    error,
-    startCheckout,
-  } = usePlanCheckout({ onFailure: "inline" });
+  const { interval, setInterval, plan: buying, pending, error, startCheckout } =
+    usePlanCheckout({ onFailure: "inline" });
 
   return (
     <>
@@ -96,10 +90,10 @@ export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: bo
                   onClick={() => startCheckout(t.id)}
                   disabled={pending}
                 >
-                  {pending && chosen === t.id
+                  {pending && buying === t.id
                     ? "Opening checkout…"
                     : `Get ${t.name}`}
-                  {!(pending && chosen === t.id) && <span className="arr">→</span>}
+                  {!(pending && buying === t.id) && <span className="arr">→</span>}
                 </button>
               )}
 
