@@ -1,187 +1,112 @@
 "use client";
 
-import { useEffect, useReducer, useState } from "react";
-import Link from "next/link";
+import { useState } from "react";
+import Image from "next/image";
+import { ArrowRight, ENGINES, handoff } from "@/components/nf-shared";
 
 /**
- * The hero is the product's own artifact: a real answer, with a hole in it.
+ * The hero: "AI repeats what it reads. Teach it your name."
  *
- * Every competitor in this category leads with a dashboard screenshot. A
- * dashboard is the by-product; the thing a founder actually feels is reading a
- * sentence a machine wrote about their category and not finding themselves in
- * it. So the answer is the hero, and the omission is the only thing on the page
- * allowed to carry colour.
+ * The image is the product's argument, not decoration — assistants repeat
+ * what they read, and if your name isn't in the sources, the parrot never
+ * says it. The plate is a clustered-dot halftone generated in-house from a
+ * CC0 photo (Wikimedia Commons); regenerate or replace via the pipeline in
+ * the design scratchpad whenever brand photography arrives.
  *
- * The answer types itself once, because that is how these answers really
- * arrive. Reduced motion gets the finished state immediately.
+ * The domain field hands off to the check below via the `sf:brand` event —
+ * the same contract visibility-check.tsx has always listened for.
  */
-
-const PROMPT = "best project management software for a small team";
-
-type Token =
-  | { kind: "text"; value: string }
-  | { kind: "named"; value: string };
-
-const ANSWER: Token[] = [
-  { kind: "text", value: "For a small team, most people land on " },
-  { kind: "named", value: "Notion" },
-  { kind: "text", value: ", " },
-  { kind: "named", value: "Asana" },
-  { kind: "text", value: ", or " },
-  { kind: "named", value: "Linear" },
-  {
-    kind: "text",
-    value:
-      " — they turn up in nearly every roundup and comparison thread the model has read.",
-  },
-];
-
-const SOURCES = ["g2.com", "reddit.com", "producthunt.com", "capterra.com"];
-
-const FULL_LENGTH = ANSWER.reduce((n, t) => n + t.value.length, 0);
-
 export function AnswerHero() {
-  const [typed, setTyped] = useState(0);
-  const [slot, setSlot] = useState("");
-  const [, force] = useReducer((n: number) => n + 1, 0);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) {
-      setTyped(FULL_LENGTH);
-      return;
-    }
-    let n = 0;
-    const id = setInterval(() => {
-      // Slightly uneven pacing reads as generated text rather than a metronome.
-      n = Math.min(FULL_LENGTH, n + (Math.random() < 0.25 ? 2 : 1));
-      setTyped(n);
-      if (n >= FULL_LENGTH) clearInterval(id);
-    }, 18);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const id = setTimeout(force, 600);
-    return () => clearTimeout(id);
-  }, [typed]);
-
-  const done = typed >= FULL_LENGTH;
-
-  /**
-   * Hand the name to the check without a page load, and put the cursor on the
-   * one thing still missing — the category. Scrolling someone to the top of a
-   * form they have already half-filled is how you get it abandoned.
-   */
-  function handoff() {
-    const value = slot.trim();
-    if (!value) return;
-    window.dispatchEvent(new CustomEvent("sf:brand", { detail: value }));
-    document
-      .getElementById("report")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  // Reveal by character across the token list, so names light up as they arrive.
-  let consumed = 0;
-  const rendered = ANSWER.map((token, i) => {
-    const start = consumed;
-    consumed += token.value.length;
-    if (typed <= start) return null;
-    const slice = token.value.slice(0, Math.max(0, typed - start));
-    return token.kind === "named" ? (
-      <mark className="ah-named" key={i}>
-        {slice}
-      </mark>
-    ) : (
-      <span key={i}>{slice}</span>
-    );
-  });
+  const [domain, setDomain] = useState("");
 
   return (
-    <header className="ah">
-      <div className="ah-wrap">
-        <div className="ah-lede">
-          <p className="ah-eyebrow">
-            <span className="ah-dot" aria-hidden="true" />
-            asked of ChatGPT, Gemini, Perplexity and Claude
-          </p>
-        </div>
+    <div className="nf">
+      <header className="n-hero">
+        <span className="n-reg n-reg-tl" aria-hidden="true" />
+        <span className="n-reg n-reg-tr" aria-hidden="true" />
+        <span className="n-reg n-reg-bl" aria-hidden="true" />
+        <span className="n-reg n-reg-br" aria-hidden="true" />
 
-        <figure className="ah-sheet">
-          <figcaption className="ah-prompt">
-            <span className="ah-prompt-k">prompt</span>
-            <span className="ah-prompt-v">“{PROMPT}”</span>
-          </figcaption>
+        <div className="wrap-p n-fold">
+          <div className="n-copy">
+            <h1 className="n-h1 rise d1">
+              <span>AI repeats what it&nbsp;reads.</span>
+              <span className="n-h1-b">
+                Teach it <em>your name</em>.
+              </span>
+            </h1>
 
-          <p className="ah-answer" aria-label={ANSWER.map((t) => t.value).join("")}>
-            {rendered}
-            {!done && <span className="ah-caret" aria-hidden="true" />}
-          </p>
+            <p className="n-lede rise d2">
+              StayFound reads what ChatGPT, Gemini, Perplexity and Claude
+              recommend in your category — and shows you the pages that get
+              you named.
+            </p>
 
-          {/* The omission, and the only editable thing on the page. Typing your
-              own name into the hole is the whole argument in one gesture, so
-              the slot is a real field rather than a picture of one — it hands
-              the name to the check below instead of asking for it twice. */}
-          <form
-            className={`ah-gap ${done ? "in" : ""}`}
-            onSubmit={(e) => {
-              e.preventDefault();
-              handoff();
-            }}
-          >
-            <label className="ah-slot">
-              <span className="sr-only">Your domain</span>
+            <form
+              className="m-check rise d2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handoff(domain);
+              }}
+            >
               <input
-                className="ah-slot-input"
-                value={slot}
-                onChange={(e) => setSlot(e.target.value)}
-                onBlur={() => slot.trim() && handoff()}
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
                 placeholder="yourbrand.com"
                 aria-label="Your domain"
                 autoComplete="url"
                 spellCheck={false}
-                tabIndex={done ? 0 : -1}
               />
-            </label>
-            <span className="ah-gap-note">
-              {slot.trim() ? "press enter to check it" : "where you would be"}
-            </span>
-          </form>
-
-          <div className={`ah-sources ${done ? "in" : ""}`}>
-            <span className="ah-sources-k">read</span>
-            {SOURCES.map((s) => (
-              <span className="ah-source" key={s}>
-                {s}
-              </span>
-            ))}
-          </div>
-        </figure>
-
-        <div className="ah-say">
-          <h1 className="ah-h1">
-            Your rivals are in the answer.
-            <em>You are not.</em>
-          </h1>
-          <div className="ah-say-r">
-            <p className="ah-sub">
-              StayFound reads what the assistants actually say when buyers ask
-              about your category, then names the pages that would put you in
-              the sentence.
-            </p>
-            <div className="ah-cta">
-              <a href="#report" className="ah-btn">
+              <button type="submit" className="btn-p">
                 Check my brand
-              </a>
-              <Link href="/pricing" className="ah-btn-quiet">
-                See plans
-              </Link>
-            </div>
-            <p className="ah-note">One free check. No account needed.</p>
+                <ArrowRight />
+              </button>
+            </form>
+
+            <p className="m-fine rise d3">
+              Free · no account · results in two minutes
+            </p>
+          </div>
+
+          <div className="n-stage" aria-hidden="true">
+            <span className="n-glow" />
+            <Image
+              src="/design/parrot-halftone.png"
+              alt=""
+              width={980}
+              height={1150}
+              priority
+              className="n-bird"
+            />
+            <span className="n-say">
+              <u className="n-say-redact w2" />
+              <u className="n-say-redact w1" />
+              <b className={domain.trim() ? "on" : ""}>
+                {domain.trim() ? `+ ${domain.trim()}` : "+ you?"}
+              </b>
+            </span>
+            <span className="n-caption">
+              fig. 01 — the answer engine, at work
+            </span>
           </div>
         </div>
-      </div>
-    </header>
+
+        {/* continuous marquee — rendered twice for a seamless loop */}
+        <div className="n-ticker" aria-label="Engines StayFound reads">
+          <div className="n-ticker-track">
+            {[0, 1].map((dup) => (
+              <div className="n-ticker-run" aria-hidden={dup === 1} key={dup}>
+                {ENGINES.map((e) => (
+                  <em key={e}>
+                    {e}
+                    <i aria-hidden="true" />
+                  </em>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </header>
+    </div>
   );
 }

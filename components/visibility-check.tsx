@@ -152,11 +152,17 @@ export function VisibilityCheck() {
   // The hero hands over the name typed into the answer. Fill it in and put the
   // cursor on the category, which is the only thing still missing — and the
   // field whose specificity decides whether the competitors come back right.
+  // Set when the brand arrived from the hero rather than being typed here —
+  // the domain field flashes and keeps a provenance tag, so nobody wonders
+  // where the value came from.
+  const [arrived, setArrived] = useState(false);
+
   useEffect(() => {
     function onBrand(e: Event) {
       const value = (e as CustomEvent<string>).detail;
       if (!value) return;
       setBrand(value);
+      setArrived(true);
       requestAnimationFrame(() => {
         const el = document.getElementById("category") as HTMLInputElement | null;
         el?.focus();
@@ -355,8 +361,11 @@ export function VisibilityCheck() {
       {/* The ids stay `brand` and `category` whatever the labels say: they are
           internal, and the hero handoff focuses #category by id. */}
       <form className="check-form" onSubmit={run}>
-        <div className="field">
-          <label htmlFor="brand">Domain name</label>
+        <div className={`field ${arrived ? "got" : ""}`}>
+          <label htmlFor="brand">
+            Domain name
+            {arrived && <em className="field-from">↑ from your check above</em>}
+          </label>
           <input
             id="brand"
             value={brand}

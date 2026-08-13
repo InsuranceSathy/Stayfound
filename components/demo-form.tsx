@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CAL_MEETING_URL } from "@/lib/site";
 
 export function DemoForm() {
   const [loading, setLoading] = useState(false);
@@ -56,6 +57,13 @@ export function DemoForm() {
         <p>
           Thanks, {form.name.split(" ")[0] || "there"}. We&apos;ll reach out at{" "}
           {form.email} within one business day to set up your demo.
+        </p>
+        <p className="demo-skip">
+          Or skip the wait —{" "}
+          <a href={CAL_MEETING_URL} target="_blank" rel="noopener noreferrer">
+            pick a time now
+          </a>
+          .
         </p>
       </div>
     );

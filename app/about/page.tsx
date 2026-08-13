@@ -92,9 +92,9 @@ export default function AboutPage() {
         <section className="wrap">
           <div className="status-card">
             <p className="status-text">
-              StayFound is in <strong>private beta</strong>, onboarding design
-              partners in 2026. We&apos;re building in the open with the teams
-              feeling this shift first. Want in?
+              StayFound is in <strong>private beta</strong>. Run a free check
+              today — and if you want your brand tracked daily, we&apos;ll set
+              you up personally.
             </p>
             <div className="cta-row">
               <Link href="/sign-in" className="btn btn-primary">

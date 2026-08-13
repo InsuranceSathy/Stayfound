@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { DemoForm } from "@/components/demo-form";
+import { CAL_MEETING_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Book a demo — StayFound",
@@ -52,6 +53,19 @@ export default function DemoPage() {
             ))}
           </div>
           <div className="demo-card">
+            {/* The direct path first: pick a slot, no back-and-forth. The form
+                stays below for anyone who'd rather write than schedule. */}
+            <a
+              href={CAL_MEETING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary demo-cal"
+            >
+              Pick a time — 30 min <span className="arr">→</span>
+            </a>
+            <p className="demo-or" aria-hidden="true">
+              or leave your details
+            </p>
             <DemoForm />
           </div>
         </section>
