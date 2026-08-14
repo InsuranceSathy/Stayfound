@@ -29,6 +29,8 @@ export const EVENTS = {
   SCAN_STARTED: "scan_started",
   SCAN_COMPLETED: "scan_completed",
   SCAN_FAILED: "scan_failed",
+  /** The report was handed to the print dialog to be saved or printed. */
+  REPORT_DOWNLOADED: "report_downloaded",
 } as const;
 
 export type EventName = (typeof EVENTS)[keyof typeof EVENTS];

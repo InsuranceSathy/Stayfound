@@ -1,16 +1,22 @@
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { AddBrandForm, type BrandDefaults } from "@/components/add-brand-form";
 import { BillingPanel } from "@/components/billing-panel";
 import { ReferralPanel } from "@/components/referral-panel";
 import { ChangeBrand } from "@/components/dashboard/change-brand";
 import {
+  getBrandById,
   getBrandForUser,
+  getBrandsForUser,
   getDeviceContext,
   getLatestSnapshot,
   getSnapshotHistory,
 } from "@/lib/queries";
+import { getSubscription, effectivePlan } from "@/lib/billing";
+import { brandLimit } from "@/lib/plans";
+import { BrandSwitcher } from "@/components/dashboard/brand-switcher";
 import { relativeTime, scanScope } from "@/lib/report-derive";
 import { normalizeTab, Sidebar } from "@/components/dashboard/sidebar";
 import { ScanButton } from "@/components/dashboard/scan-button";
@@ -32,12 +38,25 @@ export default async function DashboardPage({
 
   const { user } = session;
   const firstName = user.name?.split(" ")[0] || "there";
-  const brand = await getBrandForUser(user.id);
   const sp = await searchParams;
   const tab = normalizeTab(typeof sp.tab === "string" ? sp.tab : undefined);
 
+  // An account may track several brands now, so the page is about whichever one
+  // the url names — falling back to the first rather than 404ing, since a stale
+  // bookmark to a deleted brand should land somewhere useful.
+  const brands = await getBrandsForUser(user.id);
+  const wanted = typeof sp.brand === "string" ? sp.brand : null;
+  const brand =
+    (wanted ? await getBrandById(user.id, wanted) : null) ??
+    (await getBrandForUser(user.id));
+
+  const limit = brandLimit(effectivePlan(await getSubscription(user.id)));
+  // "Add another brand" reuses the onboarding form; ?add=1 asks for it while
+  // brands already exist.
+  const adding = sp.add === "1" && brands.length < limit;
+
   // ---------- onboarding: no brand yet ----------
-  if (!brand) {
+  if (!brand || adding) {
     /**
      * Most people arriving here just bought from a report they ran on the public
      * site, so we already know the brand, the category and the market — asking
@@ -105,7 +124,7 @@ export default async function DashboardPage({
                 {brand.market && ` · ${brand.market}`}
               </p>
             </div>
-            <ChangeBrand brand={brand.name} scans={0} />
+            <ChangeBrand brand={brand.name} brandId={brand.id} scans={0} />
           </header>
           <section className="sf-panel">
             <div className="sf-panel-head">
@@ -118,6 +137,7 @@ export default async function DashboardPage({
             </p>
             <ScanButton
               brand={brand.name}
+              brandId={brand.id}
               category={scope}
               label="Run first scan"
               className="btn btn-primary"
@@ -147,6 +167,12 @@ export default async function DashboardPage({
       />
 
       <main className="sf-main">
+        <BrandSwitcher
+          brands={brands}
+          current={brand}
+          tab={tab}
+          limit={limit}
+        />
         <header className="sf-top">
           <div>
             <h1 className="sf-top-t">{brand.name}</h1>
@@ -158,8 +184,27 @@ export default async function DashboardPage({
             </p>
           </div>
           <div className="sf-top-actions">
-            <ChangeBrand brand={brand.name} scans={history.length} />
-            <ScanButton brand={brand.name} category={scope} label="Refresh" />
+            <ChangeBrand
+              brand={brand.name}
+              brandId={brand.id}
+              scans={history.length}
+            />
+            {/* Only offered on real readings — a sample-data report is not a
+                thing anyone should be handing to a client. */}
+            {snapshot.live && (
+              <Link
+                href={`/dashboard/report?brand=${brand.id}`}
+                className="btn btn-ghost btn-sm"
+              >
+                Report
+              </Link>
+            )}
+            <ScanButton
+              brand={brand.name}
+              brandId={brand.id}
+              category={scope}
+              label="Refresh"
+            />
           </div>
         </header>
 
