@@ -7,6 +7,7 @@ import {
   YEARLY_MONTHS,
   checkoutOpen,
   displayMonthly,
+  formatUSD,
 } from "@/lib/plans";
 
 function Check() {
@@ -61,14 +62,21 @@ export function PricingPlans({ yearlyAvailable = false }: { yearlyAvailable?: bo
               {t.featured && <span className="tier-badge">Most popular</span>}
               <h2 className="tier-name">{t.name}</h2>
               <div className="tier-price">
-                <span className="tier-amount">${price}</span>
+                {/* The anchor only rides along on the monthly card: struck
+                    against a yearly figure it would read as a discount on a
+                    discount, and the number it was struck from never existed
+                    as a yearly price. */}
+                {t.anchor && interval === "monthly" && (
+                  <span className="tier-was">${formatUSD(t.anchor)}</span>
+                )}
+                <span className="tier-amount">${formatUSD(price)}</span>
                 <span className="tier-cadence">
                   / {free ? "forever" : "per month"}
                 </span>
               </div>
               {canBuy && !free && interval === "yearly" && (
                 <p className="tier-billed">
-                  ${t.monthly * YEARLY_MONTHS} billed yearly
+                  ${formatUSD(t.monthly * YEARLY_MONTHS)} billed yearly
                 </p>
               )}
               <p className="tier-blurb">{t.blurb}</p>

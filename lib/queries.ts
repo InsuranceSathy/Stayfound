@@ -290,6 +290,14 @@ export async function putCachedScore(
   );
 }
 
+/**
+ * The account's first brand, and the fallback when no brand is selected.
+ *
+ * Kept for the single-brand paths (onboarding, the scan actions) even though an
+ * account may now hold several — "the one to show when nothing was asked for"
+ * is still a real question, and oldest-first keeps that answer stable as
+ * brands are added and removed.
+ */
 export async function getBrandForUser(userId: string): Promise<Brand | null> {
   await ensureSchema();
   const { rows } = await pool.query<Brand>(
@@ -297,6 +305,44 @@ export async function getBrandForUser(userId: string): Promise<Brand | null> {
     [userId],
   );
   return rows[0] ?? null;
+}
+
+/** Every brand on the account, oldest first — the order the switcher shows. */
+export async function getBrandsForUser(userId: string): Promise<Brand[]> {
+  await ensureSchema();
+  const { rows } = await pool.query<Brand>(
+    `SELECT * FROM brand WHERE user_id = $1 ORDER BY created_at ASC`,
+    [userId],
+  );
+  return rows;
+}
+
+/**
+ * One brand, scoped to its owner.
+ *
+ * The user id is in the WHERE clause rather than checked afterwards: a brand id
+ * arrives from the query string, so this is the boundary that stops one account
+ * reading another's report by guessing a uuid.
+ */
+export async function getBrandById(
+  userId: string,
+  brandId: string,
+): Promise<Brand | null> {
+  await ensureSchema();
+  const { rows } = await pool.query<Brand>(
+    `SELECT * FROM brand WHERE id = $1 AND user_id = $2`,
+    [brandId, userId],
+  );
+  return rows[0] ?? null;
+}
+
+export async function countBrandsForUser(userId: string): Promise<number> {
+  await ensureSchema();
+  const { rows } = await pool.query<{ n: number }>(
+    `SELECT count(*)::int AS n FROM brand WHERE user_id = $1`,
+    [userId],
+  );
+  return rows[0]?.n ?? 0;
 }
 
 export async function createBrand(

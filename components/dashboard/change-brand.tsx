@@ -16,9 +16,12 @@ import { removeBrand } from "@/app/dashboard/actions";
  */
 export function ChangeBrand({
   brand,
+  brandId,
   scans,
 }: {
   brand: string;
+  /** The brand this button deletes — not simply the account's first. */
+  brandId?: string;
   scans: number;
 }) {
   const [confirming, setConfirming] = useState(false);
@@ -68,7 +71,7 @@ export function ChangeBrand({
         >
           Keep {brand}
         </button>
-        <form action={removeBrand}>
+        <form action={() => removeBrand(brandId ?? null)}>
           <button type="submit" className="sf-danger">
             Delete and start over
           </button>
