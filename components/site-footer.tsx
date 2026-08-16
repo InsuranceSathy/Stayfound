@@ -53,7 +53,7 @@ export function SiteFooter() {
               Answer engine optimisation for brands that would rather be
               recommended than ranked.
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <a
                 href="https://startupfa.me/s/stayfound?utm_source=stayfound.tech"
                 target="_blank"
@@ -92,6 +92,18 @@ export function SiteFooter() {
                   alt="Featured on DailyPings"
                   width={179}
                   height={32}
+                />
+              </a>
+              <a
+                href="https://fazier.com/launches/stayfound.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=neutral"
+                  alt="Fazier badge"
+                  width={120}
                 />
               </a>
             </div>
