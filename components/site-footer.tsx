@@ -53,6 +53,19 @@ export function SiteFooter() {
               Answer engine optimisation for brands that would rather be
               recommended than ranked.
             </p>
+            <a
+              href="https://startupfa.me/s/stayfound?utm_source=stayfound.tech"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://startupfa.me/badges/featured-badge.webp"
+                alt="StayFound - Featured on Startup Fame"
+                width={171}
+                height={54}
+              />
+            </a>
           </div>
 
           <div className="ns2-foot-cols">
