@@ -76,8 +76,8 @@ export function SiteFooter() {
                 <img
                   src="https://www.superlaun.ch/badge.png"
                   alt="Featured on Super Launch"
-                  width={54}
-                  height={54}
+                  width={100}
+                  height={100}
                 />
               </a>
             </div>
