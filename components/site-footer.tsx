@@ -80,6 +80,20 @@ export function SiteFooter() {
                   height={100}
                 />
               </a>
+              <a
+                href="https://dailypings.com/p/stayfound"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Featured on DailyPings"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://dailypings.com/badge.svg"
+                  alt="Featured on DailyPings"
+                  width={179}
+                  height={32}
+                />
+              </a>
             </div>
           </div>
 
