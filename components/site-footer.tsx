@@ -53,7 +53,34 @@ export function SiteFooter() {
               Answer engine optimisation for brands that would rather be
               recommended than ranked.
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          </div>
+
+          <div className="ns2-foot-cols">
+            {COLUMNS.map((col) => (
+              <div className="ns2-foot-col" key={col.title}>
+                <p>{col.title}</p>
+                {col.links
+                  .filter((l) => !l.needsReferral || hasReferral)
+                  .map((l) => (
+                    <Link key={l.label} href={l.href}>
+                      {l.label}
+                    </Link>
+                  ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          className="wrap-p"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            flexWrap: "wrap",
+            padding: "20px 0",
+          }}
+        >
               <a
                 href="https://startupfa.me/s/stayfound?utm_source=stayfound.tech"
                 target="_blank"
@@ -76,22 +103,8 @@ export function SiteFooter() {
                 <img
                   src="https://www.superlaun.ch/badge.png"
                   alt="Featured on Super Launch"
-                  width={100}
-                  height={100}
-                />
-              </a>
-              <a
-                href="https://dailypings.com/p/stayfound"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Featured on DailyPings"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://dailypings.com/badge.svg"
-                  alt="Featured on DailyPings"
-                  width={179}
-                  height={32}
+                  width={54}
+                  height={54}
                 />
               </a>
               <a
@@ -147,23 +160,6 @@ export function SiteFooter() {
                 </div>
               </a>
             </div>
-          </div>
-
-          <div className="ns2-foot-cols">
-            {COLUMNS.map((col) => (
-              <div className="ns2-foot-col" key={col.title}>
-                <p>{col.title}</p>
-                {col.links
-                  .filter((l) => !l.needsReferral || hasReferral)
-                  .map((l) => (
-                    <Link key={l.label} href={l.href}>
-                      {l.label}
-                    </Link>
-                  ))}
-              </div>
-            ))}
-          </div>
-        </div>
 
         <div className="wrap-p ns2-foot-fine">
           <span>© 2026 StayFound</span>
