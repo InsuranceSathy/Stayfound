@@ -53,19 +53,34 @@ export function SiteFooter() {
               Answer engine optimisation for brands that would rather be
               recommended than ranked.
             </p>
-            <a
-              href="https://startupfa.me/s/stayfound?utm_source=stayfound.tech"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://startupfa.me/badges/featured-badge.webp"
-                alt="StayFound - Featured on Startup Fame"
-                width={171}
-                height={54}
-              />
-            </a>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <a
+                href="https://startupfa.me/s/stayfound?utm_source=stayfound.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://startupfa.me/badges/featured-badge.webp"
+                  alt="StayFound - Featured on Startup Fame"
+                  width={171}
+                  height={54}
+                />
+              </a>
+              <a
+                href="https://www.superlaun.ch/products/3139"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://www.superlaun.ch/badge.png"
+                  alt="Featured on Super Launch"
+                  width={54}
+                  height={54}
+                />
+              </a>
+            </div>
           </div>
 
           <div className="ns2-foot-cols">
