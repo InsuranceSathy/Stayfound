@@ -255,6 +255,11 @@ export function VisibilityCheck() {
         setLoading(false);
         return;
       }
+      // The job reports 'pending' until a worker picks it up, then 'running'.
+      // Passing that through is the whole point of the panel: it says "queued"
+      // only while the scan really is waiting, and switches to "reading the
+      // answers" the moment work starts.
+      setQueued(data.status !== "running");
     } catch {
       /* transient — keep polling */
     }
@@ -435,20 +440,7 @@ export function VisibilityCheck() {
         </div>
       )}
 
-      {loading && (
-        <>
-          <p className="check-note" style={{ marginTop: 18 }}>
-            Querying the AI engines across several buyer prompts. A new brand can
-            take up to a minute — results are cached instantly after.
-          </p>
-          <div className="skeleton" aria-hidden="true">
-            <div className="sk-line" style={{ width: "30%", height: 40 }} />
-            <div className="sk-line" style={{ width: "80%" }} />
-            <div className="sk-line" style={{ width: "65%" }} />
-            <div className="sk-line" style={{ width: "72%" }} />
-          </div>
-        </>
-      )}
+      {loading && <ScanProgress elapsed={elapsed} queued={queued} />}
 
       {result && (
         <>
