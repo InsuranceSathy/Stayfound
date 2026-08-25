@@ -51,6 +51,13 @@ export function verdictFor(score: number): Verdict {
 
 const norm = (s: string) => s.toLowerCase().replace(/^www\./, "").trim();
 
+/** Letters and digits only, with any TLD dropped: "Kestrel Supply" and
+ *  "kestrelsupply.com" both collapse to "kestrelsupply". */
+const squash = (s: string) =>
+  norm(s)
+    .replace(/\.[a-z.]+$/, "")
+    .replace(/[^a-z0-9]/g, "");
+
 /**
  * Finds the user's own row in the competitor set. Prefers the explicit `you`
  * flag, then falls back to name matching so the dashboard still works if the
@@ -64,10 +71,18 @@ export function findYou(
   if (flagged) return flagged;
   const b = norm(brandName);
   const bare = b.replace(/\.[a-z.]+$/, ""); // numberhill.com → numberhill
-  return competitors.find((c) => {
+  const exact = competitors.find((c) => {
     const n = norm(c.name);
     return n === b || n === bare || n.replace(/\.[a-z.]+$/, "") === bare;
   });
+  if (exact) return exact;
+
+  // Last resort: compare on letters and digits only. Since the brand field
+  // became a domain, the scan routinely returns the competitor set in display
+  // form — "kestrelsupply.com" against a row called "Kestrel Supply" — and
+  // failing to match there silently reports the brand's own share as 0% and
+  // its rank as unknown, next to a summary that states the real rank.
+  return competitors.find((c) => squash(c.name) === squash(brandName));
 }
 
 export type Standing = {
