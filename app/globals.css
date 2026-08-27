@@ -9651,6 +9651,7 @@ p > .sf-locked,
   outline-offset: 2px;
 }
 
+<<<<<<< HEAD
 /* ============================================================================
    THE REPORT DECK
    A different artefact from the dashboard: a slide deck at presentation
@@ -10170,6 +10171,8 @@ p > .sf-locked,
   a { text-decoration: none; color: inherit; }
 }
 
+=======
+>>>>>>> be3328c7cf8e3eff22d8ddd24fa74af880db1cb1
 /* The struck list price. Sits before the amount and shares its baseline, so
    the eye reads "was 19.99, is 14.99" as one line rather than two prices.
    Deliberately quiet — the anchor is context, the price is the message. */
