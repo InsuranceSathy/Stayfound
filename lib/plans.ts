@@ -16,9 +16,32 @@ export interface Plan {
   name: string;
   /** USD per month, billed monthly. Yearly is ten of these — two months free. */
   monthly: number;
+  /**
+   * The struck-through "was" price, when the plan is being sold below list.
+   *
+   * Optional because most plans have no anchor, and absent rather than equal to
+   * `monthly` so a card can never strike through the price it is charging.
+   * Display only — `periodPrice` is what Dodo has to agree with.
+   */
+  anchor?: number;
   blurb: string;
   featured: boolean;
+  /**
+   * How many brands this plan may track, enforced in `addBrand`.
+   *
+   * The number is the source of truth and the feature line is written from it
+   * below, because the two used to disagree: the cards sold three and ten
+   * brands while the code allowed exactly one, so an agency paying to "add one
+   * per client" could add one client.
+   */
+  brands: number;
   features: readonly string[];
+}
+
+/** The feature line for a brand allowance, so the card cannot promise a number
+ *  the product does not enforce. */
+function brandsLine(n: number, note = ""): string {
+  return `${n} brand${n === 1 ? "" : "s"}${note}`;
 }
 
 export const PLANS: readonly Plan[] = [
@@ -28,8 +51,9 @@ export const PLANS: readonly Plan[] = [
     monthly: 0,
     blurb: "See where you stand. No card required.",
     featured: false,
+    brands: 1,
     features: [
-      "1 brand",
+      brandsLine(1),
       "15 tracked prompts",
       "ChatGPT only",
       "Weekly refresh",
@@ -39,11 +63,13 @@ export const PLANS: readonly Plan[] = [
   {
     id: "solo",
     name: "Solo",
-    monthly: 29,
+    monthly: 14.99,
+    anchor: 19.99,
     blurb: "For a single business owning its niche.",
-    featured: false,
+    featured: true,
+    brands: 1,
     features: [
-      "1 brand",
+      brandsLine(1),
       "30 tracked prompts",
       "All engines — ChatGPT, Gemini, Perplexity, Claude, Grok",
       "Daily refresh",
@@ -56,9 +82,10 @@ export const PLANS: readonly Plan[] = [
     name: "Teams",
     monthly: 149,
     blurb: "For teams ready to win AI search.",
-    featured: true,
+    featured: false,
+    brands: 5,
     features: [
-      "3 brands",
+      brandsLine(5),
       "150 tracked prompts",
       "Everything in Solo",
       "You-vs-Competitors tracking",
@@ -72,8 +99,9 @@ export const PLANS: readonly Plan[] = [
     monthly: 499,
     blurb: "Resell AI visibility — pays for itself inside one client retainer.",
     featured: false,
+    brands: 20,
     features: [
-      "10 brands — add one per client",
+      brandsLine(20, " — add one per client"),
       "1,000 tracked prompts",
       "Everything in Teams",
       "White-label reports & API access",
@@ -123,15 +151,34 @@ export const YEARLY_MONTHS = 10;
  * against ours, so check both when changing either.
  */
 export function periodPrice(plan: Plan, interval: BillingInterval): number {
-  return interval === "yearly" ? plan.monthly * YEARLY_MONTHS : plan.monthly;
+  return interval === "yearly"
+    ? round2(plan.monthly * YEARLY_MONTHS)
+    : plan.monthly;
 }
 
 /** The "/mo" figure on the cards — a yearly plan spread back over 12 months. */
 export function displayMonthly(plan: Plan, interval: BillingInterval): number {
   if (plan.monthly === 0) return 0;
   return interval === "yearly"
-    ? Math.round((plan.monthly * YEARLY_MONTHS) / 12)
+    ? round2((plan.monthly * YEARLY_MONTHS) / 12)
     : plan.monthly;
+}
+
+/** Two decimal places, without the float dust — 149.9/12 is 12.491666…, and
+ *  0.1 + 0.2 is not 0.3 on any machine we ship to. */
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+/**
+ * A price as people write it: `$15` stays `$15`, `$14.99` keeps its cents.
+ *
+ * Prices are no longer whole dollars, and `${plan.monthly}` renders 14.9 for
+ * 14.90 and 149.9 for a year of it — a price that looks like a typo. Every
+ * place that prints money goes through here so they cannot drift apart.
+ */
+export function formatUSD(amount: number): string {
+  return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
 }
 
 /**
@@ -154,4 +201,13 @@ export function displayMonthly(plan: Plan, interval: BillingInterval): number {
  */
 export function checkoutOpen(): boolean {
   return process.env.NEXT_PUBLIC_BILLING_CHECKOUT_ENABLED === "1";
+}
+
+/**
+ * How many brands a plan may track. Unknown plan ids fall back to the Free
+ * allowance rather than to unlimited — a bad id should cost nothing, never
+ * grant everything.
+ */
+export function brandLimit(id: string): number {
+  return getPlan(id)?.brands ?? 1;
 }

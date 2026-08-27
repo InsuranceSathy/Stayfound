@@ -71,6 +71,96 @@ export function SiteFooter() {
           </div>
         </div>
 
+        <div
+          className="wrap-p"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            flexWrap: "wrap",
+            padding: "20px 0",
+          }}
+        >
+              <a
+                href="https://startupfa.me/s/stayfound?utm_source=stayfound.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://startupfa.me/badges/featured-badge.webp"
+                  alt="StayFound - Featured on Startup Fame"
+                  width={171}
+                  height={54}
+                />
+              </a>
+              <a
+                href="https://www.superlaun.ch/products/3139"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://www.superlaun.ch/badge.png"
+                  alt="Featured on Super Launch"
+                  width={54}
+                  height={54}
+                />
+              </a>
+              <a
+                id="fys-badge"
+                href="https://findyoursaas.com/tool/stayfound-ai-visibility-geo-analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  textDecoration: "none",
+                  display: "inline-block",
+                  color: "inherit",
+                }}
+              >
+                <style>{`#fys-badge:hover .fys-badge-inner { transform: translateY(-1px); box-shadow: 0 6px 10px -2px rgba(0,0,0,0.05), 0 3px 6px -2px rgba(0,0,0,0.05); }`}</style>
+                <div
+                  className="fys-badge-inner"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    backgroundColor: "#F9FAFB",
+                    border: "1px solid #E5E7EB",
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    fontFamily:
+                      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+                    boxShadow: "0 2px 4px -1px rgba(0,0,0,0.05)",
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    lineHeight: 1,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://findyoursaas.com/fys-logo.png"
+                    alt="FYS Logo"
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: "50%",
+                      marginRight: 6,
+                      display: "block",
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#1F2937",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Featured on FYS
+                  </span>
+                </div>
+              </a>
+            </div>
+
         <div className="wrap-p ns2-foot-fine">
           <span>© 2026 StayFound</span>
           <span>

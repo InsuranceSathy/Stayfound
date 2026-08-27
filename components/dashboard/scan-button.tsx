@@ -15,6 +15,7 @@ import { capture, EVENTS } from "@/lib/analytics";
  */
 export function ScanButton({
   brand,
+  brandId,
   category,
   label = "Refresh",
   className = "btn btn-primary btn-sm",
@@ -22,6 +23,8 @@ export function ScanButton({
   block = false,
 }: {
   brand: string;
+  /** Which brand the snapshot belongs to — see persistScan. */
+  brandId?: string;
   category: string;
   label?: string;
   className?: string;
@@ -60,7 +63,7 @@ export function ScanButton({
     capture(EVENTS.SCAN_STARTED, { brand, category, auto: autoStart });
 
     const finish = async (jobId: string | null) => {
-      const res = await persistScan(jobId);
+      const res = await persistScan(jobId, brandId ?? null);
       if (!alive.current) return;
       if (res?.error) {
         setError(res.error);
@@ -112,7 +115,7 @@ export function ScanButton({
         reason: (e as Error).message || "unknown",
       });
     }
-  }, [brand, category, router, autoStart]);
+  }, [brand, brandId, category, router, autoStart]);
 
   useEffect(() => {
     if (autoStart && !started.current) void run();

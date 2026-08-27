@@ -6,13 +6,18 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { resolveVisibility } from "@/lib/resolve-visibility";
 import {
+  countBrandsForUser,
   createBrand,
   deleteBrand,
+  getBrandById,
   getBrandForUser,
+  getBrandsForUser,
   getCachedScore,
   getJob,
   saveSnapshot,
 } from "@/lib/queries";
+import { getSubscription, effectivePlan } from "@/lib/billing";
+import { brandLimit, getPlan } from "@/lib/plans";
 import { scanKey, scanScope } from "@/lib/report-derive";
 
 async function requireUserId(): Promise<string | null> {
@@ -38,9 +43,30 @@ export async function addBrand(
     return { error: "Add both your brand name and category." };
   }
 
-  // One brand per user for now — don't duplicate.
-  const existing = await getBrandForUser(userId);
-  if (existing) return { error: "You already have a brand set up." };
+  // What the account actually paid for. Teams buys three brands and Agencies
+  // ten; until now the code allowed one regardless, so those plans sold
+  // something they could not deliver.
+  const sub = await getSubscription(userId);
+  const plan = effectivePlan(sub);
+  const limit = brandLimit(plan);
+  const used = await countBrandsForUser(userId);
+
+  if (used >= limit) {
+    const planName = getPlan(plan)?.name ?? "Your plan";
+    return {
+      error:
+        limit === 1
+          ? `${planName} tracks one brand. Upgrade to track more, or change the brand you're tracking.`
+          : `${planName} tracks ${limit} brands and you're using all ${limit}. Upgrade, or remove one first.`,
+    };
+  }
+
+  // Same brand twice is a mistake rather than a second brand, and it would
+  // split one report's history across two rows.
+  const already = (await getBrandsForUser(userId)).some(
+    (b) => b.name.trim().toLowerCase() === name.toLowerCase(),
+  );
+  if (already) return { error: `You're already tracking ${name}.` };
 
   // Create only. The first scan runs as a background job started from the
   // dashboard, so adding a brand returns immediately instead of holding the
@@ -59,10 +85,19 @@ export async function addBrand(
  */
 export async function persistScan(
   jobId: string | null,
+  /**
+   * Which brand this scan belongs to. Required once an account can hold
+   * several: without it the result of scanning the second brand was written
+   * onto the first, silently corrupting the wrong report's history. Omitted
+   * means the only brand, which is still the common case.
+   */
+  brandId?: string | null,
 ): Promise<{ error?: string }> {
   const userId = await requireUserId();
   if (!userId) return { error: "Your session expired. Please sign in again." };
-  const brand = await getBrandForUser(userId);
+  const brand = brandId
+    ? await getBrandById(userId, brandId)
+    : await getBrandForUser(userId);
   if (!brand) return { error: "No brand set up yet." };
 
   // The scope, not the bare category: it is what the scan was actually run
@@ -103,10 +138,14 @@ export async function persistScan(
   return {};
 }
 
-export async function removeBrand(): Promise<void> {
+export async function removeBrand(brandId?: string | null): Promise<void> {
   const userId = await requireUserId();
   if (!userId) return;
-  const brand = await getBrandForUser(userId);
+  // Scoped to the brand named by the caller. `getBrandById` puts the user id in
+  // the WHERE clause, so a guessed uuid deletes nothing.
+  const brand = brandId
+    ? await getBrandById(userId, brandId)
+    : await getBrandForUser(userId);
   if (brand) await deleteBrand(userId, brand.id);
   revalidatePath("/dashboard");
   // Onboarding prefills from the free check this device ran, which is right for

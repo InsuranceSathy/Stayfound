@@ -6,6 +6,7 @@ import { signIn } from "@/lib/auth-client";
 import { RESUME_PATH, safeNext } from "@/lib/checkout-intent";
 import {
   getPlan,
+  formatUSD,
   periodPrice,
   type BillingInterval,
   type Plan,
@@ -95,7 +96,7 @@ export default function SignInPage() {
               <span className="auth-intent-k">continuing to</span>
               <span className="auth-intent-plan">{buying.plan.name}</span>
               <span className="auth-intent-price">
-                ${periodPrice(buying.plan, buying.interval)}
+                ${formatUSD(periodPrice(buying.plan, buying.interval))}
                 <span className="auth-intent-cadence">
                   {buying.interval === "yearly" ? "/year" : "/month"}
                 </span>

@@ -9603,3 +9603,594 @@ p > .sf-locked,
 @media (max-width: 620px) {
   .freshness-cta { margin-left: 0; }
 }
+
+/* ---- which brand this report is about ----------------------------------
+   Links, not a dropdown: each brand is a bookmarkable url, and the row doubles
+   as the answer to "how many of my allowance am I using". Hidden entirely for
+   a one-brand account on a one-brand plan, where it could do nothing. */
+.sf-brands {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.sf-brand-chip {
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  color: var(--sf-graphite);
+  text-decoration: none;
+  padding: 6px 11px;
+  border: 1px solid var(--sf-rule);
+  border-radius: 3px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.sf-brand-chip:hover { color: var(--sf-vellum); }
+.sf-brand-chip.on {
+  color: var(--sf-ink);
+  background: var(--sf-signal);
+  border-color: var(--sf-signal);
+}
+.sf-brand-add {
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  color: var(--sf-signal);
+  text-decoration: none;
+  padding: 6px 11px;
+  border: 1px dashed rgba(242, 199, 68, 0.4);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.sf-brand-add:hover { border-style: solid; }
+.sf-brand-left { color: var(--sf-faint); font-size: 10px; }
+.sf-brands a:focus-visible {
+  outline: 2px solid var(--sf-signal);
+  outline-offset: 2px;
+}
+
+<<<<<<< HEAD
+/* ============================================================================
+   THE REPORT DECK
+   A different artefact from the dashboard: a slide deck at presentation
+   proportions (10in × 5.625in — the PowerPoint 16:9 default), one idea per
+   slide, the chart doing the talking. Sized in millimetres rather than
+   viewport units so printing to PDF lands each slide on its own page.
+   ========================================================================= */
+.rp-shell {
+  background: var(--sf-ink);
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+}
+.rp-bar {
+  max-width: 254mm;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.rp-back {
+  font-family: var(--sf-mono);
+  font-size: 12.5px;
+  color: var(--sf-graphite);
+  text-decoration: none;
+}
+.rp-back:hover { color: var(--sf-vellum); }
+
+.rp { display: flex; flex-direction: column; gap: 20px; }
+
+/* One slide, at 16:9 presentation proportions. min-height rather than a
+   fixed height: an unusually long section grows taller instead of cropping. */
+.rp-page {
+  width: 254mm;
+  min-height: 142.9mm;
+  margin: 0 auto;
+  background: var(--sf-sheet);
+  color: var(--sf-vellum);
+  border: 1px solid var(--sf-rule);
+  padding: 8mm 12mm 7mm;
+  display: flex;
+  flex-direction: column;
+  gap: 6mm;
+}
+.rp-head,
+.rp-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--sf-mono);
+  font-size: 8.5pt;
+  letter-spacing: 0.04em;
+  color: var(--sf-faint);
+}
+.rp-head { border-bottom: 1px solid var(--sf-rule); padding-bottom: 3.5mm; }
+.rp-foot { border-top: 1px solid var(--sf-rule); padding-top: 3mm; margin-top: auto; }
+.rp-body { display: flex; flex-direction: column; gap: 5mm; flex: 1; }
+
+/* The standard slide: narrative left, evidence right. The lead column stays
+   narrower so the chart or table gets the projector's real estate. */
+.rp-cols {
+  display: grid;
+  grid-template-columns: 5fr 8fr;
+  gap: 12mm;
+  align-items: start;
+  flex: 1;
+}
+.rp-lead { display: flex; flex-direction: column; gap: 4mm; }
+.rp-fig { display: flex; flex-direction: column; gap: 4mm; min-width: 0; }
+
+/* Big stats under the headline — the number is the message, the label is the
+   caption, so the number comes first and dwarfs it. */
+.rp-stats {
+  display: flex;
+  gap: 10mm;
+  flex-wrap: wrap;
+  margin: 2mm 0 0;
+  padding-top: 4mm;
+  border-top: 1px solid var(--sf-rule);
+}
+.rp-stats dd {
+  font-family: var(--sf-serif);
+  font-size: 26pt;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin: 0 0 1.5mm;
+}
+.rp-stats dt {
+  font-family: var(--sf-mono);
+  font-size: 8pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+}
+
+/* ---- cover (title slide) ---- */
+/* Identity on the left at title-slide scale, the score block on the right
+   with the meter directly under it, imprint anchored along the foot. */
+.rp-cover { gap: 6mm; }
+.rp-cover-grid {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 14mm;
+  align-items: center;
+  flex: 1;
+  padding: 6mm 0;
+}
+.rp-cover-id { display: flex; flex-direction: column; }
+.rp-cover-num { display: flex; flex-direction: column; gap: 4mm; }
+.rp-k {
+  font-family: var(--sf-mono);
+  font-size: 9pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  margin: 0 0 4mm;
+}
+.rp-title {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 40pt;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 0 0 3mm;
+  text-wrap: balance;
+}
+.rp-sub {
+  font-family: var(--sf-serif);
+  font-size: 14pt;
+  color: var(--sf-graphite);
+  margin: 0;
+}
+.rp-cover-score { display: flex; align-items: baseline; gap: 4mm; }
+.rp-score {
+  font-family: var(--sf-serif);
+  font-size: 68pt;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+.rp-score-of { font-family: var(--sf-mono); font-size: 9pt; color: var(--sf-faint); }
+.rp-verdict {
+  font-family: var(--sf-serif);
+  font-size: 19pt;
+  letter-spacing: -0.02em;
+}
+.rp-cover-read {
+  font-family: var(--sf-serif);
+  font-size: 13.5pt;
+  line-height: 1.55;
+  color: var(--sf-graphite);
+  margin: 8mm 0 0;
+  max-width: 44ch;
+}
+.rp-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4mm 8mm;
+  margin: 2mm 0 0;
+  padding-top: 4mm;
+  border-top: 1px solid var(--sf-rule);
+}
+.rp-facts dt {
+  font-family: var(--sf-mono);
+  font-size: 8pt;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  margin-bottom: 1.5mm;
+}
+.rp-facts dd { font-family: var(--sf-serif); font-size: 11.5pt; margin: 0; }
+.rp-cover-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10mm;
+  font-family: var(--sf-mono);
+  font-size: 8.5pt;
+  color: var(--sf-faint);
+  border-top: 1px solid var(--sf-rule);
+  padding-top: 3mm;
+  margin-top: auto;
+}
+.rp-mark { color: var(--sf-signal); }
+
+/* ---- type ---- */
+.rp-h2 {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 22pt;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.rp-h3 {
+  font-family: var(--sf-serif);
+  font-weight: 400;
+  font-size: 13pt;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.rp-lede {
+  font-family: var(--sf-serif);
+  font-size: 11.5pt;
+  line-height: 1.6;
+  color: var(--sf-graphite);
+  margin: 0;
+  max-width: 70ch;
+}
+.rp-note, .rp-why {
+  font-family: var(--sf-serif);
+  font-size: 10.5pt;
+  line-height: 1.55;
+  color: var(--sf-graphite);
+  margin: 0;
+  max-width: 74ch;
+}
+
+/* ---- tables ---- */
+.rp-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+.rp-table th {
+  font-family: var(--sf-mono);
+  font-size: 8pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  font-weight: 400;
+  text-align: left;
+  padding: 0 4mm 2mm 0;
+  border-bottom: 1px solid var(--sf-rule);
+  /* A two-word heading over a narrow column breaks into "ON / IT", which
+     reads as two headings. The column can widen; the label cannot break. */
+  white-space: nowrap;
+}
+.rp-table td {
+  font-family: var(--sf-serif);
+  padding: 2.5mm 4mm 2.5mm 0;
+  border-bottom: 1px solid var(--sf-rule);
+  color: var(--sf-graphite);
+  vertical-align: top;
+}
+.rp-table td:first-child { color: var(--sf-vellum); }
+.rp-table .num {
+  text-align: right;
+  font-family: var(--sf-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rp-table .mono { font-family: var(--sf-mono); }
+.rp-table tr.you td { color: var(--sf-vellum); font-weight: 600; }
+.rp-you {
+  font-family: var(--sf-mono);
+  font-size: 7.5pt;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--sf-signal);
+  color: var(--sf-ink);
+  border-radius: 2px;
+  padding: 0.5mm 1.5mm;
+  margin-left: 2mm;
+}
+
+/* ---- lists ---- */
+.rp-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+.rp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4mm; }
+.rp-list b {
+  display: block;
+  font-family: var(--sf-serif);
+  font-weight: 600;
+  font-size: 10.5pt;
+  color: var(--sf-vellum);
+  margin-bottom: 1mm;
+}
+.rp-list q {
+  font-family: var(--sf-serif);
+  font-size: 9.5pt;
+  font-style: italic;
+  color: var(--sf-graphite);
+}
+/* Moves and ideas sit as cards on a grid — a slide reads in panels, not in a
+   single running column. Cards are bordered rather than filled so the data
+   marks stay the only colored ink on the slide. */
+.rp-moves, .rp-ideas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5mm;
+}
+.rp-ideas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rp-move, .rp-ideas li {
+  break-inside: avoid;
+  border: 1px solid var(--sf-rule);
+  border-radius: 2px;
+  padding: 5mm;
+}
+.rp-ideas .rp-k { margin-bottom: 2mm; }
+.rp-ideas .rp-h3 { margin-bottom: 2mm; }
+.rp-move-head { display: flex; align-items: baseline; gap: 3mm; margin-bottom: 2mm; }
+.rp-move-head .rp-h3 { flex: 1; }
+.rp-move-n {
+  font-family: var(--sf-mono);
+  font-size: 10pt;
+  color: var(--sf-signal);
+  font-variant-numeric: tabular-nums;
+}
+.rp-snippets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5mm;
+  align-items: start;
+}
+.rp-impact {
+  font-family: var(--sf-mono);
+  font-size: 8pt;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  border: 1px solid var(--sf-rule);
+  border-radius: 2px;
+  padding: 0.5mm 2mm;
+  white-space: nowrap;
+}
+.rp-impact.high { color: var(--sf-signal); border-color: var(--sf-signal); }
+.rp-steps {
+  margin: 3mm 0 0;
+  padding-left: 5mm;
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+  font-family: var(--sf-serif);
+  font-size: 10pt;
+  color: var(--sf-graphite);
+}
+.rp-code {
+  margin: 3mm 0 0;
+  border: 1px solid var(--sf-rule);
+  border-radius: 2px;
+  overflow: hidden;
+  break-inside: avoid;
+}
+.rp-code figcaption {
+  font-family: var(--sf-mono);
+  font-size: 8pt;
+  letter-spacing: 0.05em;
+  color: var(--sf-faint);
+  padding: 2mm 3mm;
+  border-bottom: 1px solid var(--sf-rule);
+}
+.rp-code pre { margin: 0; padding: 3mm; overflow-x: auto; }
+.rp-code code {
+  font-family: var(--sf-mono);
+  font-size: 8.5pt;
+  line-height: 1.5;
+  color: var(--sf-vellum);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---- charts -------------------------------------------------------------
+   Static marks for the report document. One rule everywhere: the brand's own
+   mark is signal gold, every other mark is neutral, and every number a chart
+   draws also exists as text on the same page — so nothing is color-alone and
+   nothing is lost on a grayscale printer. */
+.rp-table th.bar { width: 34%; }
+.rp-table td.bar { padding-right: 6mm; vertical-align: middle; }
+.rpc-cellbar {
+  height: 3.2mm;
+  background: rgba(236, 233, 225, 0.07);
+  border-radius: 0 1.2mm 1.2mm 0;
+  overflow: hidden;
+}
+.rpc-cellbar-fill {
+  height: 100%;
+  background: var(--sf-graphite);
+  border-radius: 0 1.2mm 1.2mm 0;
+}
+.rpc-cellbar-fill.hi { background: var(--sf-signal); }
+
+.rpc-meter { max-width: 120mm; }
+.rpc-meter-track {
+  height: 3.2mm;
+  background: rgba(236, 233, 225, 0.07);
+  border-radius: 1.6mm;
+  overflow: hidden;
+}
+.rpc-meter-fill {
+  height: 100%;
+  background: var(--sf-signal);
+  border-radius: 0 1.6mm 1.6mm 0;
+}
+.rpc-meter-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5mm;
+  font-family: var(--sf-mono);
+  font-size: 7.5pt;
+  color: var(--sf-faint);
+}
+
+.rpc-trend { width: 100%; height: auto; display: block; }
+.rpc-grid { stroke: var(--sf-rule); stroke-width: 1; }
+.rpc-tick {
+  font-family: var(--sf-mono);
+  font-size: 8px;
+  fill: var(--sf-faint);
+  letter-spacing: 0.04em;
+}
+.rpc-line {
+  fill: none;
+  stroke: var(--sf-signal);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.rpc-area { fill: var(--sf-signal); opacity: 0.08; }
+.rpc-dot { fill: var(--sf-signal); }
+.rpc-dot-ring { fill: var(--sf-sheet); }
+.rpc-endlabel {
+  font-family: var(--sf-mono);
+  font-size: 11px;
+  fill: var(--sf-vellum);
+  font-variant-numeric: tabular-nums;
+}
+
+.rpc-split { max-width: 120mm; }
+.rpc-split-track {
+  display: flex;
+  gap: 2px;
+  height: 3.2mm;
+  border-radius: 1.2mm;
+  overflow: hidden;
+}
+.rpc-split-pos { background: #7ca87c; }
+.rpc-split-mid { background: rgba(236, 233, 225, 0.14); }
+.rpc-split-neg { background: #c07360; }
+.rpc-split-key {
+  display: flex;
+  gap: 6mm;
+  flex-wrap: wrap;
+  margin-top: 2mm;
+  font-family: var(--sf-mono);
+  font-size: 8pt;
+  color: var(--sf-graphite);
+}
+.rpc-split-key span { display: inline-flex; align-items: center; gap: 1.5mm; }
+.rpc-swatch {
+  width: 2.4mm;
+  height: 2.4mm;
+  border-radius: 0.6mm;
+  display: inline-block;
+}
+.rpc-swatch.pos { background: #7ca87c; }
+.rpc-swatch.mid { background: rgba(236, 233, 225, 0.14); }
+.rpc-swatch.neg { background: #c07360; }
+
+.rpc-cells { display: flex; align-items: center; gap: 1.5mm; flex-wrap: wrap; }
+.rpc-cell {
+  width: 5mm;
+  height: 3.2mm;
+  border-radius: 0.8mm;
+  background: rgba(236, 233, 225, 0.07);
+}
+.rpc-cell.on { background: var(--sf-signal); }
+.rpc-cells-label {
+  margin-left: 2.5mm;
+  font-family: var(--sf-mono);
+  font-size: 8pt;
+  color: var(--sf-graphite);
+}
+
+/* ============================ PRINT ==================================== */
+@page {
+  /* Slide proportions, not paper: printing to PDF yields a 16:9 deck. The
+     slide draws its own margins inside .rp-page, so the page box adds none. */
+  size: 254mm 142.9mm;
+  margin: 0;
+}
+@media print {
+  .rp-shell { background: #fff; padding: 0; }
+  /* Screen-only chrome, and the app rail if this ever renders inside it. */
+  .rp-bar, .sf-side, .sf-brands { display: none !important; }
+  .rp { gap: 0; }
+  .rp-page {
+    width: auto;
+    /* min-height, never a fixed height: an unusually long scan should spill
+       onto an extra sheet, not be silently cropped at the fold. */
+    min-height: 142.9mm;
+    border: 0;
+    margin: 0;
+    break-after: page;
+    page-break-after: always;
+  }
+  .rp-page:last-child { break-after: auto; page-break-after: auto; }
+  /* Print in ink on paper regardless of the on-screen theme, and keep the
+     fills the reader is meant to see. */
+  .rp-page, .rp-shell { background: #fff; color: #101114; }
+  .rp-table td, .rp-lede, .rp-note, .rp-why, .rp-steps, .rp-list q { color: #3f4149; }
+  .rp-head, .rp-foot, .rp-k, .rp-facts dt, .rp-table th, .rp-score-of { color: #6b6d75; }
+  .rp-you, .rp-mark, .rp-impact.high { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* Chart marks must keep their fills on paper — a browser that strips
+     backgrounds would otherwise print empty tracks where the data was. */
+  .rpc-cellbar, .rpc-cellbar-fill, .rpc-meter-track, .rpc-meter-fill,
+  .rpc-split-track > div, .rpc-swatch, .rpc-cell {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .rpc-cellbar, .rpc-meter-track, .rpc-cell, .rpc-split-mid, .rpc-swatch.mid { background: #e7e5df; }
+  .rpc-cellbar-fill { background: #8d8c86; }
+  .rpc-cellbar-fill.hi, .rpc-meter-fill, .rpc-cell.on { background: #d9a91f; }
+  .rpc-line { stroke: #b8890a; }
+  .rpc-dot { fill: #b8890a; }
+  .rpc-area { fill: #b8890a; }
+  .rpc-dot-ring { fill: #fff; }
+  .rpc-endlabel { fill: #101114; }
+  .rpc-tick { fill: #6b6d75; }
+  .rpc-grid { stroke: #e2e0da; }
+  .rpc-meter-scale, .rpc-split-key, .rpc-cells-label { color: #6b6d75; }
+  a { text-decoration: none; color: inherit; }
+}
+
+=======
+>>>>>>> be3328c7cf8e3eff22d8ddd24fa74af880db1cb1
+/* The struck list price. Sits before the amount and shares its baseline, so
+   the eye reads "was 19.99, is 14.99" as one line rather than two prices.
+   Deliberately quiet — the anchor is context, the price is the message. */
+.tier-was {
+  font-family: var(--sf-mono);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--sf-faint);
+  text-decoration: line-through;
+  /* The default strike sits mid-glyph and reads as a redaction on tabular
+     digits; a hairline through the x-height reads as a crossed-out price. */
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--sf-faint) 70%, transparent);
+}
+
+/* With an anchor in front of it the price row runs wide enough to break the
+   cadence across lines — "/ per" above "month". Let the row wrap, but keep the
+   cadence whole so it moves as one phrase. */
+.tier-price { flex-wrap: wrap; }
+.tier-cadence { white-space: nowrap; }

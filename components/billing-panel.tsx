@@ -8,6 +8,7 @@ import {
   getPlan,
   type BillingInterval,
   type PlanId,
+  formatUSD,
 } from "@/lib/plans";
 import { readReferralId } from "@/lib/referral";
 
@@ -198,7 +199,7 @@ export function BillingPanel() {
               disabled={busy}
               onClick={() => subscribe(p.id, info.interval)}
             >
-              {paying ? `Switch to ${p.name}` : `Get ${p.name}`} — ${p.monthly}/mo
+              {paying ? `Switch to ${p.name}` : `Get ${p.name}`} — ${formatUSD(p.monthly)}/mo
             </button>
           ))}
           {info.hasBillingAccount && (
