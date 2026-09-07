@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { DemoForm } from "@/components/demo-form";
-import { CAL_MEETING_URL } from "@/lib/site";
+import { CalEmbed } from "@/components/cal-embed";
 
 export const metadata: Metadata = {
   title: "Book a demo — StayFound",
@@ -53,16 +53,11 @@ export default function DemoPage() {
             ))}
           </div>
           <div className="demo-card">
-            {/* The direct path first: pick a slot, no back-and-forth. The form
-                stays below for anyone who'd rather write than schedule. */}
-            <a
-              href={CAL_MEETING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary demo-cal"
-            >
-              Pick a time — 30 min <span className="arr">→</span>
-            </a>
+            {/* The calendar itself, not a link to it. Sending someone to
+                cal.com and asking them to come back is where most of the drop
+                happens; the form stays below for anyone who would rather write
+                than schedule. */}
+            <CalEmbed />
             <p className="demo-or" aria-hidden="true">
               or leave your details
             </p>

@@ -4,20 +4,43 @@ import { SignOutButton } from "@/components/sign-out-button";
 
 export const TAB_KEYS = [
   "overview",
-  "competitors",
+  // Answer Engine Insights: the same question asked of four dimensions, each
+  // reading `daily_metric` rather than the latest snapshot.
+  "visibility",
+  "prompts",
+  "platforms",
   "citations",
+  "sentiment",
+  // The report side, which is a single reading rather than a trend.
+  "competitors",
   "actions",
   "analytics",
 ] as const;
 
 export type TabKey = (typeof TAB_KEYS)[number];
 
-const NAV: { key: TabKey; label: string; hint: string }[] = [
-  { key: "overview", label: "Overview", hint: "Where you stand" },
-  { key: "competitors", label: "Competitors", hint: "Who wins the answers" },
-  { key: "citations", label: "Citations", hint: "Sources AI reads" },
-  { key: "actions", label: "Actions", hint: "What to do" },
-  { key: "analytics", label: "Analytics", hint: "Tone and history" },
+/** Grouped, because the two halves answer different questions: the insight
+ *  tabs are trends over many readings, the action tabs are today's reading. */
+const GROUPS: { group: string; items: { key: TabKey; label: string; hint: string }[] }[] = [
+  {
+    group: "Analytics",
+    items: [
+      { key: "overview", label: "Overview", hint: "Where you stand" },
+      { key: "visibility", label: "Visibility", hint: "Score over time" },
+      { key: "prompts", label: "Prompts", hint: "Question by question" },
+      { key: "platforms", label: "Platforms", hint: "Assistant by assistant" },
+      { key: "citations", label: "Citations", hint: "Sources AI reads" },
+      { key: "sentiment", label: "Sentiment", hint: "How they describe you" },
+    ],
+  },
+  {
+    group: "Action",
+    items: [
+      { key: "competitors", label: "Competitors", hint: "Who wins the answers" },
+      { key: "actions", label: "Opportunities", hint: "What to do" },
+      { key: "analytics", label: "History", hint: "Readings on record" },
+    ],
+  },
 ];
 
 export function normalizeTab(value?: string): TabKey {
@@ -35,11 +58,14 @@ export function normalizeTab(value?: string): TabKey {
 export function Sidebar({
   active,
   counts,
+  brandId,
   email,
   image,
 }: {
   active: TabKey;
   counts: Partial<Record<TabKey, number>>;
+  /** Kept in every link so changing tab does not silently switch brand. */
+  brandId?: string;
   email: string;
   image?: string | null;
 }) {
@@ -51,19 +77,28 @@ export function Sidebar({
       </Link>
 
       <nav className="sf-side-nav" aria-label="Report sections">
-        {NAV.map((item) => (
-          <Link
-            key={item.key}
-            href={`/dashboard?tab=${item.key}`}
-            className={`sf-side-link ${item.key === active ? "on" : ""}`}
-            aria-current={item.key === active ? "page" : undefined}
-          >
-            <span className="sf-side-l">{item.label}</span>
-            <span className="sf-side-hint">{item.hint}</span>
-            {counts[item.key] != null && counts[item.key]! > 0 && (
-              <span className="sf-side-n">{counts[item.key]}</span>
-            )}
-          </Link>
+        {GROUPS.map((g) => (
+          <div className="sf-side-group" key={g.group}>
+            <p className="sf-side-gl">{g.group}</p>
+            {g.items.map((item) => (
+              <Link
+                key={item.key}
+                href={
+                  brandId
+                    ? `/dashboard?brand=${brandId}&tab=${item.key}`
+                    : `/dashboard?tab=${item.key}`
+                }
+                className={`sf-side-link ${item.key === active ? "on" : ""}`}
+                aria-current={item.key === active ? "page" : undefined}
+              >
+                <span className="sf-side-l">{item.label}</span>
+                <span className="sf-side-hint">{item.hint}</span>
+                {counts[item.key] != null && counts[item.key]! > 0 && (
+                  <span className="sf-side-n">{counts[item.key]}</span>
+                )}
+              </Link>
+            ))}
+          </div>
         ))}
       </nav>
 

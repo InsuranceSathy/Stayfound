@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { recordScan } from "@/lib/metrics";
 import { auth } from "@/lib/auth";
 import { resolveVisibility } from "@/lib/resolve-visibility";
 import {
@@ -115,25 +116,35 @@ export async function persistScan(
     if (job.cache_key !== key) {
       return { error: "That scan doesn't match your brand." };
     }
-    await saveSnapshot(brand.id, job.data.score, job.live ?? false, job.data);
+    const snapId = await saveSnapshot(
+      brand.id, job.data.score, job.live ?? false, job.data,
+    );
+    await record(
+      brand.id, snapId, brand.name, job.data,
+      (job.cells ?? undefined) as Parameters<typeof recordScan>[0]["cells"],
+    );
     revalidatePath("/dashboard");
     return {};
   }
 
   const cached = await getCachedScore(key);
   if (cached) {
-    await saveSnapshot(brand.id, cached.data.score, cached.live, cached.data);
+    const snapId = await saveSnapshot(
+      brand.id, cached.data.score, cached.live, cached.data,
+    );
+    await record(brand.id, snapId, brand.name, cached.data);
     revalidatePath("/dashboard");
     return {};
   }
 
   // Nothing cached: resolve directly. Only reached when the scan already
   // reported done (a fixture or a warm cache), so this returns fast.
-  const { live, result } = await resolveVisibility(
+  const { live, result, cells } = await resolveVisibility(
     brand.name,
     scanScope(brand.category, brand.market),
   );
-  await saveSnapshot(brand.id, result.score, live, result);
+  const snapId = await saveSnapshot(brand.id, result.score, live, result);
+  await record(brand.id, snapId, brand.name, result, cells);
   revalidatePath("/dashboard");
   return {};
 }
@@ -153,4 +164,25 @@ export async function removeBrand(brandId?: string | null): Promise<void> {
   // start over" — they asked for an empty form. The flag rides in the url rather
   // than in storage so it clears itself on the next navigation.
   redirect("/dashboard?startover=1");
+}
+
+/**
+ * Writes the dashboard's rows for a reading.
+ *
+ * Deliberately swallows its own failures: the snapshot is already saved by the
+ * time this runs, and losing a chart row is not worth losing a scan someone
+ * waited two minutes for.
+ */
+async function record(
+  brandId: string,
+  snapshotId: string,
+  brandName: string,
+  result: Parameters<typeof recordScan>[0]["result"],
+  cells?: Parameters<typeof recordScan>[0]["cells"],
+): Promise<void> {
+  try {
+    await recordScan({ brandId, snapshotId, brandName, result, cells });
+  } catch (err) {
+    console.error("metrics not recorded:", (err as Error).message);
+  }
 }

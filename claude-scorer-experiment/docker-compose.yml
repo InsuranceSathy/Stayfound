@@ -4,7 +4,22 @@ services:
     image: nirajan1111/ai-engine
     ports:
       - "8000:8000"
-    volumes:
-      # Your Claude Code login, mounted from the host (personal use).
-      # Log in on the box first:  claude   (then /login), or `claude login`.
-      - ${HOME}/.claude:/root/.claude
+    environment:
+      # Pick one. The API key wins when both are set — see credential_env() in
+      # server.py, and /health for which one is live.
+      #
+      #   ANTHROPIC_API_KEY        billed, uncapped, terms cover serving users
+      #   CLAUDE_CODE_OAUTH_TOKEN  `claude setup-token` — no login, no mount,
+      #                            but one person's subscription quota
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      CLAUDE_CODE_OAUTH_TOKEN: "${CLAUDE_CODE_OAUTH_TOKEN:-}"
+      MEASURED_ENGINE: "${MEASURED_ENGINE:-Claude}"
+      MEASURED_MODEL: "${MEASURED_MODEL:-claude-code}"
+      # Three, not six: v2 makes a web-grounded agent call per prompt, and six of
+      # them plus discovery and interpretation ran past Railway's 300s request
+      # cut-off. Raise it only where nothing is waiting on the response.
+      SCORING_PROMPTS: "${SCORING_PROMPTS:-3}"
+      SCORING_CONCURRENCY: "${SCORING_CONCURRENCY:-3}"
+    # No volumes. The mounted login this used to rely on cannot work on a
+    # deployed host, and on macOS it never carried a credential anyway — the
+    # Claude Code login lives in the Keychain, not in ~/.claude. Use a token.

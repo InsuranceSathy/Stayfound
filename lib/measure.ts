@@ -1,6 +1,7 @@
 import { generateText, generateObject } from "ai";
 import { z } from "zod";
 import type { VisibilityResult } from "@/lib/visibility";
+import type { ScanCell } from "@/lib/metrics";
 
 /**
  * The real measurement pipeline.
@@ -66,16 +67,23 @@ function engines(): EngineDef[] {
 
 // Buyer prompts weighted by intent — high-intent "which should I buy" queries
 // count more toward the visibility score than generic awareness ones.
-type PromptDef = { q: (c: string) => string; w: number };
+type PromptDef = {
+  q: (c: string) => string;
+  w: number;
+  /** Grouping for the Prompts tab. */
+  topic: string;
+  /** What the asker wants — commercial, comparison, transactional, informational. */
+  intent: string;
+};
 const PROMPTS: PromptDef[] = [
-  { q: (c) => `What are the best ${c}?`, w: 1.0 },
-  { q: (c) => `What is the best ${c} for a startup, and why?`, w: 1.3 },
-  { q: (c) => `Best ${c} for a small business?`, w: 1.2 },
-  { q: (c) => `Which ${c} should I buy in 2026?`, w: 1.3 },
-  { q: (c) => `What are the top alternatives for ${c}?`, w: 1.1 },
-  { q: (c) => `Can you recommend a good ${c}?`, w: 1.0 },
-  { q: (c) => `What is the most popular ${c} right now?`, w: 0.9 },
-  { q: (c) => `Which ${c} do experts recommend?`, w: 0.9 },
+  { q: (c) => `What are the best ${c}?`, w: 1.0, topic: "Discovery", intent: "commercial" },
+  { q: (c) => `What is the best ${c} for a startup, and why?`, w: 1.3, topic: "Segment fit", intent: "commercial" },
+  { q: (c) => `Best ${c} for a small business?`, w: 1.2, topic: "Segment fit", intent: "commercial" },
+  { q: (c) => `Which ${c} should I buy in 2026?`, w: 1.3, topic: "Buying intent", intent: "transactional" },
+  { q: (c) => `What are the top alternatives for ${c}?`, w: 1.1, topic: "Alternatives", intent: "comparison" },
+  { q: (c) => `Can you recommend a good ${c}?`, w: 1.0, topic: "Discovery", intent: "commercial" },
+  { q: (c) => `What is the most popular ${c} right now?`, w: 0.9, topic: "Popularity", intent: "informational" },
+  { q: (c) => `Which ${c} do experts recommend?`, w: 0.9, topic: "Authority", intent: "informational" },
 ];
 
 const PROMPT_COUNT = Number(process.env.SCORING_PROMPTS || PROMPTS.length);
@@ -286,6 +294,7 @@ async function discoverCompetitors(
 
 type Cell = {
   engine: string;
+  promptId: string;
   prompt: string;
   weight: number;
   text: string | null;
@@ -295,15 +304,18 @@ type Cell = {
 export async function measureVisibility(
   brand: string,
   category: string,
-): Promise<{ live: boolean; result: VisibilityResult }> {
+): Promise<{ live: boolean; result: VisibilityResult; cells?: ScanCell[] }> {
   const eng = engines();
   // GLM free tier is rate-limited — cap prompts and use light concurrency +
   // backoff. Cloud/gateway engines can fan out fully.
   const promptCount = MODE === "glm" ? 6 : PROMPT_COUNT;
   const concurrency = MODE === "glm" ? 2 : 8;
-  const prompts = PROMPTS.slice(0, promptCount).map((p) => ({
+  const prompts = PROMPTS.slice(0, promptCount).map((p, i) => ({
+    id: `p${i + 1}`,
     text: p.q(category),
     w: p.w,
+    topic: p.topic,
+    intent: p.intent,
   }));
 
   const brands = await discoverCompetitors(brand, category);
@@ -325,9 +337,9 @@ export async function measureVisibility(
         .sort((a, b) => a.idx - b.idx);
       const ranks: Record<string, number> = {};
       found.forEach((f, i) => (ranks[f.b.toLowerCase()] = i + 1));
-      return { engine: e.name, prompt: p.text, weight: p.w, text, ranks };
+      return { engine: e.name, promptId: p.id, prompt: p.text, weight: p.w, text, ranks };
     } catch {
-      return { engine: e.name, prompt: p.text, weight: p.w, text: null, ranks: {} };
+      return { engine: e.name, promptId: p.id, prompt: p.text, weight: p.w, text: null, ranks: {} };
     }
   });
 
@@ -425,11 +437,124 @@ export async function measureVisibility(
       : ` When you appear, AI describes you as ${sentiment}.`;
   const summary = `${brand} appeared in ${appeared} of ${valid.length} AI answers across ${SAMPLES} samples (${score}% visibility). You rank #${rank} of ${competitors.length} for share of voice.${sentimentPhrase}`;
 
+  // ------------------------------------------------------------------ v2
+  // Everything from here to `result` is arithmetic over `valid`, which was
+  // already computed for the score. The engine was throwing it away.
+
+  const topics = [...new Set(prompts.map((p) => p.topic))].map((name) => ({
+    id: `t_${name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`,
+    name,
+  }));
+  const topicId = (name: string) =>
+    topics.find((t) => t.name === name)?.id ?? null;
+
+  const promptList = prompts.map((p) => ({
+    id: p.id,
+    text: p.text,
+    topicId: topicId(p.topic),
+    intent: p.intent,
+    weight: p.w,
+  }));
+
+  // URLs the models wrote into their answers. A plain chat completion returns
+  // no source list, so this is what can honestly be recovered — links the
+  // model chose to state. Absent entirely when it stated none.
+  const URL_RE = /https?:\/\/[^\s)\]}>"']+/g;
+  const hostOf = (u: string) => {
+    try {
+      return new URL(u).hostname.replace(/^www\./, "");
+    } catch {
+      return null;
+    }
+  };
+
+  const seenPerCell = new Map<Cell, { url: string; domain: string; position: number }[]>();
+  for (const c of valid) {
+    const found: { url: string; domain: string; position: number }[] = [];
+    const urls = c.text?.match(URL_RE) ?? [];
+    urls.forEach((u, i) => {
+      const host = hostOf(u);
+      if (host && !found.some((f) => f.url === u)) {
+        found.push({ url: u.replace(/[.,;]$/, ""), domain: host, position: i + 1 });
+      }
+    });
+    seenPerCell.set(c, found);
+  }
+
+  const sampleNo = new Map<string, number>();
+  const answers = valid.map((c) => {
+    const k = `${c.engine}|${c.promptId}`;
+    const n = (sampleNo.get(k) ?? 0) + 1;
+    sampleNo.set(k, n);
+    const mine = c.ranks[brandKey];
+    return {
+      promptId: c.promptId,
+      engine: c.engine,
+      sample: n,
+      askedAt: new Date().toISOString(),
+      text: c.text,
+      mentioned: typeof mine === "number",
+      position: typeof mine === "number" ? mine : null,
+      brands: Object.entries(c.ranks)
+        .map(([name, position]) => ({ name, position }))
+        .sort((a, b) => a.position - b.position),
+      citations: seenPerCell.get(c) ?? [],
+    };
+  });
+
+  // Per-engine statistics, from the same answers.
+  const engineStatsV2 = engineStats.map((e) => {
+    const mine = answers.filter((a) => a.engine === e.name);
+    const hits = mine.filter((a) => a.mentioned);
+    const pos = hits.map((a) => a.position).filter((p): p is number => p !== null);
+    const cites = mine.flatMap((a) => a.citations);
+    const ours = cites.filter((c) => c.domain.includes(brandKey.split(".")[0]));
+    return {
+      ...e,
+      model: eng.find((x) => x.name === e.name)?.model,
+      answers: mine.length,
+      mentionRate: Math.round((hits.length / (mine.length || 1)) * 1000) / 10,
+      avgPosition: pos.length
+        ? Math.round((pos.reduce((a, b) => a + b, 0) / pos.length) * 100) / 100
+        : null,
+      citationShare: cites.length
+        ? Math.round((ours.length / cites.length) * 1000) / 10
+        : null,
+    };
+  });
+
+  // Competitor stats, and a domain only where an answer actually linked one.
+  const allCitations = answers.flatMap((a) => a.citations);
+  const competitorsV2 = competitors.map((c) => {
+    const key = c.name.toLowerCase();
+    const seen = answers.filter((a) => a.brands.some((b) => b.name === key));
+    const pos = seen
+      .map((a) => a.brands.find((b) => b.name === key)?.position)
+      .filter((p): p is number => typeof p === "number");
+    const stem = key.replace(/\.[a-z.]+$/, "").replace(/[^a-z0-9]/g, "");
+    const link = allCitations.find(
+      (x) => x.domain.split(".")[0].replace(/[^a-z0-9]/g, "") === stem,
+    );
+    return {
+      ...c,
+      domain: link?.domain,
+      mentions: seen.length,
+      avgPosition: pos.length
+        ? Math.round((pos.reduce((a, b) => a + b, 0) / pos.length) * 100) / 100
+        : null,
+      engines: [...new Set(seen.map((a) => a.engine))],
+    };
+  });
+
   const result = {
+    version: 2,
     score,
     summary,
-    engines: engineStats,
-    competitors,
+    topics,
+    prompts: promptList,
+    answers,
+    engines: engineStatsV2,
+    competitors: competitorsV2,
     actions: actions.slice(0, 3),
     sentiment: insights?.sentiment ?? null,
     contentIdeas: insights?.contentIdeas ?? [],
@@ -439,7 +564,10 @@ export async function measureVisibility(
       mode: MODE,
       sentiment,
       samples: SAMPLES,
-      enginesQueried: engineNames,
+      enginesQueried: eng.map((e) => ({ name: e.name, model: e.model })),
+      measuredAt: new Date().toISOString(),
+      samplesPerPrompt: SAMPLES,
+      answersCollected: answers.length,
       promptCount: prompts.length,
       cellsSampled: valid.length,
       cellsTotal: cells.length,
@@ -447,5 +575,22 @@ export async function measureVisibility(
     },
   };
 
-  return { live: true, result: result as unknown as VisibilityResult };
+  // The grid, kept. Every field below was computed for the aggregate anyway —
+  // dropping it is what made per-prompt reporting, average position and answer
+  // export impossible, so it now travels with the result.
+  const brandKeyLower = brand.toLowerCase();
+  const grid: ScanCell[] = cells.map((c) => {
+    const mine = c.ranks[brandKeyLower];
+    return {
+      engine: c.engine,
+      prompt: c.prompt,
+      position: typeof mine === "number" ? mine : null,
+      text: c.text,
+      mentions: Object.entries(c.ranks)
+        .filter(([name]) => name !== brandKeyLower)
+        .map(([name, position]) => ({ name, position })),
+    };
+  });
+
+  return { live: true, result: result as unknown as VisibilityResult, cells: grid };
 }

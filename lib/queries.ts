@@ -104,6 +104,132 @@ export async function ensureSchema() {
   await pool.query(
     `ALTER TABLE device_usage ADD COLUMN IF NOT EXISTS last_market text`,
   );
+
+  // The per-answer grid a scan produced, carried on the job so the dashboard
+  // can attach it to the snapshot it creates. Without it the grid is computed
+  // by the worker and lost before anything durable is written.
+  await pool.query(`ALTER TABLE scan_job ADD COLUMN IF NOT EXISTS cells jsonb`);
+
+  // ------------------------------------------------------------------ metrics
+  //
+  // Everything above stores one aggregated blob per scan, which is enough to
+  // render a single report and nothing else. A dashboard asks a different kind
+  // of question — "how did this prompt do on this engine last Tuesday" — and
+  // that can only be answered from rows.
+  //
+  // `measureVisibility` already builds exactly the grid these tables want and
+  // then discards it, so the expensive part is done; this is where it lands.
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS topic (
+      id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      brand_id  uuid NOT NULL REFERENCES brand(id) ON DELETE CASCADE,
+      name      text NOT NULL,
+      UNIQUE (brand_id, name)
+    )`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS prompt (
+      id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      brand_id   uuid NOT NULL REFERENCES brand(id) ON DELETE CASCADE,
+      topic_id   uuid REFERENCES topic(id) ON DELETE SET NULL,
+      text       text NOT NULL,
+      weight     numeric NOT NULL DEFAULT 1,
+      active     boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      UNIQUE (brand_id, text)
+    )`);
+
+  // One row per prompt x engine x sample. `prompt_id` is nullable on purpose:
+  // the hosted scorer reports per-engine totals without saying which prompt
+  // produced them, and a row that knows the engine is still worth keeping.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS answer_cell (
+      id          bigserial PRIMARY KEY,
+      brand_id    uuid NOT NULL REFERENCES brand(id) ON DELETE CASCADE,
+      snapshot_id uuid REFERENCES visibility_snapshot(id) ON DELETE CASCADE,
+      prompt_id   uuid REFERENCES prompt(id) ON DELETE SET NULL,
+      engine      text NOT NULL,
+      sample_no   smallint NOT NULL DEFAULT 1,
+      mentioned   boolean NOT NULL,
+      position    smallint,
+      answer_text text,
+      measured_at timestamptz NOT NULL DEFAULT now()
+    )`);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_cell_brand_time ON answer_cell(brand_id, measured_at DESC)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_cell_prompt ON answer_cell(prompt_id, engine)`,
+  );
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS cell_mention (
+      cell_id    bigint NOT NULL REFERENCES answer_cell(id) ON DELETE CASCADE,
+      brand_name text NOT NULL,
+      position   smallint NOT NULL,
+      PRIMARY KEY (cell_id, brand_name)
+    )`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS cell_citation (
+      id       bigserial PRIMARY KEY,
+      brand_id uuid NOT NULL REFERENCES brand(id) ON DELETE CASCADE,
+      cell_id  bigint REFERENCES answer_cell(id) ON DELETE CASCADE,
+      day      date NOT NULL DEFAULT current_date,
+      url      text,
+      domain   text NOT NULL,
+      is_owned boolean NOT NULL DEFAULT false,
+      kind     text,
+      note     text
+    )`);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_citation_brand_day ON cell_citation(brand_id, day DESC)`,
+  );
+
+  // The rollup the charts actually read. A null engine or topic means "all of
+  // them", and NULLS NOT DISTINCT is what makes that de-duplicate properly —
+  // a plain UNIQUE treats every null as different and the upsert would insert
+  // a new "all engines" row on every scan.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daily_metric (
+      brand_id       uuid NOT NULL REFERENCES brand(id) ON DELETE CASCADE,
+      day            date NOT NULL,
+      engine         text,
+      topic_id       uuid REFERENCES topic(id) ON DELETE CASCADE,
+      visibility     numeric NOT NULL,
+      share_of_voice numeric,
+      avg_position   numeric,
+      citation_share numeric,
+      answers        integer NOT NULL DEFAULT 0,
+      UNIQUE NULLS NOT DISTINCT (brand_id, day, engine, topic_id)
+    )`);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_metric_brand_day ON daily_metric(brand_id, day)`,
+  );
+
+  // Which domains are the customer's own, so "Owned" badges and citation share
+  // are computable rather than guessed from the brand string.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS brand_domain (
+      brand_id uuid NOT NULL REFERENCES brand(id) ON DELETE CASCADE,
+      domain   text NOT NULL,
+      PRIMARY KEY (brand_id, domain)
+    )`);
+
+  // What the customer actually shipped, and when. Nobody else in this category
+  // records this, and it is what turns a recommendation into evidence.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS shipped_action (
+      id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      brand_id    uuid NOT NULL REFERENCES brand(id) ON DELETE CASCADE,
+      title       text NOT NULL,
+      action_kind text,
+      shipped_on  date NOT NULL DEFAULT current_date,
+      note        text,
+      created_at  timestamptz NOT NULL DEFAULT now()
+    )`);
+
   schemaReady = true;
 }
 
@@ -194,6 +320,7 @@ export type ScanJob = {
   source: string | null;
   data: VisibilityResult | null;
   error: string | null;
+  cells: unknown[] | null;
 };
 
 /** Reuse an in-flight job for the same key, else create a fresh pending one. */
@@ -234,10 +361,14 @@ export async function setJobDone(
   live: boolean,
   source: string,
   data: VisibilityResult,
+  /** The per-answer grid, when the scorer produced one. Stored so the row the
+   *  dashboard writes can be built from answers rather than a summary. */
+  cells?: unknown[],
 ): Promise<void> {
   await pool.query(
-    `UPDATE scan_job SET status = 'done', live = $2, source = $3, data = $4, updated_at = now() WHERE id = $1`,
-    [id, live, source, JSON.stringify(data)],
+    `UPDATE scan_job SET status = 'done', live = $2, source = $3, data = $4,
+            cells = $5, updated_at = now() WHERE id = $1`,
+    [id, live, source, JSON.stringify(data), cells ? JSON.stringify(cells) : null],
   );
 }
 
@@ -375,12 +506,14 @@ export async function saveSnapshot(
   score: number,
   live: boolean,
   data: VisibilityResult,
-): Promise<void> {
+): Promise<string> {
   await ensureSchema();
-  await pool.query(
-    `INSERT INTO visibility_snapshot (brand_id, score, live, data) VALUES ($1, $2, $3, $4)`,
+  const { rows } = await pool.query<{ id: string }>(
+    `INSERT INTO visibility_snapshot (brand_id, score, live, data)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
     [brandId, Math.round(score), live, JSON.stringify(data)],
   );
+  return rows[0].id;
 }
 
 export async function getLatestSnapshot(

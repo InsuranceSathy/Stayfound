@@ -54,7 +54,7 @@ export const PLANS: readonly Plan[] = [
     brands: 1,
     features: [
       brandsLine(1),
-      "15 tracked prompts",
+      "3 tracked prompts",
       "ChatGPT only",
       "Weekly refresh",
       "Visibility score + competitor ranking",

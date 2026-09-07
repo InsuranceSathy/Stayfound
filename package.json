@@ -11,6 +11,7 @@
     "dodo:check": "node --env-file=.env.local scripts/dodo-check.mjs"
   },
   "dependencies": {
+    "@calcom/embed-react": "^1.5.3",
     "@vercel/analytics": "^2.0.1",
     "ai": "^6.0.209",
     "better-auth": "^1.6.20",

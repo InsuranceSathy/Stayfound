@@ -1,0 +1,190 @@
+{
+  "version": 2,
+  "meta": {
+    "brand": "numberhill.com",
+    "category": "Revenue Attribution Analytics",
+    "market": "Global",
+    "measuredAt": "2026-08-27T18:42:11Z",
+    "durationMs": 184000,
+    "samplesPerPrompt": 3,
+    "answersCollected": 96,
+    "enginesQueried": [
+      { "name": "ChatGPT", "model": "gpt-4o-search-preview", "grounded": true },
+      { "name": "Gemini", "model": "gemini-2.5-flash", "grounded": true },
+      { "name": "Perplexity", "model": "sonar-pro", "grounded": true },
+      { "name": "Claude", "model": "claude-sonnet-4-5", "grounded": false }
+    ]
+  },
+
+  "score": 7,
+  "scoreBasis": "weighted mention rate across prompts x engines x samples",
+  "summary": "numberhill.com has effectively zero AI-search visibility in Revenue Attribution Analytics.",
+
+  "topics": [
+    { "id": "t_attribution", "name": "Attribution tooling" },
+    { "id": "t_stripe", "name": "Stripe and payments" },
+    { "id": "t_branded", "name": "Branded" }
+  ],
+
+  "prompts": [
+    { "id": "p1", "topicId": "t_attribution", "text": "best revenue attribution tools 2026", "intent": "commercial", "weight": 1.3 },
+    { "id": "p2", "topicId": "t_stripe", "text": "how do I track which marketing channel drives Stripe MRR", "intent": "informational", "weight": 1.0 },
+    { "id": "p3", "topicId": "t_branded", "text": "numberhill.com review", "intent": "branded", "weight": 0.9 }
+  ],
+
+  "answers": [
+    {
+      "promptId": "p1",
+      "engine": "ChatGPT",
+      "sample": 1,
+      "askedAt": "2026-08-27T18:39:02Z",
+      "text": "For revenue attribution in 2026 the tools most often recommended are Dreamdata, Cometly and HockeyStack for B2B SaaS, with Humblytics popular among smaller Stripe-based businesses...",
+      "mentioned": false,
+      "position": null,
+      "brands": [
+        { "name": "Dreamdata", "position": 1 },
+        { "name": "Cometly", "position": 2 },
+        { "name": "HockeyStack", "position": 3 },
+        { "name": "Humblytics", "position": 4 }
+      ],
+      "citations": [
+        { "url": "https://humblytics.com/blog/best-revenue-attribution-tools", "domain": "humblytics.com", "position": 1 },
+        { "url": "https://www.g2.com/categories/attribution", "domain": "g2.com", "position": 2 }
+      ]
+    },
+    {
+      "promptId": "p3",
+      "engine": "Perplexity",
+      "sample": 1,
+      "askedAt": "2026-08-27T18:40:47Z",
+      "text": "NumberHill joins traffic data with your payment processor so every channel gets a dollar value. Note that a similarly named firm, NumberHill of Kochi, offers accounting services and is unrelated.",
+      "mentioned": true,
+      "position": 1,
+      "brands": [{ "name": "numberhill.com", "position": 1 }],
+      "citations": [
+        { "url": "https://numberhill.com/", "domain": "numberhill.com", "position": 1 }
+      ]
+    }
+  ],
+
+  "engines": [
+    { "name": "ChatGPT", "model": "gpt-4o-search-preview", "score": 4, "mentioned": false, "answers": 24, "mentionRate": 0, "avgPosition": null, "citationShare": 0 },
+    { "name": "Gemini", "model": "gemini-2.5-flash", "score": 3, "mentioned": false, "answers": 24, "mentionRate": 0, "avgPosition": null, "citationShare": 0 },
+    { "name": "Perplexity", "model": "sonar-pro", "score": 13, "mentioned": true, "answers": 24, "mentionRate": 8.3, "avgPosition": 1, "citationShare": 4.2 },
+    { "name": "Claude", "model": "claude-sonnet-4-5", "score": 5, "mentioned": false, "answers": 24, "mentionRate": 0, "avgPosition": null, "citationShare": 0 }
+  ],
+
+  "competitors": [
+    { "name": "Dreamdata", "domain": "dreamdata.io", "share": 24, "you": false, "mentions": 23, "avgPosition": 1.8, "engines": ["ChatGPT", "Gemini", "Perplexity", "Claude"] },
+    { "name": "Cometly", "domain": "cometly.com", "share": 21, "you": false, "mentions": 20, "avgPosition": 2.1, "engines": ["ChatGPT", "Gemini", "Claude"] },
+    { "name": "Humblytics", "domain": "humblytics.com", "share": 19, "you": false, "mentions": 18, "avgPosition": 2.6, "engines": ["ChatGPT", "Perplexity"] },
+    { "name": "numberhill.com", "domain": "numberhill.com", "share": 1, "you": true, "mentions": 2, "avgPosition": 1, "engines": ["Perplexity"] }
+  ],
+
+  "citedSources": [
+    {
+      "domain": "humblytics.com",
+      "isYou": false,
+      "kind": "vendor-blog",
+      "share": 18.2,
+      "citations": 24,
+      "engines": ["ChatGPT", "Perplexity"],
+      "note": "Publishes the 'Best Revenue Attribution Tools' page AI answers quote almost verbatim.",
+      "pages": [
+        { "url": "https://humblytics.com/blog/best-revenue-attribution-tools", "title": "Best Revenue Attribution Tools (SaaS + Stripe)", "citations": 17, "share": 12.9 },
+        { "url": "https://humblytics.com/pricing", "title": "Pricing", "citations": 7, "share": 5.3 }
+      ]
+    },
+    {
+      "domain": "g2.com",
+      "isYou": false,
+      "kind": "review-site",
+      "share": 11.4,
+      "citations": 15,
+      "engines": ["ChatGPT", "Gemini", "Claude"],
+      "note": "Default trust anchor for 'best attribution software'.",
+      "pages": [
+        { "url": "https://www.g2.com/categories/attribution", "title": "Attribution Software", "citations": 15, "share": 11.4 }
+      ]
+    },
+    {
+      "domain": "numberhill.com",
+      "isYou": true,
+      "kind": "own",
+      "share": 1.5,
+      "citations": 2,
+      "engines": ["Perplexity"],
+      "note": "Only retrievable source describing the product; no off-site corroboration.",
+      "pages": [
+        { "url": "https://numberhill.com/", "title": "NumberHill", "citations": 2, "share": 1.5 }
+      ]
+    }
+  ],
+
+  "citationTypes": [
+    { "kind": "vendor-blog", "share": 41.2 },
+    { "kind": "review-site", "share": 22.7 },
+    { "kind": "forum", "share": 14.4 },
+    { "kind": "directory", "share": 11.4 },
+    { "kind": "video", "share": 6.8 },
+    { "kind": "own", "share": 1.5 },
+    { "kind": "news", "share": 2.0 }
+  ],
+
+  "sentiment": {
+    "label": "neutral",
+    "positivePct": 28,
+    "negativePct": 11,
+    "positiveThemes": [
+      {
+        "theme": "Clear revenue-first positioning",
+        "quote": "NumberHill joins your traffic data with your payment processor, so every channel gets an actual dollar value.",
+        "engine": "Perplexity",
+        "promptId": "p3",
+        "sourceUrl": "https://numberhill.com/"
+      }
+    ],
+    "negativeThemes": [
+      {
+        "theme": "Brand name collision dilutes branded search",
+        "quote": "A branded query returns NumberHill of Kochi, India, not the analytics product.",
+        "engine": "ChatGPT",
+        "promptId": "p3",
+        "sourceUrl": null
+      }
+    ]
+  },
+
+  "actions": [
+    {
+      "title": "Resolve the numberhill.in name collision",
+      "detail": "Add disambiguating copy, publish Organization + SoftwareApplication schema with sameAs links.",
+      "impact": "high",
+      "kind": "entity",
+      "effort": "low",
+      "evidence": { "promptIds": ["p3"], "domains": ["numberhill.in"], "engines": ["ChatGPT", "Gemini"] }
+    },
+    {
+      "title": "Get listed on the aggregators AI answers actually cite",
+      "detail": "Create profiles on G2, AlternativeTo, Product Hunt and Tracxn.",
+      "impact": "high",
+      "kind": "listing",
+      "effort": "medium",
+      "evidence": { "promptIds": ["p1"], "domains": ["g2.com", "alternativeto.net"], "engines": ["ChatGPT", "Gemini", "Claude"] }
+    }
+  ],
+
+  "contentIdeas": [
+    {
+      "type": "Comparison",
+      "title": "NumberHill vs Humblytics vs Attrifast: Stripe Revenue Attribution Compared",
+      "description": "Head-to-head table against the two tools AI answers name most for Stripe attribution.",
+      "targetPromptIds": ["p1", "p2"],
+      "modelledOn": ["https://humblytics.com/blog/best-revenue-attribution-tools"]
+    }
+  ],
+
+  "regions": null,
+  "personas": null,
+  "fanouts": null
+}

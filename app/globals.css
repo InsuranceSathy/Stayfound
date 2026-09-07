@@ -9651,323 +9651,6 @@ p > .sf-locked,
   outline-offset: 2px;
 }
 
-/* ============================================================================
-   THE REPORT DOCUMENT
-   A different artefact from the dashboard: read start to finish, one idea per
-   page, everything expanded because paper has no disclosure triangles. Sized
-   in millimetres rather than viewport units so what is on screen is what comes
-   out of the printer.
-   ========================================================================= */
-.rp-shell {
-  background: var(--sf-ink);
-  min-height: 100vh;
-  padding: 24px 16px 60px;
-}
-.rp-bar {
-  max-width: 210mm;
-  margin: 0 auto 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-.rp-back {
-  font-family: var(--sf-mono);
-  font-size: 12.5px;
-  color: var(--sf-graphite);
-  text-decoration: none;
-}
-.rp-back:hover { color: var(--sf-vellum); }
-
-.rp { display: flex; flex-direction: column; gap: 20px; }
-
-/* One page, at real paper proportions. */
-.rp-page {
-  width: 210mm;
-  min-height: 297mm;
-  margin: 0 auto;
-  background: var(--sf-sheet);
-  color: var(--sf-vellum);
-  border: 1px solid var(--sf-rule);
-  padding: 18mm 18mm 14mm;
-  display: flex;
-  flex-direction: column;
-  gap: 10mm;
-}
-.rp-head,
-.rp-foot {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  font-family: var(--sf-mono);
-  font-size: 9pt;
-  letter-spacing: 0.04em;
-  color: var(--sf-faint);
-}
-.rp-head { border-bottom: 1px solid var(--sf-rule); padding-bottom: 6mm; }
-.rp-foot { border-top: 1px solid var(--sf-rule); padding-top: 5mm; margin-top: auto; }
-.rp-body { display: flex; flex-direction: column; gap: 7mm; }
-
-/* ---- cover ---- */
-/* Identity at the top, the score optically centred in the slack, facts and
-   imprint anchored to the foot — rather than space-between, which spreads the
-   gaps evenly and leaves the score floating in the middle of nothing. */
-.rp-cover { gap: 8mm; }
-.rp-cover-score { margin-top: auto; }
-.rp-k {
-  font-family: var(--sf-mono);
-  font-size: 9pt;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--sf-faint);
-  margin: 0 0 4mm;
-}
-.rp-title {
-  font-family: var(--sf-serif);
-  font-weight: 400;
-  font-size: 34pt;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin: 0 0 3mm;
-  text-wrap: balance;
-}
-.rp-sub {
-  font-family: var(--sf-serif);
-  font-size: 13pt;
-  color: var(--sf-graphite);
-  margin: 0;
-}
-.rp-cover-score { display: flex; align-items: baseline; gap: 5mm; flex-wrap: wrap; }
-.rp-score {
-  font-family: var(--sf-serif);
-  font-size: 76pt;
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-}
-.rp-score-of { font-family: var(--sf-mono); font-size: 9pt; color: var(--sf-faint); }
-.rp-verdict {
-  font-family: var(--sf-serif);
-  font-size: 20pt;
-  letter-spacing: -0.02em;
-  margin-left: auto;
-}
-.rp-cover-read {
-  font-family: var(--sf-serif);
-  font-size: 13pt;
-  line-height: 1.55;
-  color: var(--sf-graphite);
-  margin: 0 0 auto;
-  max-width: 60ch;
-}
-.rp-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6mm 10mm;
-  margin: 0;
-}
-.rp-facts dt {
-  font-family: var(--sf-mono);
-  font-size: 8.5pt;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--sf-faint);
-  margin-bottom: 1.5mm;
-}
-.rp-facts dd { font-family: var(--sf-serif); font-size: 12pt; margin: 0; }
-.rp-cover-foot {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--sf-mono);
-  font-size: 9pt;
-  color: var(--sf-faint);
-  border-top: 1px solid var(--sf-rule);
-  padding-top: 5mm;
-}
-.rp-mark { color: var(--sf-signal); }
-
-/* ---- type ---- */
-.rp-h2 {
-  font-family: var(--sf-serif);
-  font-weight: 400;
-  font-size: 22pt;
-  letter-spacing: -0.025em;
-  margin: 0;
-}
-.rp-h3 {
-  font-family: var(--sf-serif);
-  font-weight: 400;
-  font-size: 13pt;
-  letter-spacing: -0.015em;
-  margin: 0;
-}
-.rp-lede {
-  font-family: var(--sf-serif);
-  font-size: 11.5pt;
-  line-height: 1.6;
-  color: var(--sf-graphite);
-  margin: 0;
-  max-width: 70ch;
-}
-.rp-note, .rp-why {
-  font-family: var(--sf-serif);
-  font-size: 10.5pt;
-  line-height: 1.55;
-  color: var(--sf-graphite);
-  margin: 0;
-  max-width: 74ch;
-}
-
-/* ---- tables ---- */
-.rp-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
-.rp-table th {
-  font-family: var(--sf-mono);
-  font-size: 8pt;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sf-faint);
-  font-weight: 400;
-  text-align: left;
-  padding: 0 4mm 2mm 0;
-  border-bottom: 1px solid var(--sf-rule);
-  /* A two-word heading over a narrow column breaks into "ON / IT", which
-     reads as two headings. The column can widen; the label cannot break. */
-  white-space: nowrap;
-}
-.rp-table td {
-  font-family: var(--sf-serif);
-  padding: 2.5mm 4mm 2.5mm 0;
-  border-bottom: 1px solid var(--sf-rule);
-  color: var(--sf-graphite);
-  vertical-align: top;
-}
-.rp-table td:first-child { color: var(--sf-vellum); }
-.rp-table .num {
-  text-align: right;
-  font-family: var(--sf-mono);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.rp-table .mono { font-family: var(--sf-mono); }
-.rp-table tr.you td { color: var(--sf-vellum); font-weight: 600; }
-.rp-you {
-  font-family: var(--sf-mono);
-  font-size: 7.5pt;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: var(--sf-signal);
-  color: var(--sf-ink);
-  border-radius: 2px;
-  padding: 0.5mm 1.5mm;
-  margin-left: 2mm;
-}
-
-/* ---- lists ---- */
-.rp-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
-.rp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4mm; }
-.rp-list b {
-  display: block;
-  font-family: var(--sf-serif);
-  font-weight: 600;
-  font-size: 10.5pt;
-  color: var(--sf-vellum);
-  margin-bottom: 1mm;
-}
-.rp-list q {
-  font-family: var(--sf-serif);
-  font-size: 9.5pt;
-  font-style: italic;
-  color: var(--sf-graphite);
-}
-.rp-moves, .rp-ideas {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 7mm;
-  counter-reset: rp;
-}
-.rp-move, .rp-ideas li { break-inside: avoid; }
-.rp-move-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6mm; margin-bottom: 2mm; }
-.rp-impact {
-  font-family: var(--sf-mono);
-  font-size: 8pt;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--sf-faint);
-  border: 1px solid var(--sf-rule);
-  border-radius: 2px;
-  padding: 0.5mm 2mm;
-  white-space: nowrap;
-}
-.rp-impact.high { color: var(--sf-signal); border-color: var(--sf-signal); }
-.rp-steps {
-  margin: 3mm 0 0;
-  padding-left: 5mm;
-  display: flex;
-  flex-direction: column;
-  gap: 2mm;
-  font-family: var(--sf-serif);
-  font-size: 10pt;
-  color: var(--sf-graphite);
-}
-.rp-code {
-  margin: 3mm 0 0;
-  border: 1px solid var(--sf-rule);
-  border-radius: 2px;
-  overflow: hidden;
-  break-inside: avoid;
-}
-.rp-code figcaption {
-  font-family: var(--sf-mono);
-  font-size: 8pt;
-  letter-spacing: 0.05em;
-  color: var(--sf-faint);
-  padding: 2mm 3mm;
-  border-bottom: 1px solid var(--sf-rule);
-}
-.rp-code pre { margin: 0; padding: 3mm; overflow-x: auto; }
-.rp-code code {
-  font-family: var(--sf-mono);
-  font-size: 8.5pt;
-  line-height: 1.5;
-  color: var(--sf-vellum);
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-/* ============================ PRINT ==================================== */
-@page {
-  size: A4;
-  /* The document draws its own margins inside .rp-page, so the page box adds
-     none — otherwise every printer would inset the running head twice. */
-  margin: 0;
-}
-@media print {
-  .rp-shell { background: #fff; padding: 0; }
-  /* Screen-only chrome, and the app rail if this ever renders inside it. */
-  .rp-bar, .sf-side, .sf-brands { display: none !important; }
-  .rp { gap: 0; }
-  .rp-page {
-    width: auto;
-    /* min-height, never a fixed height: an unusually long scan should spill
-       onto an extra sheet, not be silently cropped at the fold. */
-    min-height: 297mm;
-    border: 0;
-    margin: 0;
-    break-after: page;
-    page-break-after: always;
-  }
-  .rp-page:last-child { break-after: auto; page-break-after: auto; }
-  /* Print in ink on paper regardless of the on-screen theme, and keep the
-     fills the reader is meant to see. */
-  .rp-page, .rp-shell { background: #fff; color: #101114; }
-  .rp-table td, .rp-lede, .rp-note, .rp-why, .rp-steps, .rp-list q { color: #3f4149; }
-  .rp-head, .rp-foot, .rp-k, .rp-facts dt, .rp-table th, .rp-score-of { color: #6b6d75; }
-  .rp-you, .rp-mark, .rp-impact.high { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  a { text-decoration: none; color: inherit; }
-}
-
 /* The struck list price. Sits before the amount and shares its baseline, so
    the eye reads "was 19.99, is 14.99" as one line rather than two prices.
    Deliberately quiet — the anchor is context, the price is the message. */
@@ -9989,3 +9672,397 @@ p > .sf-locked,
    cadence whole so it moves as one phrase. */
 .tier-price { flex-wrap: wrap; }
 .tier-cadence { white-space: nowrap; }
+
+/* ============================================================================
+   ANSWER ENGINE INSIGHTS
+   Trends across readings, as opposed to the panels above, which each render a
+   single snapshot. Every tab is the same pair — one chart, one ranked table —
+   so a customer learns to read one and can then read all of them.
+   ========================================================================= */
+.ai { display: flex; flex-direction: column; gap: 18px; }
+
+.ai-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--sf-rule);
+}
+.ai-ranges { display: flex; gap: 4px; }
+.ai-range {
+  font-family: var(--sf-mono);
+  font-size: 12px;
+  line-height: 1;
+  padding: 8px 11px;
+  border: 1px solid var(--sf-rule);
+  border-radius: 3px;
+  color: var(--sf-graphite);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ai-range:hover { border-color: var(--sf-faint); color: var(--sf-vellum); }
+.ai-range.on {
+  background: var(--sf-vellum);
+  border-color: var(--sf-vellum);
+  color: var(--sf-ink);
+}
+.ai-vs, .ai-answers {
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--sf-faint);
+}
+.ai-bar-sp { flex: 1 1 auto; }
+
+.ai-card {
+  background: var(--sf-sheet);
+  border: 1px solid var(--sf-rule);
+  border-radius: 4px;
+  padding: 20px 22px;
+}
+.ai-card-head { margin-bottom: 14px; }
+.ai-h3 {
+  font-family: var(--sf-serif);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.015em;
+  margin: 0 0 4px;
+}
+.ai-note { font-size: 13.5px; color: var(--sf-graphite); margin: 0; }
+.ai-foot-note {
+  font-size: 12.5px;
+  color: var(--sf-faint);
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--sf-rule);
+}
+.ai-empty { font-size: 13.5px; color: var(--sf-faint); margin: 0; }
+
+/* chart beside table */
+.ai-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; }
+.ai-main { min-width: 0; }
+.ai-side { min-width: 0; border-left: 1px solid var(--sf-rule); padding-left: 24px; }
+.ai-side-k {
+  font-family: var(--sf-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  margin: 0 0 6px;
+}
+.ai-side-v {
+  font-family: var(--sf-serif);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.03em;
+  margin: 0 0 14px;
+}
+.ai-big {
+  font-family: var(--sf-serif);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.ai-big .ai-up, .ai-big .ai-down, .ai-big .ai-flat {
+  font-family: var(--sf-mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.ai-up { color: #2f6b4f; }
+.ai-down { color: #a8402a; }
+.ai-flat { color: var(--sf-faint); }
+
+.ai-chart { width: 100%; height: auto; display: block; }
+.ai-chart-cap {
+  font-family: var(--sf-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  margin: 0 0 8px;
+}
+.ai-chart-empty {
+  font-size: 13px;
+  color: var(--sf-faint);
+  padding: 34px 0;
+  text-align: center;
+  border: 1px dashed var(--sf-rule);
+  border-radius: 3px;
+}
+.ai-grid { stroke: var(--sf-rule); stroke-width: 1; stroke-dasharray: 2 3; }
+.ai-tick { font-family: var(--sf-mono); font-size: 9px; fill: var(--sf-faint); }
+.ai-line { fill: none; stroke: var(--sf-signal); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.ai-dot { fill: var(--sf-signal); }
+
+/* ranked tables */
+.ai-rank, .ai-prompts { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.ai-rank th, .ai-prompts th {
+  font-family: var(--sf-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  font-weight: 400;
+  text-align: left;
+  padding: 0 10px 8px 0;
+  border-bottom: 1px solid var(--sf-vellum);
+  white-space: nowrap;
+}
+.ai-rank td, .ai-prompts td {
+  padding: 9px 10px 9px 0;
+  border-bottom: 1px solid var(--sf-rule);
+  color: var(--sf-graphite);
+  vertical-align: top;
+}
+.ai-rank td:first-child, .ai-prompts td:first-child { color: var(--sf-vellum); }
+.ai-num, th.ai-num {
+  text-align: right;
+  font-family: var(--sf-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ai-n, th.ai-n { width: 26px; font-family: var(--sf-mono); color: var(--sf-faint) !important; }
+.ai-rank tr.is-you td { color: var(--sf-vellum); font-weight: 600; }
+.ai-owned {
+  font-family: var(--sf-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--sf-signal);
+  color: var(--sf-ink);
+  border-radius: 2px;
+  padding: 1px 5px;
+  margin-left: 7px;
+  vertical-align: middle;
+}
+
+/* prompts, grouped by topic */
+.ai-group td {
+  background: var(--sf-ink);
+  font-family: var(--sf-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sf-faint) !important;
+  padding: 8px 10px;
+}
+.ai-group-n { margin-left: 10px; text-transform: none; letter-spacing: 0; }
+.ai-prompt-t { max-width: 46ch; }
+.ai-themes .ai-side-k:not(:first-child) { margin-top: 16px; }
+.ai-theme { font-size: 13.5px; margin: 0 0 5px; color: var(--sf-graphite); }
+
+@media (max-width: 900px) {
+  .ai-split { grid-template-columns: 1fr; gap: 20px; }
+  .ai-side { border-left: 0; padding-left: 0; border-top: 1px solid var(--sf-rule); padding-top: 20px; }
+}
+
+/* The brand row is always present now, so it needs a label and a state for
+   "you are at your plan's ceiling" — previously it just vanished. */
+.sf-brands-k {
+  font-family: var(--sf-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+  margin-right: 2px;
+}
+.sf-brand-cap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--sf-mono);
+  font-size: 11.5px;
+  color: var(--sf-faint);
+}
+.sf-brand-up { color: var(--sf-signal); text-decoration: none; }
+.sf-brand-up:hover { text-decoration: underline; }
+
+/* The replace-brand confirmation. It sat in the header as a full-width tinted
+   bar, which made a rarely-used destructive control the loudest thing on the
+   page. Held to its content, and quieter — still unmistakable, no longer the
+   headline. */
+.sf-confirm {
+  flex: 0 1 auto;
+  max-width: 400px;
+  justify-content: flex-start;
+  background: var(--sf-sheet);
+  border-color: var(--sf-rule);
+  border-left: 3px solid var(--sf-signal);
+}
+.sf-confirm-q { font-size: 13px; }
+.sf-confirm-cost { display: block; margin-top: 2px; }
+
+/* Two readings shown as readings rather than as a line. A one-segment chart in
+   a full-width panel reads as a broken graph, not as early data. */
+.sf-readings { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 28px; }
+.sf-readings li { display: flex; flex-direction: column; gap: 3px; }
+.sf-reading-v {
+  font-family: var(--sf-serif);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.sf-reading-d {
+  font-family: var(--sf-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sf-faint);
+}
+.sf-reading-c { font-size: 12.5px; color: var(--sf-graphite); }
+
+
+/* Citation types. One bar, one swatch per kind — the chart that tells a
+   customer where to go rather than where they stand. Hues are categorical, so
+   they are spaced around the wheel rather than shaded from one colour, and
+   each is distinguishable without relying on hue alone thanks to the key. */
+.ai-types { margin: 18px 0 4px; }
+.ai-typebar {
+  display: flex;
+  height: 14px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--sf-rule);
+  margin-bottom: 12px;
+}
+.ai-type { display: block; height: 100%; }
+.ai-type-own { background: var(--sf-signal); }
+.ai-type-vendor-blog { background: #3f6d8f; }
+.ai-type-review-site { background: #2f6b4f; }
+.ai-type-forum { background: #8a5a2b; }
+.ai-type-directory { background: #6a4a86; }
+.ai-type-video { background: #a8402a; }
+.ai-type-news { background: #4a6b78; }
+.ai-type-docs { background: #6b6f4a; }
+.ai-type-social { background: #7a5c7a; }
+.ai-type-other { background: #8b8f97; }
+.ai-type-key {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 12.5px;
+  color: var(--sf-graphite);
+}
+.ai-type-key li { display: flex; align-items: center; gap: 6px; }
+.ai-type-key b {
+  font-family: var(--sf-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--sf-vellum);
+  font-weight: 500;
+}
+.ai-swatch { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+/* The inline booking calendar. Cal renders its own chrome inside an iframe, so
+   what is styled here is the frame around it: a sheet that matches the cards
+   beside it, and a height that fits a month view without an inner scrollbar. */
+.cal-wrap {
+  border: 1px solid var(--sf-rule);
+  border-radius: 4px;
+  background: var(--sf-sheet);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.cal-frame {
+  width: 100%;
+  /* Tall enough for the month grid plus the slot column. Below this Cal starts
+     scrolling internally, which reads as a broken panel rather than a calendar. */
+  height: 720px;
+}
+.cal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  font-family: var(--sf-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--sf-faint);
+}
+.cal-fallback {
+  font-size: 12.5px;
+  color: var(--sf-faint);
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid var(--sf-rule);
+}
+.cal-fallback a { color: var(--sf-signal); }
+
+@media (max-width: 720px) {
+  /* A month view does not fit a phone; Cal switches to its own compact layout
+     and needs less room for it. */
+  .cal-frame { height: 560px; }
+}
+
+/* Horizontal tabs under the brand name. The rail moves between areas; these
+   move between views of one reading, which is a different kind of navigation
+   and belongs next to the thing being viewed. */
+.ai-tabs {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--sf-rule);
+  margin-bottom: 20px;
+}
+.ai-tab {
+  font-size: 13.5px;
+  line-height: 1;
+  padding: 10px 13px;
+  color: var(--sf-graphite);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.ai-tab:hover { color: var(--sf-vellum); }
+.ai-tab.on {
+  color: var(--sf-vellum);
+  font-weight: 600;
+  border-bottom-color: var(--sf-signal);
+}
+
+/* Citations headline: your number and rank, rather than making the reader
+   hunt for their own row in the table below. */
+.ai-cite-head {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 20px;
+  padding: 16px 0 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--sf-rule);
+}
+.ai-cite-head .ai-big { font-size: 28px; margin-bottom: 0; }
+
+/* Share of voice, as bars. The client's own bar is the accent one and every
+   other is grey, so which row is yours needs no legend. */
+.ai-sov { display: flex; flex-direction: column; gap: 7px; }
+.ai-sov-row {
+  display: grid;
+  grid-template-columns: 22px minmax(120px, 190px) 1fr 46px;
+  align-items: center;
+  gap: 12px;
+}
+.ai-sov-n { font-family: var(--sf-mono); font-size: 11px; color: var(--sf-faint); }
+.ai-sov-name { font-size: 13.5px; color: var(--sf-graphite); }
+.ai-sov-track { display: block; height: 9px; background: var(--sf-ink); border-radius: 2px; overflow: hidden; }
+.ai-sov-fill { display: block; height: 100%; background: #c9c8c2; }
+.ai-sov-v {
+  font-family: var(--sf-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  text-align: right;
+  color: var(--sf-graphite);
+}
+.ai-sov-row.is-you .ai-sov-name { color: var(--sf-vellum); font-weight: 650; }
+.ai-sov-row.is-you .ai-sov-fill { background: var(--sf-signal); }
+.ai-sov-row.is-you .ai-sov-v { color: var(--sf-vellum); font-weight: 600; }
