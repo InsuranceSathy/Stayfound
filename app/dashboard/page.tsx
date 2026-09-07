@@ -17,16 +17,31 @@ import {
 import { getSubscription, effectivePlan } from "@/lib/billing";
 import { brandLimit } from "@/lib/plans";
 import { BrandSwitcher } from "@/components/dashboard/brand-switcher";
+import { InsightsPanel } from "@/components/insights/insights-panel";
+import { TabRow } from "@/components/insights/tab-row";
 import { relativeTime, scanScope } from "@/lib/report-derive";
 import { normalizeTab, Sidebar } from "@/components/dashboard/sidebar";
 import { ScanButton } from "@/components/dashboard/scan-button";
 import { OverviewPanel } from "@/components/dashboard/overview-panel";
 import { CompetitorsPanel } from "@/components/dashboard/competitors-panel";
-import { CitationsPanel } from "@/components/dashboard/citations-panel";
 import { ActionsPanel } from "@/components/dashboard/actions-panel";
 import { AnalyticsPanel } from "@/components/dashboard/analytics-panel";
 
 export const maxDuration = 300;
+
+/** Tabs served by the metrics layer — trends across readings — rather than by
+ *  the latest snapshot. */
+const INSIGHT_TABS = ["visibility", "prompts", "platforms", "citations", "sentiment"] as const;
+type InsightTab = (typeof INSIGHT_TABS)[number];
+const isInsightTab = (t: string): t is InsightTab =>
+  (INSIGHT_TABS as readonly string[]).includes(t);
+
+/** Ranges the insight tabs offer. Anything else in the url falls back to 30
+ *  rather than erroring, since a hand-edited range should not 500 the page. */
+function normalizeDays(value?: string): number {
+  const n = Number(value);
+  return [7, 30, 90].includes(n) ? n : 30;
+}
 
 export default async function DashboardPage({
   searchParams,
@@ -40,6 +55,7 @@ export default async function DashboardPage({
   const firstName = user.name?.split(" ")[0] || "there";
   const sp = await searchParams;
   const tab = normalizeTab(typeof sp.tab === "string" ? sp.tab : undefined);
+  const days = normalizeDays(typeof sp.days === "string" ? sp.days : undefined);
 
   // An account may track several brands now, so the page is about whichever one
   // the url names — falling back to the first rather than 404ing, since a stale
@@ -151,7 +167,11 @@ export default async function DashboardPage({
   }
 
   const prev = history[1];
-  const delta = prev ? snapshot.score - prev.score : null;
+  // Only between two real readings. Comparing a live scan against a sample
+  // fixture produced headlines like "up 62 since last scan" when nothing had
+  // improved — the data source had changed, not the visibility.
+  const delta =
+    prev && prev.live && snapshot.live ? snapshot.score - prev.score : null;
 
   return (
     <div className="sf-shell">
@@ -162,6 +182,7 @@ export default async function DashboardPage({
           citations: data.citedSources?.length ?? 0,
           actions: data.actions.length,
         }}
+        brandId={brand.id}
         email={user.email}
         image={user.image}
       />
@@ -220,7 +241,18 @@ export default async function DashboardPage({
         {tab === "competitors" && (
           <CompetitorsPanel brandName={brand.name} data={data} />
         )}
-        {tab === "citations" && <CitationsPanel data={data} />}
+        <TabRow active={tab} brandId={brand.id} days={days} />
+
+        {/* The insight tabs read `daily_metric` — trends across readings —
+            rather than the latest snapshot, which is why they live in their
+            own component rather than being another panel over `data`. */}
+        {isInsightTab(tab) && (
+          <InsightsPanel brand={brand} data={data} days={days} section={tab} />
+        )}
+
+        {tab === "competitors" && (
+          <CompetitorsPanel brandName={brand.name} data={data} />
+        )}
         {tab === "actions" && (
           <ActionsPanel
             data={data}

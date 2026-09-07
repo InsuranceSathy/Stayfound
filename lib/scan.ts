@@ -15,8 +15,8 @@ export async function runScan(
 ): Promise<void> {
   try {
     await setJobRunning(jobId);
-    const { live, result, source } = await resolveVisibility(brand, category);
-    await setJobDone(jobId, live, source, result);
+    const { live, result, source, cells } = await resolveVisibility(brand, category);
+    await setJobDone(jobId, live, source, result, cells);
     if (live) {
       try {
         await putCachedScore(key, live, source, result);

@@ -1,4 +1,5 @@
-import { analyzeVisibility, type AnalyzeOutput } from "@/lib/visibility";
+import { analyzeVisibility, ResultSchema, type AnalyzeOutput } from "@/lib/visibility";
+import { enrich } from "@/lib/enrich";
 import { getDemoReport } from "@/lib/demo-fixtures";
 import type { VisibilityResult } from "@/lib/visibility";
 
@@ -72,10 +73,45 @@ export async function resolveVisibility(
         if (res.ok) {
           const data = await res.json();
           if (data?.result) {
-            // A real result from the scoring backend is a live measurement.
+            // Validate at the boundary. Until now the backend's payload was
+            // trusted whole and written straight to the database, so a shape
+            // change there surfaced as a crash in a React component rather
+            // than as a bad response — which is where it actually happened.
+            const parsed = ResultSchema.safeParse(data.result);
+            if (!parsed.success) {
+              console.warn(
+                "[resolve] backend payload rejected:",
+                parsed.error.issues.slice(0, 3).map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+              );
+              throw new Error("backend returned a payload we cannot read");
+            }
+            // A reading that measured nothing is not a reading. When the
+            // backend has no credentials every assistant call fails, and it
+            // still returns a well-formed payload: score 0, empty summary,
+            // every answer flagged failed. That parses, so it used to be
+            // stored as a successful scan — spending the visitor's one free
+            // report to show them a zero. Treated as a backend failure so the
+            // fallback scorer gets a turn.
+            const m = parsed.data.meta as
+              | { partial?: boolean; answersCollected?: number; answersFailed?: number }
+              | undefined;
+            const nothingMeasured =
+              m?.partial === true &&
+              (m.answersFailed ?? 0) > 0 &&
+              (m.answersFailed ?? 0) >= (m.answersCollected ?? 0);
+            if (nothingMeasured) {
+              console.warn(
+                `[resolve] backend measured nothing (${m?.answersFailed}/${m?.answersCollected} answers failed) — falling back`,
+              );
+              throw new Error("backend returned an empty measurement");
+            }
+
+            // Fills what is derivable from the payload itself — citation kinds,
+            // shares, engine stats — so the newer dashboard panels work before
+            // the backend starts sending them.
             return {
               live: data.live !== false,
-              result: data.result,
+              result: enrich(parsed.data, brand),
               source: "self-hosted",
             };
           }

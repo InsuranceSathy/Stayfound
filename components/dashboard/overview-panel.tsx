@@ -114,9 +114,38 @@ export function OverviewPanel({
         <section className="sf-panel">
           <div className="sf-panel-head">
             <h2 className="sf-panel-t">Score trend</h2>
-            <p className="sf-panel-sub">{points.length} scans</p>
+            <p className="sf-panel-sub">
+              {points.length} {points.length === 1 ? "reading" : "readings"}
+            </p>
           </div>
-          <Sparkline points={points} />
+          {/* Two readings are not a trend. Drawing them as a line puts a
+              single diagonal in a wide empty box and implies a direction that
+              two points cannot support, so they are shown as what they are. */}
+          {points.length < 3 ? (
+            <ol className="sf-readings">
+              {[...points].reverse().map((p, i) => {
+                const older = [...points].reverse()[i + 1];
+                const d = older ? p.score - older.score : null;
+                return (
+                  <li key={p.at}>
+                    <span className="sf-reading-v">{p.score}</span>
+                    <span className="sf-reading-d">
+                      {new Date(p.at).toLocaleDateString("en-GB", {
+                        day: "numeric", month: "short",
+                      })}
+                    </span>
+                    <span className="sf-reading-c">
+                      {d === null
+                        ? "first reading"
+                        : `${d > 0 ? "+" : d < 0 ? "−" : ""}${Math.abs(d)} on the one before`}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          ) : (
+            <Sparkline points={points} />
+          )}
         </section>
       )}
 

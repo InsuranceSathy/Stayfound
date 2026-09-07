@@ -82,6 +82,10 @@ export function Sparkline({
       <svg
         className="sf-spark"
         viewBox={`0 0 ${w} ${h}`}
+        // Stretch to the panel. Keeping the 260-unit ratio inside a much wider
+        // card left the line hanging in the middle of empty space.
+        preserveAspectRatio="none"
+
         role="img"
         aria-label={`Visibility score across ${points.length} scans, from ${first.score} to ${last.score}`}
       >
