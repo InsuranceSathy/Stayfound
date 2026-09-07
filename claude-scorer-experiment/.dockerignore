@@ -1,0 +1,22 @@
+# Railway builds this directory straight from the repo, so the whole context is
+# uploaded to the builder on every deploy. Only server.py is COPYied into the
+# image — everything below is either local-only tooling or actively harmful to
+# ship.
+
+# Bytecode compiled by whatever Python happened to be on a laptop. The image
+# runs Debian's python3, so a stale .pyc here is at best dead weight and at
+# worst a version mismatch shadowing the real source.
+__pycache__/
+*.py[cod]
+
+# The v1 server, kept for reference. Not something to ship.
+*.bak
+
+# Local development only: the compose file mounts and env-substitutes things
+# that do not exist on a deployed host.
+docker-compose.yml
+README.md
+
+# Never, under any circumstances, into a build context.
+.env
+.env.*
