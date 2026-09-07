@@ -30,6 +30,10 @@ const AnswerSchema = z.object({
   sample: z.number().optional(),
   askedAt: z.string().optional(),
   text: z.string().nullish(),
+  /** Why this prompt produced no answer. Present only on a failed cell — it is
+   *  the difference between "the assistant did not mention you" and "we never
+   *  got an answer to read", which both otherwise arrive as a zero. */
+  error: z.string().nullish(),
   mentioned: z.boolean(),
   /** Rank of the tracked brand inside the answer; null when absent. */
   position: z.number().nullish(),

@@ -290,21 +290,31 @@ def ask_one(brand: str, category: str, pid: str, template: str, names: list[str]
     """Ask the buyer's question and keep what came back, verbatim."""
     year = datetime.now(timezone.utc).year
     question = template.format(c=category, year=year)
+    t0 = time.monotonic()
     try:
         text = run_claude(
             f"{question}\n\nAnswer as you normally would for someone choosing a product. "
             f"Use web search. Name specific products and link your sources.",
         )
-    except HTTPException:
+    except HTTPException as exc:
         # One assistant call that timed out or errored is a missing reading,
         # not a failed scan. Recorded as unanswered so the denominator stays
         # honest rather than quietly shrinking.
+        #
+        # The reason travels with it. Swallowing it made a scan where all three
+        # prompts failed indistinguishable from a scan where the brand simply
+        # was not mentioned — both arrive as score 0 — and on a host with no
+        # shell there was nowhere left to look. Printed too, so it reaches the
+        # platform's log stream.
+        reason = f"{exc.status_code}: {exc.detail}"[:300]
+        print(f"[scan] {pid} FAILED after {time.monotonic() - t0:.1f}s — {reason}", flush=True)
         return {
             "promptId": pid, "engine": MEASURED_ENGINE, "sample": 1,
             "askedAt": datetime.now(timezone.utc).isoformat(),
             "text": None, "mentioned": False, "position": None,
-            "brands": [], "citations": [], "failed": True,
+            "brands": [], "citations": [], "failed": True, "error": reason,
         }
+    print(f"[scan] {pid} ok in {time.monotonic() - t0:.1f}s ({len(text)} chars)", flush=True)
     ranks = find_positions(text, names)
     urls, seen = [], set()
     for i, u in enumerate(URL_RE.findall(text)):
@@ -449,8 +459,9 @@ def score(req: ScoreRequest, authorization: str | None = Header(default=None)):
 
     try:
         names = discover_competitors(req.brand, req.category)
-    except HTTPException:
+    except HTTPException as exc:
         # Without a competitor set the scan can still measure the brand itself.
+        print(f"[scan] discovery failed — {exc.status_code}: {exc.detail}"[:300], flush=True)
         names = [req.brand]
 
     chosen = PROMPTS[:PROMPT_COUNT]

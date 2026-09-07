@@ -29,5 +29,13 @@ COPY server.py .
 # Deliberately NOT declared with ENV here: baking a credential name into the
 # image is what Docker's SecretsUsedInArgOrEnv warning is about, and the value
 # has to come from the runtime anyway (Railway variables, or `-e` locally).
+# 8000 is the default, not the contract: hosts assign the port themselves and
+# expect the process to take it from $PORT (Render hands out 10000). Binding a
+# hardcoded port there means the platform's health check finds nothing
+# listening and the deploy fails with no error from the app itself.
+#
+# `exec` so uvicorn replaces the shell and receives SIGTERM directly —
+# without it the signal stops at `sh` and the platform waits out its full
+# shutdown grace period on every deploy.
 EXPOSE 8000
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "exec uvicorn server:app --host 0.0.0.0 --port ${PORT:-8000}"]
